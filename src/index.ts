@@ -1,12 +1,16 @@
 import express, { Request, Response, Application } from "express";
+import { env } from "./config/env";
+import healthRouter from "./routes/health.routes";
+import urlHealth from "./routes/url.routes";
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT || 3000;
 
-app.get("/health", (req: Request, res: Response) => {
-  return res.status(200).json({ message: "Express server is running" });
-});
+app.use(express.json());
+
+app.use("/health", healthRouter);
+app.use("/url/health", urlHealth);
 
 app.listen(PORT, () => {
-  console.log(`Server is running at PORT ${PORT}`);
+  //   console.log(`Server is running at PORT ${PORT}`);
 });
