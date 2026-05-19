@@ -1,41 +1,45 @@
+import { db } from "..";
 import { ResponseObject } from "../types/types";
+import { TIMEOUT } from "../constants/constants";
 export const checkUrlHealth = async (
   url: URL,
   TIMEOUT: number,
 ): Promise<ResponseObject> => {
+  let response: ResponseObject = {
+    status: "UP",
+    responseTime: null,
+    statusCode: null,
+    errorMessage: null,
+  };
   try {
     const start = Date.now();
 
     const getUrlData = await fetch(url, {
       signal: AbortSignal.timeout(TIMEOUT),
     });
-
-    const response: ResponseObject = {
+    response = {
       status: "UP",
-      responseTime: `${Date.now() - start}ms`,
+      responseTime: Date.now() - start,
       statusCode: getUrlData.status,
       errorMessage: null,
     };
-
-    return response;
   } catch (err) {
     if (err instanceof Error) {
+      console.log(err.message);
       if (err.name === "TimeoutError") {
-        const errorMessage: ResponseObject = {
+        response = {
           status: "DOWN",
-          responseTime: `5000ms`,
+          responseTime: TIMEOUT,
           statusCode: null,
           errorMessage: err.message,
         };
-        return errorMessage;
       } else if (err.name === "TypeError") {
-        const errorMessage: ResponseObject = {
+        response = {
           status: "DOWN",
           responseTime: null,
           statusCode: null,
           errorMessage: err.message,
         };
-        return errorMessage;
       } else {
         throw new Error("Internal server error");
       }
@@ -43,4 +47,19 @@ export const checkUrlHealth = async (
       throw new Error("Internal server error");
     }
   }
+  const { status, responseTime, statusCode, errorMessage } = response;
+  const query =
+    "INSERT INTO checks (url,status,response_time,status_code,error_message) VALUES ($1, $2, $3, $4, $5)";
+  const values = [url, status, responseTime, statusCode, errorMessage];
+  try {
+    const insertIntoDB = await db.query(query, values);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw new Error("Internal server error");
+    }
+    throw new Error("Internal server error");
+  }
+
+  return response;
 };
