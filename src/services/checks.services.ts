@@ -1,4 +1,4 @@
-import { AppError } from "../errors/AppError";
+import { AppError, PostgresError } from "../errors/AppError";
 import { db } from "../index";
 import { UrlResponseData } from "../types/types";
 
@@ -14,17 +14,19 @@ export const fetchUrlData = async () => {
     return rows;
   } catch (error) {
     if (error instanceof AppError) {
-      return { statusCode: error.statusCode, message: error.message };
+      throw error;
     }
-    return "Internal server error";
+    throw error;
   }
 };
 
-export const fetchUrlDataByName = async (query: string) => {
+export const fetchUrlDataByName = async (url: string) => {
+  const query = "SELECT * FROM checks WHERE url = $1";
+  const values = [url];
   try {
-    const getUrlData = await db.query(query);
+    const getUrlData = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlData.rows;
-    console.log(rows);
+    console.log(rows.length);
     if (rows.length === 0) {
       //   return res.status(404).json({ message: "no such url exists" });
       throw new AppError(404, "no url exists");
@@ -32,11 +34,9 @@ export const fetchUrlDataByName = async (query: string) => {
     return rows;
   } catch (error) {
     if (error instanceof AppError) {
-      return { statusCode: error.statusCode, message: error.message };
+      throw error;
     }
-
-    // return res.status(500).json({ message: "Internal server error" });
-    return "Internal server error";
+    throw error;
   }
 };
 
@@ -46,16 +46,17 @@ export const fetchUrlDataById = async (id: string) => {
       id,
     ]);
     const rows: UrlResponseData[] = getUrlById.rows;
+    console.log(rows.length);
     if (rows.length === 0) {
       throw new AppError(404, "no such url exists");
     }
     return rows[0];
   } catch (error) {
-    if (error instanceof Error) {
-      return { message: error.message };
+    if (error instanceof AppError) {
+      throw error;
+    } else if (error.code === "22P02") {
+      throw new AppError(400, "invalid uuid format");
     }
-    // if (error instanceof AppError) {
-    //   return { status: error.status };
-    // }
+    throw error;
   }
 };

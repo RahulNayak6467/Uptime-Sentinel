@@ -5,31 +5,8 @@ import z, { ZodError } from "zod";
 import { TIMEOUT } from "../constants/constants";
 
 export const monitorUrl = async (req: Request, res: Response) => {
-  //   let url: URL;
-  //   try {
-  //     url = new URL(req.body.url);
-  //     if (url.protocol !== "http:" && url.protocol !== "https:") {
-  //       return res
-  //         .status(400)
-  //         .json({ message: "Url should only have http or https protocol" });
-  //     }
-  //   } catch (err) {
-  //     if (err instanceof Error) {
-  //       return res.status(400).json({ message: err.message });
-  //     }
-  //     return res.status(500).json({ message: "Internal server error" });
-  //   }
-
-  //   try {
-  //     z.url().parse("helloworld");
-  //   } catch (err) {
-  //     console.log(err instanceof ZodError); // true
-  //     console.log(err);
-  //   }
   let url: URL = req.body.url;
   try {
-    // urlSchema.parse("");
-    // z.url().parse("");
     urlSchema.parse(url);
   } catch (err) {
     console.log(err instanceof ZodError);
