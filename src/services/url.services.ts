@@ -1,4 +1,4 @@
-import { db } from "..";
+import { db } from "../index";
 import { ResponseObject } from "../types/types";
 import { TIMEOUT } from "../constants/constants";
 export const checkUrlHealth = async (

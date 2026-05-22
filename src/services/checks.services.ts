@@ -23,9 +23,11 @@ export const fetchUrlData = async () => {
 export const fetchUrlDataByName = async (url: string) => {
   const query = "SELECT * FROM checks WHERE url = $1";
   const values = [url];
+
   try {
     const getUrlData = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlData.rows;
+    console.log(getUrlData);
     console.log(rows.length);
     if (rows.length === 0) {
       //   return res.status(404).json({ message: "no such url exists" });
