@@ -4,6 +4,7 @@ import healthRouter from "./routes/health.routes";
 import urlHealth from "./routes/url.routes";
 import checkUrl from "./routes/checks.routes";
 import userCheck from "./routes/user.routes";
+import loginCheck from "./routes/login.routes";
 import { Pool } from "pg";
 const app: Application = express();
 const PORT = env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
 app.use("/url/checks", checkUrl);
 app.use("/user/registration", userCheck);
+app.use("/user/login", loginCheck);
 
 app.listen(PORT, () => {
   console.log(`Server is running at PORT ${PORT}`);
