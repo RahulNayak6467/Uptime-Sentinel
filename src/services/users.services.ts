@@ -33,7 +33,7 @@ export const insertUserData = async (password: string, email: string) => {
   } catch (error) {
     if (error instanceof Error) {
       if (error.code === "23505") {
-        throw new AppError(500, "email already taken");
+        throw new AppError(409, "email already taken");
       }
       throw new AppError(500, error.message);
     } else {

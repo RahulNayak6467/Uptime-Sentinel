@@ -6,6 +6,7 @@ import { TIMEOUT } from "../constants/constants";
 
 export const monitorUrl = async (req: Request, res: Response) => {
   let url: URL = req.body.url;
+  const user_id = req.user?.user_id as string;
   try {
     urlSchema.parse(url);
   } catch (err) {
@@ -21,7 +22,7 @@ export const monitorUrl = async (req: Request, res: Response) => {
     } else return res.status(500).json({ message: "Internal server error" });
   }
   try {
-    const response = await checkUrlHealth(url, TIMEOUT);
+    const response = await checkUrlHealth(url, TIMEOUT, user_id);
     return res.status(200).json(response);
   } catch (err) {
     if (err instanceof Error) {

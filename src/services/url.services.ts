@@ -4,6 +4,7 @@ import { TIMEOUT } from "../constants/constants";
 export const checkUrlHealth = async (
   url: URL,
   TIMEOUT: number,
+  user_id: string,
 ): Promise<ResponseObject> => {
   let response: ResponseObject = {
     status: "UP",
@@ -49,8 +50,8 @@ export const checkUrlHealth = async (
   }
   const { status, responseTime, statusCode, errorMessage } = response;
   const query =
-    "INSERT INTO checks (url,status,response_time,status_code,error_message) VALUES ($1, $2, $3, $4, $5)";
-  const values = [url, status, responseTime, statusCode, errorMessage];
+    "INSERT INTO checks (url,status,response_time,status_code,error_message,user_id) VALUES ($1, $2, $3, $4, $5, $6)";
+  const values = [url, status, responseTime, statusCode, errorMessage, user_id];
   try {
     const insertIntoDB = await db.query(query, values);
   } catch (error) {

@@ -8,8 +8,9 @@ import { UrlResponseData } from "../types/types";
 import { Request, Response } from "express";
 
 export const getAllInfo = async (req: Request, res: Response) => {
+  const user_id = req.user?.user_id as string;
   try {
-    const getUrlInfo: UrlResponseData[] = await fetchUrlData();
+    const getUrlInfo: UrlResponseData[] = await fetchUrlData(user_id);
     console.log(getUrlInfo);
     return res.status(200).json(getUrlInfo);
   } catch (error) {
@@ -27,6 +28,7 @@ export const getAllInfo = async (req: Request, res: Response) => {
 
 export const getInfoByName = async (req: Request, res: Response) => {
   const url = req.query.url;
+  const user_id = req.user?.user_id as string;
   if (!url) {
     return res.status(404).json({
       message: "Invalid url",
@@ -34,7 +36,7 @@ export const getInfoByName = async (req: Request, res: Response) => {
   }
 
   try {
-    const getUrlInfoByName = await fetchUrlDataByName(url as string);
+    const getUrlInfoByName = await fetchUrlDataByName(url as string, user_id);
     console.log(getUrlInfoByName);
     return res.status(200).json(getUrlInfoByName);
   } catch (error) {
@@ -48,8 +50,9 @@ export const getInfoByName = async (req: Request, res: Response) => {
 
 export const getInfoById = async (req: Request, res: Response) => {
   const id = req.params.id;
+  const user_id = req.user?.user_id as string;
   try {
-    const getUrlInfoById = await fetchUrlDataById(id as string);
+    const getUrlInfoById = await fetchUrlDataById(id as string, user_id);
     return res.status(200).json(getUrlInfoById);
   } catch (error) {
     if (error instanceof AppError) {

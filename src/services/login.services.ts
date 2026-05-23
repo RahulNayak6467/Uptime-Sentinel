@@ -7,7 +7,16 @@ interface userInfoProps {
   password: string;
 }
 
-export const checkLoginUser = async (email: string, password: string) => {
+export const checkLoginUser = async (
+  email: string,
+  password: string,
+): Promise<
+  | {
+      message: string;
+      token: never;
+    }
+  | undefined
+> => {
   try {
     const query = "SELECT email,password,id FROM user_details WHERE email = $1";
     const values = [email];

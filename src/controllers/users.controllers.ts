@@ -17,7 +17,7 @@ export const handleUser = async (req: Request, res: Response) => {
   }
   try {
     const userData = await insertUserData(password, email);
-    return res.status(200).json(userData);
+    return res.status(201).json(userData);
   } catch (error) {
     if (error instanceof AppError) {
       return res.status(error.statusCode).json(error.message);

@@ -2,9 +2,13 @@ import { AppError, PostgresError } from "../errors/AppError";
 import { db } from "../index";
 import { UrlResponseData } from "../types/types";
 
-export const fetchUrlData = async () => {
+export const fetchUrlData = async (
+  user_id: string,
+): Promise<UrlResponseData[]> => {
   try {
-    const getAllData = await db.query("select * from checks");
+    const query = "select * from checks where user_id = $1";
+    const values = [user_id];
+    const getAllData = await db.query(query, values);
     const rows: UrlResponseData[] = getAllData.rows;
     if (rows.length === 0) {
       //   return res.status(200).json({ message: "no request made till now" });
@@ -20,9 +24,12 @@ export const fetchUrlData = async () => {
   }
 };
 
-export const fetchUrlDataByName = async (url: string) => {
-  const query = "SELECT * FROM checks WHERE url = $1";
-  const values = [url];
+export const fetchUrlDataByName = async (
+  url: string,
+  user_id: string,
+): Promise<UrlResponseData[]> => {
+  const query = "SELECT * FROM checks WHERE url = $1 and user_id = $2";
+  const values = [url, user_id];
 
   try {
     const getUrlData = await db.query(query, values);
@@ -42,11 +49,15 @@ export const fetchUrlDataByName = async (url: string) => {
   }
 };
 
-export const fetchUrlDataById = async (id: string) => {
+export const fetchUrlDataById = async (
+  id: string,
+  user_id: string,
+): Promise<UrlResponseData> => {
   try {
-    const getUrlById = await db.query("SELECT * FROM checks WHERE id = $1", [
-      id,
-    ]);
+    const getUrlById = await db.query(
+      "SELECT * FROM checks WHERE id = $1 and user_id = $2",
+      [id, user_id],
+    );
     const rows: UrlResponseData[] = getUrlById.rows;
     console.log(rows.length);
     if (rows.length === 0) {
