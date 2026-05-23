@@ -4,12 +4,13 @@ import {
   getInfoById,
   getInfoByName,
 } from "../controllers/checks.controllers";
+import { authMiddleware } from "../middleware/auth.middleware";
 const router: Router = express.Router();
 
-router.get("/", getAllInfo);
+router.get("/", authMiddleware, getAllInfo);
 
-router.get("/filter", getInfoByName);
+router.get("/filter", authMiddleware, getInfoByName);
 
-router.get("/:id", getInfoById);
+router.get("/:id", authMiddleware, getInfoById);
 
 export default router;
