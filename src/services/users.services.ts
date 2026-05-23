@@ -8,9 +8,10 @@ export const insertUserData = async (password: string, email: string) => {
   try {
     const hashedPassword = await bcrypt.hash(password, SALT);
     const insertQuery =
-      "INSERT INTO user_details (email, password) VALUES ($1, $2)";
+      "INSERT INTO user_details (email, password) VALUES ($1, $2) RETURNING id";
     const insertValues = [email, hashedPassword];
-    await db.query(insertQuery, insertValues);
+    const userData = await db.query(insertQuery, insertValues);
+    const user_id = userData.rows[0].id;
     const expiresIn = process.env.JWT_EXPIRES_IN;
     const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
@@ -19,10 +20,6 @@ export const insertUserData = async (password: string, email: string) => {
 
     const selectQuery = "SELECT id FROM user_details WHERE email = $1";
     const selectValues = [email];
-
-    const getDataByEmail = await db.query(selectQuery, selectValues);
-    const user_id = getDataByEmail.rows[0].id;
-    console.log(user_id);
 
     const generatedToken = jwt.sign({ user_id, email }, secretKey, {
       expiresIn,
