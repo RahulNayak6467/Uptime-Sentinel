@@ -13,7 +13,7 @@ export const checkLoginUser = async (
 ): Promise<
   | {
       message: string;
-      token: never;
+      token: string;
     }
   | undefined
 > => {
@@ -30,7 +30,10 @@ export const checkLoginUser = async (
     if (!checkPassword) {
       throw new AppError(401, "Invalid login credentials");
     }
-    const secretKey = process.env.JWT_SECRET as string;
+    const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) {
+      throw new AppError(500, "Internal server error");
+    }
     const expiredTime = process.env.JWT_EXPIRES_IN;
     const generatedToken = jwt.sign({ user_id, email }, secretKey, {
       expiresIn: expiredTime,
@@ -39,12 +42,6 @@ export const checkLoginUser = async (
 
     return { message: "User successfully logged in", token: generatedToken };
   } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    if (error instanceof Error) {
-      console.log(error.message);
-      throw error;
-    }
+    throw error;
   }
 };

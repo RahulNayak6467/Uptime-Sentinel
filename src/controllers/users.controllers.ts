@@ -20,7 +20,7 @@ export const handleUser = async (req: Request, res: Response) => {
     return res.status(201).json(userData);
   } catch (error) {
     if (error instanceof AppError) {
-      return res.status(error.statusCode).json(error.message);
+      return res.status(error.statusCode).json({ message: error.message });
     } else if (error instanceof Error) {
       return res.status(500).json({ message: error.message });
     }

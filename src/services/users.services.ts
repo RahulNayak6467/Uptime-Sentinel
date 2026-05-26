@@ -15,7 +15,7 @@ export const insertUserData = async (password: string, email: string) => {
     const expiresIn = process.env.JWT_EXPIRES_IN;
     const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
-      throw new Error("JWT secret is not configured");
+      throw new AppError(500, "JWT secret is not configured");
     }
 
     const selectQuery = "SELECT id FROM user_details WHERE email = $1";
