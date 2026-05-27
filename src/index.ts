@@ -5,6 +5,7 @@ import urlHealth from "./routes/url.routes";
 import checkUrl from "./routes/checks.routes";
 import userCheck from "./routes/user.routes";
 import loginCheck from "./routes/login.routes";
+import authRefresh from "./routes/authRefresh.routes";
 import { Pool } from "pg";
 import { handleError } from "./middleware/error.middleware";
 const app: Application = express();
@@ -26,6 +27,7 @@ app.use("/url/health", urlHealth);
 app.use("/url/checks", checkUrl);
 app.use("/user/registration", userCheck);
 app.use("/user/login", loginCheck);
+app.use("/auth/refresh", authRefresh);
 // app.use(handleError);
 
 app.listen(PORT, () => {
