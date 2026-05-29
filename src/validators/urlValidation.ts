@@ -23,4 +23,8 @@ export const urlSchema = z.object({
       message: "url length cannot exceed 200 characters",
     })
     .optional(),
+
+  intervalSeconds: z
+    .number()
+    .min(30, { message: "Minimum interval time should be 30seconds" }),
 });
