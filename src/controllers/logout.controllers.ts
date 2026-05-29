@@ -1,0 +1,20 @@
+import { Request, Response } from "express";
+import { removeToken } from "../services/logout.services";
+import { AppError } from "../errors/AppError";
+
+export const userLogOut = async (req: Request, res: Response) => {
+  console.log(req.user);
+  const user_id = req.user?.user_id;
+  console.log(user_id);
+  if (!user_id) {
+    return res.status(401).json({ message: "UnAuthorized" });
+  }
+  try {
+    const removeRefreshToken = await removeToken(user_id);
+    return res.status(200).json({ message: removeRefreshToken });
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    } else return res.status(500).json({ message: "Internal server error" });
+  }
+};

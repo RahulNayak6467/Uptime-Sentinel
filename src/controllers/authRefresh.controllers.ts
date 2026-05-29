@@ -6,7 +6,7 @@ import { checkValidRefreshToken } from "../services/authRefresh.services";
 
 export const generateAccessToken = async (req: Request, res: Response) => {
   console.log(req);
-  const refreshTokens: string = req.body.refreshTokens;
+  const refreshTokens: string = req.body;
   if (!refreshTokens) {
     return res.status(401).json({ message: "Unauthorized" });
   }

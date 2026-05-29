@@ -43,7 +43,8 @@ export const insertUserData = async (password: string, email: string) => {
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     // const expiresAt = new Date(Date.now() + 5 * 1000);
     const insert_Refresh_Query =
-      "INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES($1, $2, $3)";
+      //   "INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES($1, $2, $3)";
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at";
     const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
 
     await client.query(insert_Refresh_Query, values_Refresh_Query);
