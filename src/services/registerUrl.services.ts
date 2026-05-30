@@ -1,5 +1,5 @@
 import { AppError } from "../errors/AppError";
-import { db } from "../index";
+import { db } from "../db/index";
 
 export const checkUrlRegistration = async (
   url: string,

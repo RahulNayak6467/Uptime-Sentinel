@@ -1,4 +1,4 @@
-import { db } from "../index";
+import { db } from "../db/index";
 import { ResponseObject } from "../types/types";
 import { TIMEOUT } from "../constants/constants";
 import { Pool } from "pg";
@@ -49,6 +49,8 @@ export const checkUrlHealth = async (
           statusCode: null,
           errorMessage: err.message,
         };
+      } else if (err.code === "22P02") {
+        throw new AppError(400, "Invalid uuid format");
       } else {
         throw new Error("Internal server error");
       }
@@ -72,6 +74,7 @@ export const checkUrlHealth = async (
       errorMessage,
     ];
     await db.query(insert_checks_query, values_checks_query);
+    console.log(response);
     return response;
   } catch (error) {
     // await client.query("ROLLBACK");

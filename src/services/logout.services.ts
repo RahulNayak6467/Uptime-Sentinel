@@ -1,5 +1,5 @@
 import { AppError } from "../errors/AppError";
-import { db } from "../index";
+import { db } from "../db/index";
 
 export const removeToken = async (user_id: string) => {
   const query = "DELETE FROM refresh_tokens WHERE user_id = $1";

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
-import { db } from "../index";
+import { db } from "../db/index";
 import bcrypt from "bcrypt";
 import { SALT } from "../constants/constants";
 interface userInfoProps {

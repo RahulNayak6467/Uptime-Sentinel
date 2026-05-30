@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { db } from "../index";
+import { db } from "../db/index";
 import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
 
