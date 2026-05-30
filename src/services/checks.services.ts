@@ -1,12 +1,14 @@
 import { AppError, PostgresError } from "../errors/AppError";
-import { db } from "../index";
+import { db } from "../db/index";
 import { UrlResponseData } from "../types/types";
 
 export const fetchUrlData = async (
   user_id: string,
 ): Promise<UrlResponseData[]> => {
   try {
-    const query = "select * from checks where user_id = $1";
+    // const query = "select * from url_checks where user_id = $1";
+    const query =
+      "select c.* from url_checks c inner join monitor m on m.id = c.monitor_id where m.user_id = $1";
     const values = [user_id];
     const getAllData = await db.query(query, values);
     const rows: UrlResponseData[] = getAllData.rows;
@@ -28,7 +30,9 @@ export const fetchUrlDataByName = async (
   url: string,
   user_id: string,
 ): Promise<UrlResponseData[]> => {
-  const query = "SELECT * FROM checks WHERE url = $1 and user_id = $2";
+  //   const query = "SELECT * FROM checks WHERE url = $1 and user_id = $2";
+  const query =
+    "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id WHERE url = $1 and user_id = $2";
   const values = [url, user_id];
 
   try {
@@ -55,8 +59,8 @@ export const fetchUrlDataById = async (
 ): Promise<UrlResponseData> => {
   try {
     const getUrlById = await db.query(
-      "SELECT * FROM checks WHERE id = $1 and user_id = $2",
-      [id, user_id],
+      "SELECT * FROM url_checks where id = $1",
+      [id],
     );
     const rows: UrlResponseData[] = getUrlById.rows;
     console.log(rows.length);
@@ -65,6 +69,7 @@ export const fetchUrlDataById = async (
     }
     return rows[0];
   } catch (error) {
+    console.log(error);
     if (error instanceof AppError) {
       throw error;
     } else if (error.code === "22P02") {

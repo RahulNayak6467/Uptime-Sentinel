@@ -16,3 +16,9 @@ export interface UrlResponseData {
   error_message: string | null;
   checked_at: Date;
 }
+
+export interface UrlActiveRowsProps {
+  id: string;
+  user_id: string;
+  next_check_at: string;
+}

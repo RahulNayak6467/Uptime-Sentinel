@@ -20,9 +20,7 @@ export const loginUser = async (req: Request, res: Response) => {
     return res.status(200).json(loggedInUser);
   } catch (error) {
     if (error instanceof AppError) {
-      return res.status(401).json({ message: error.message });
-    } else if (error instanceof Error) {
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(error.statusCode).json({ message: error.message });
     } else return res.status(500).json({ message: "Internal server error" });
   }
 };
