@@ -24,7 +24,7 @@ export const checkUrlRegistration = async (
     await db.query(insert_monitor_url, values_monitor_url);
     return "url successfully registered";
   } catch (error) {
-    // console.log(error.message);
+    console.log(error.message);
     throw error;
   }
 };
