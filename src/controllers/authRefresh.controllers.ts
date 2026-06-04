@@ -5,9 +5,9 @@ import { Request, Response } from "express";
 import { checkValidRefreshToken } from "../services/authRefresh.services";
 
 export const generateAccessToken = async (req: Request, res: Response) => {
-  console.log(req);
+  // console.log(req);
   const refreshTokens: string = req.body.refreshTokens;
-  console.log(refreshTokens);
+  // console.log(refreshTokens);
   if (!refreshTokens) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -22,7 +22,7 @@ export const generateAccessToken = async (req: Request, res: Response) => {
     if (error instanceof TokenExpiredError) {
       return res.status(401).json({ message: "Token is expired" });
     } else if (error instanceof JsonWebTokenError) {
-      console.log(error.message);
+      // console.log(error.message);
       return res.status(401).json({ message: "UnAuthorized" });
     } else if (error instanceof AppError) {
       return res.status(error.statusCode).json({ message: error.message });

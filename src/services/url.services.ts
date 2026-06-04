@@ -34,7 +34,7 @@ export const checkUrlHealth = async (
     };
   } catch (err) {
     if (err instanceof Error) {
-      console.log(err.message);
+      // console.log(err.message);
       if (err.name === "TimeoutError") {
         response = {
           status: "DOWN",
@@ -74,7 +74,7 @@ export const checkUrlHealth = async (
       errorMessage,
     ];
     await db.query(insert_checks_query, values_checks_query);
-    console.log(response);
+    // console.log(response);
     return response;
   } catch (error) {
     // await client.query("ROLLBACK");
@@ -84,7 +84,7 @@ export const checkUrlHealth = async (
       if (error.code === "22P02") {
         throw new Error("Invalid uuid type");
       }
-      console.log(error);
+      // console.log(error);
       throw new Error("Internal server error");
     }
     throw new Error("Internal server error");

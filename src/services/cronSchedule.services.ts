@@ -16,8 +16,8 @@ export const pauseUrl = async (url_id: string, user_id: string) => {
 };
 
 export const resumeUrl = async (url_id: string, user_id: string) => {
-  console.log(user_id);
-  console.log(url_id);
+  // console.log(user_id);
+  // console.log(url_id);
   const pause_url_query =
     "UPDATE monitor set is_active = true where id = $1 and user_id = $2";
   const pause_url_value = [url_id, user_id];

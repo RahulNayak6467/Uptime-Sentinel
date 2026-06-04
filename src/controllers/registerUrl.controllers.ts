@@ -17,7 +17,7 @@ export const registerUrl = async (req: Request, res: Response) => {
   try {
     urlSchema.parse({ url, urlName, intervalSeconds });
   } catch (error) {
-    console.log("ERROR: ", error);
+    // console.log("ERROR: ", error);
     if (error instanceof ZodError) {
       return res.status(400).json(error.message);
     } else {

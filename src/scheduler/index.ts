@@ -15,19 +15,19 @@ const insertResponseIntoDB = async () => {
     const getUrlActiveRows: UrlActiveRowsProps[] = getUrlActive.rows;
     getUrlActiveRows.forEach(async (url) => {
       try {
-        console.log("NEXT_CHECK_AT: ", url.next_check_at);
+        // console.log("NEXT_CHECK_AT: ", url.next_check_at);
         await checkUrlHealth(TIMEOUT, url.user_id, url.id);
         await db.query(update_url_active_time, [url.id]);
       } catch (error) {
         if (error instanceof Error) {
-          console.log(error.message);
+          // console.log(error.message);
         }
         await checkUrlHealth(TIMEOUT, url.user_id, url.id);
         await db.query(update_url_active_time, [url.id]);
       }
     });
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
   }
 };
 
@@ -36,13 +36,13 @@ export const scheduleResponseIntoDB = () => {
     await insertResponseIntoDB();
   });
   process.on("SIGTERM", () => {
-    console.log("Shutting down scheduler...");
+    // console.log("Shutting down scheduler...");
     task.stop();
     process.exit(0);
   });
 
   process.on("SIGINT", () => {
-    console.log("Shutting down scheduler...");
+    // console.log("Shutting down scheduler...");
     task.stop();
     process.exit(0);
   });

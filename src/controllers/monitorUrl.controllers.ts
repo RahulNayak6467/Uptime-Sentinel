@@ -5,8 +5,8 @@ import { TIMEOUT } from "../constants/constants";
 import { pauseUrl, resumeUrl } from "../services/cronSchedule.services";
 
 export const monitorUrlById = async (req: Request, res: Response) => {
-  console.log(req);
-  console.log(req.params);
+  // console.log(req);
+  // console.log(req.params);
   const url_id = req.params.id as string;
   const user_id = req.user?.user_id;
   if (!user_id) {

@@ -4,6 +4,8 @@ declare global {
       user?: {
         user_id: string;
         email: string;
+        jti: string;
+        exp: number;
       };
     }
   }
