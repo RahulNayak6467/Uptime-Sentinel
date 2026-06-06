@@ -21,7 +21,9 @@ export const checkUrlHealth = async (
     const getUrl = await db.query("SELECT url FROM monitor where id = $1", [
       url_id,
     ]);
+    console.log(getUrl);
     const url: string = getUrl.rows[0].url;
+    console.log("url ", url);
 
     const getUrlData = await fetch(url, {
       signal: AbortSignal.timeout(TIMEOUT),
@@ -33,8 +35,9 @@ export const checkUrlHealth = async (
       errorMessage: null,
     };
   } catch (err) {
+    console.log(err.message);
+    console.log(err?.code);
     if (err instanceof Error) {
-      // console.log(err.message);
       if (err.name === "TimeoutError") {
         response = {
           status: "DOWN",

@@ -19,7 +19,7 @@ const PORT = env.PORT || 5000;
 
 app.use(express.json());
 
-// scheduleResponseIntoDB();
+scheduleResponseIntoDB();
 
 app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
