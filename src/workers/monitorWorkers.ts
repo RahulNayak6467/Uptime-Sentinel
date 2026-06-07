@@ -35,8 +35,11 @@ const processor = async (job: Job) => {
 
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
   console.log(urlMonitorResponse);
-  const responseCode = urlMonitorResponse.statusCode ?? 404;
+  const responseCode = urlMonitorResponse.statusCode;
 
+  if (responseCode === null) {
+    throw new Error("Url is down");
+  }
   if (responseCode >= 500) {
     throw new Error(`HTTP error ${responseCode} status code`);
   }

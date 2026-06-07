@@ -3,6 +3,7 @@ import { AppError } from "../errors/AppError";
 import { checkUrlHealth } from "../services/url.services";
 import { TIMEOUT } from "../constants/constants";
 import { pauseUrl, resumeUrl } from "../services/cronSchedule.services";
+import { addToQueue } from "../queue/monitorQueue";
 
 export const monitorUrlById = async (req: Request, res: Response) => {
   // console.log(req);
@@ -17,8 +18,13 @@ export const monitorUrlById = async (req: Request, res: Response) => {
   }
 
   try {
-    const response = await checkUrlHealth(TIMEOUT, user_id, url_id);
-    return res.status(200).json(response);
+    const response = await addToQueue(TIMEOUT, user_id, url_id);
+    console.log(response.id);
+    return res.status(202).json({
+      message: "Check queued",
+      jobId: response.id,
+      monitorId: url_id,
+    });
   } catch (err) {
     if (err instanceof Error) {
       return res.status(500).json({ message: err.message });

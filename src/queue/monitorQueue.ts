@@ -11,7 +11,7 @@ export const addToQueue = async (
   url_id: string,
 ) => {
   console.log("Job added to queue");
-  await monitorQueue.add(
+  const addJob = await monitorQueue.add(
     "monitor-checks",
     {
       TIMEOUT,
@@ -19,7 +19,8 @@ export const addToQueue = async (
       url_id,
     },
     {
-      attempts: 3,
+      jobId: `monitor-check-${url_id}-${Date.now()}`,
+      attempts: 4,
       backoff: {
         type: "exponential",
         delay: 2000,
@@ -35,6 +36,8 @@ export const addToQueue = async (
       },
     },
   );
+
+  return addJob;
 };
 
 export default monitorQueue;
