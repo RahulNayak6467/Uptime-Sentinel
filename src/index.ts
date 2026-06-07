@@ -14,21 +14,14 @@ import monitorCheckUrl from "./routes/monitorUrl.routes";
 import { scheduleResponseIntoDB } from "./scheduler";
 import { Pool } from "pg";
 import { handleError } from "./middleware/error.middleware";
+import { serverAdapter } from "./config/bullboard";
+import bullboardAuth from "./middleware/bullboardAuth.middleware";
 const app: Application = express();
 const PORT = env.PORT || 5000;
 
-// export const db: Pool = new Pool({
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   host: process.env.DB_HOST,
-//   port: 5432,
-//   database: process.env.DB_DATABASENAME,
-// });
-
-// app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-scheduleResponseIntoDB();
+// scheduleResponseIntoDB();
 
 app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
@@ -39,8 +32,9 @@ app.use("/auth/refresh", authRefresh);
 app.use("/auth/logout", logUserOut);
 app.use("/url/register", registerUrl);
 app.use("/monitor", monitorCheckUrl);
+app.use("/admin/queues", bullboardAuth, serverAdapter.getRouter());
 // app.use(handleError);
 
 app.listen(PORT, () => {
-  console.log(`Server is running at PORT ${PORT}`);
+  // console.log(`Server is running at PORT ${PORT}`);
 });

@@ -11,7 +11,7 @@ export const getAllInfo = async (req: Request, res: Response) => {
   const user_id = req.user?.user_id as string;
   try {
     const getUrlInfo: UrlResponseData[] = await fetchUrlData(user_id);
-    console.log(getUrlInfo);
+    // console.log(getUrlInfo);
     return res.status(200).json(getUrlInfo);
   } catch (error) {
     // if (error instanceof Error) {
@@ -30,14 +30,14 @@ export const getInfoByName = async (req: Request, res: Response) => {
   const url = req.query.url;
   const user_id = req.user?.user_id as string;
   if (!url) {
-    return res.status(404).json({
+    return res.status(400).json({
       message: "Invalid url",
     });
   }
 
   try {
     const getUrlInfoByName = await fetchUrlDataByName(url as string, user_id);
-    console.log(getUrlInfoByName);
+    // console.log(getUrlInfoByName);
     return res.status(200).json(getUrlInfoByName);
   } catch (error) {
     if (error instanceof AppError) {

@@ -3,14 +3,17 @@ import { removeToken } from "../services/logout.services";
 import { AppError } from "../errors/AppError";
 
 export const userLogOut = async (req: Request, res: Response) => {
-  console.log(req.user);
+  // console.log(req.user);
   const user_id = req.user?.user_id;
-  console.log(user_id);
-  if (!user_id) {
+  const jti = req.user?.jti;
+  const expirationTime = req.user?.exp;
+
+  // console.log(user_id, jti);
+  if (!user_id || !jti || !expirationTime) {
     return res.status(401).json({ message: "UnAuthorized" });
   }
   try {
-    const removeRefreshToken = await removeToken(user_id);
+    const removeRefreshToken = await removeToken(user_id, jti, expirationTime);
     return res.status(200).json({ message: removeRefreshToken });
   } catch (error) {
     if (error instanceof AppError) {

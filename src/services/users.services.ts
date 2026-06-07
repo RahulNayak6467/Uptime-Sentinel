@@ -4,6 +4,17 @@ import jwt from "jsonwebtoken";
 import { userSchema } from "../validators/userValidation";
 import { SALT } from "../constants/constants";
 import { AppError } from "../errors/AppError";
+import { v4 as uuidv4 } from "uuid";
+
+// const accessToken = jwt.sign(
+//   {
+//     userId: user.id,
+//     email: user.email,
+//     jti: uuidv4(), // unique ID per token
+//   },
+//   JWT_SECRET,
+//   { expiresIn: "15m" },
+// );
 export const insertUserData = async (password: string, email: string) => {
   const client = await db.connect();
   try {
@@ -28,10 +39,14 @@ export const insertUserData = async (password: string, email: string) => {
     const selectQuery = "SELECT id FROM user_details WHERE email = $1";
     const selectValues = [email];
 
-    const generatedToken = jwt.sign({ user_id, email }, secretKey, {
-      expiresIn,
-      algorithm: "HS256",
-    });
+    const generatedToken = jwt.sign(
+      { user_id, email, jti: uuidv4() },
+      secretKey,
+      {
+        expiresIn,
+        algorithm: "HS256",
+      },
+    );
 
     const generateRefreshToken = jwt.sign({ user_id }, refreshSecretKey, {
       expiresIn: refreshExpiresIn,
@@ -58,7 +73,7 @@ export const insertUserData = async (password: string, email: string) => {
     };
   } catch (error) {
     await client.query("ROLLBACK");
-    console.log(error);
+    // console.log(error);
     if (error instanceof Error) {
       if (error.code === "23505") {
         throw new AppError(409, "email already taken");

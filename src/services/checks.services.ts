@@ -38,8 +38,8 @@ export const fetchUrlDataByName = async (
   try {
     const getUrlData = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlData.rows;
-    console.log(getUrlData);
-    console.log(rows.length);
+    // console.log(getUrlData);
+    // console.log(rows.length);
     if (rows.length === 0) {
       //   return res.status(404).json({ message: "no such url exists" });
       throw new AppError(404, "no url exists");
@@ -58,18 +58,18 @@ export const fetchUrlDataById = async (
   user_id: string,
 ): Promise<UrlResponseData> => {
   try {
-    const getUrlById = await db.query(
-      "SELECT * FROM url_checks where id = $1",
-      [id],
-    );
+    const query =
+      "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id where c.id = $1 and m.user_id = $2";
+    const values = [id, user_id];
+    const getUrlById = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlById.rows;
-    console.log(rows.length);
+    // console.log(rows.length);
     if (rows.length === 0) {
       throw new AppError(404, "no such url exists");
     }
     return rows[0];
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error instanceof AppError) {
       throw error;
     } else if (error.code === "22P02") {

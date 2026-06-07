@@ -3,6 +3,7 @@ import { AppError } from "../errors/AppError";
 import { db } from "../db/index";
 import bcrypt from "bcrypt";
 import { SALT } from "../constants/constants";
+import { v4 as uuidv4 } from "uuid";
 interface userInfoProps {
   id: string;
   password: string;
@@ -38,10 +39,14 @@ export const checkLoginUser = async (
     }
     const expiredTime = process.env.JWT_EXPIRES_IN;
     const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN;
-    const generatedToken = jwt.sign({ user_id, email }, secretKey, {
-      expiresIn: expiredTime,
-      algorithm: "HS256",
-    });
+    const generatedToken = jwt.sign(
+      { user_id, email, jti: uuidv4() },
+      secretKey,
+      {
+        expiresIn: expiredTime,
+        algorithm: "HS256",
+      },
+    );
 
     const generateRefreshToken = jwt.sign({ user_id }, refreshSecretKey, {
       expiresIn: refreshExpiresIn,
@@ -57,7 +62,10 @@ export const checkLoginUser = async (
 
     await db.query(insert_Refresh_Query, values_Refresh_Query);
 
-    return { message: "User successfully logged in", token: generatedToken };
+    return {
+      message: "User successfully logged in",
+      token: generatedToken,
+    };
   } catch (error) {
     throw error;
   }
