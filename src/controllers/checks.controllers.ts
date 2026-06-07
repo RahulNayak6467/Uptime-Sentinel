@@ -30,7 +30,7 @@ export const getInfoByName = async (req: Request, res: Response) => {
   const url = req.query.url;
   const user_id = req.user?.user_id as string;
   if (!url) {
-    return res.status(404).json({
+    return res.status(400).json({
       message: "Invalid url",
     });
   }

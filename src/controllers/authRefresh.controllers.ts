@@ -9,7 +9,7 @@ export const generateAccessToken = async (req: Request, res: Response) => {
   const refreshTokens: string = req.body.refreshTokens;
   // console.log(refreshTokens);
   if (!refreshTokens) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(400).json({ message: "Missing Tokens" });
   }
   const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
   if (!refreshSecretKey) {
@@ -17,6 +17,7 @@ export const generateAccessToken = async (req: Request, res: Response) => {
   }
   try {
     const generateNewToken = await checkValidRefreshToken(refreshTokens);
+    console.log(generateNewToken);
     return res.status(201).json(generateNewToken);
   } catch (error) {
     if (error instanceof TokenExpiredError) {

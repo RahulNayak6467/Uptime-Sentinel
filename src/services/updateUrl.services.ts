@@ -41,7 +41,7 @@ export const updateUrl = async (
     console.log(updateUrlAttributes);
     const rows = updateUrlAttributes.rowCount;
     if (rows === null || rows === 0) {
-      throw new AppError(400, "No such url exists");
+      throw new AppError(404, "No such url exists");
     }
     return;
   } catch (error) {

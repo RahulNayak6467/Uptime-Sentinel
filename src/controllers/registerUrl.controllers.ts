@@ -11,6 +11,25 @@ export const registerUrl = async (req: Request, res: Response) => {
     intervalSeconds,
   }: { url: string; urlName: string; intervalSeconds: number } = req.body;
   const user_id = req.user?.user_id;
+  const missingParametres = [];
+  if (!url) {
+    missingParametres.push("url");
+  }
+  if (!urlName) {
+    missingParametres.push("urlName");
+  }
+  if (!intervalSeconds) {
+    missingParametres.push("intervalSeconds");
+  }
+  if (missingParametres.length > 0) {
+    const missingString = missingParametres.reduce(
+      (acc, el) => el + "," + acc,
+      "",
+    );
+    return res.status(400).json({
+      message: `Missing ${missingString}`,
+    });
+  }
   if (!user_id) {
     throw new AppError(401, "Unauthorized");
   }
@@ -19,7 +38,7 @@ export const registerUrl = async (req: Request, res: Response) => {
   } catch (error) {
     // console.log("ERROR: ", error);
     if (error instanceof ZodError) {
-      return res.status(400).json(error.message);
+      return res.status(400).json(error.issues[0].message);
     } else {
       return res.status(500).json({ message: "Internal server error" });
     }

@@ -49,7 +49,9 @@ export const pauseUrlById = async (req: Request, res: Response) => {
     const pause = await pauseUrl(url_id, user_id);
     return res.status(204).json({});
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    } else if (error instanceof Error) {
       return res.status(500).json({ message: "Internal server error" });
     } else {
       return res.status(500).json({ message: "Internal server error" });
@@ -70,7 +72,9 @@ export const resumeUrlById = async (req: Request, res: Response) => {
     const pause = await resumeUrl(url_id, user_id);
     return res.status(204).json({});
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    } else if (error instanceof Error) {
       return res.status(500).json({ message: "Internal server error" });
     } else {
       return res.status(500).json({ message: "Internal server error" });

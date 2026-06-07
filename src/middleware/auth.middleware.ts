@@ -11,11 +11,11 @@ export const authMiddleware = async (
   const getToken = req.headers.authorization;
 
   if (!getToken) {
-    throw new AppError(401, "Login failed");
+    return res.status(401).json({ message: "Login Failed" });
   }
   const secretKey = process.env.JWT_SECRET;
   if (typeof secretKey !== "string") {
-    throw new AppError(500, "Internal server error");
+    return res.status(500).json({ message: "Internal server error" });
   }
 
   try {
