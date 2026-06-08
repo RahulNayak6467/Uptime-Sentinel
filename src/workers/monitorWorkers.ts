@@ -52,18 +52,18 @@ export const urlCheckWorker = new Worker(
 );
 
 urlCheckWorker.on("ready", () => {
-  console.log("Worker connected to Redis and ready");
+  console.log("Monitor Worker connected to Redis and ready");
 });
 
 urlCheckWorker.on("error", (error) => {
-  console.error("Worker error:", error);
+  console.error("Monitor Worker error:", error);
 });
 
 urlCheckWorker.on("completed", (job) => {
-  console.log(`Job ${job.id} completed`);
+  console.log(`Montior Job ${job.id} completed`);
 });
 
 urlCheckWorker.on("failed", (job, error) => {
-  console.log(`Job ${job?.id} failed:`, error.message);
+  console.log(`Monitor Job ${job?.id} failed:`, error.message);
   console.error("Stack:", error.stack);
 });

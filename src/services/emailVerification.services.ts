@@ -1,0 +1,85 @@
+import { v4 as uuidv4 } from "uuid";
+import resend from "../config/resend";
+import { SALT } from "../constants/constants";
+import { db } from "../db";
+import { AppError } from "../errors/AppError";
+import redis from "../Redis";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+export const sendEmailVerification = async (email: string, otp: string) => {
+  const { data, error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Verify your email — StatusForge",
+    html: `<p>Your verification code is: <strong>${otp}</strong></p>
+           <p>This code expires in 10 minutes.</p>`,
+  });
+  if (error) {
+    throw new Error(`Failed to send verification email: ${error.message}`);
+  }
+  return data;
+};
+
+export const verifyEmail = async (email: string, otp: string) => {
+  const update_emailVerification_query =
+    "UPDATE user_details set email_verified = true where email = $1 RETURNING id";
+  const update_emailVerification_value = [email];
+  try {
+    const getOTP = await redis.get(`emailVerify-${email}`);
+    if (otp !== getOTP) {
+      throw new AppError(400, "Invalid or expired OTP");
+    }
+    const updateEmailVerification = await db.query(
+      update_emailVerification_query,
+      update_emailVerification_value,
+    );
+    await redis.del(`emailVerify-${email}`);
+    const expiresIn = process.env.JWT_EXPIRES_IN;
+    const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN;
+    const secretKey = process.env.JWT_SECRET;
+    const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
+    if (!secretKey) {
+      throw new AppError(500, "JWT secret is not configured");
+    }
+    if (!refreshSecretKey) {
+      throw new AppError(500, "Refresh secret is not configured");
+    }
+    // const user_id = updateEmailVerificationAndGetId;
+    const selectQuery = "SELECT id FROM user_details WHERE email = $1";
+    const selectValues = [email];
+    const requiredData = await db.query(selectQuery, selectValues);
+    const user_id = requiredData.rows[0].id;
+    const generatedToken = jwt.sign(
+      { user_id, email, jti: uuidv4() },
+      secretKey,
+      {
+        expiresIn,
+        algorithm: "HS256",
+      },
+    );
+
+    const generateRefreshToken = jwt.sign({ user_id }, refreshSecretKey, {
+      expiresIn: refreshExpiresIn,
+      algorithm: "HS256",
+    });
+
+    const hashedRefreshToken = await bcrypt.hash(generateRefreshToken, SALT);
+
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // const expiresAt = new Date(Date.now() + 5 * 1000);
+    const insert_Refresh_Query =
+      //   "INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES($1, $2, $3)";
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at";
+    const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
+
+    await db.query(insert_Refresh_Query, values_Refresh_Query);
+    return {
+      message: "user successfully signedIn",
+      token: generatedToken,
+      refreshToken: generateRefreshToken,
+    };
+  } catch (err) {
+    throw err;
+  }
+};

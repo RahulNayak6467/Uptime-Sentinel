@@ -16,6 +16,8 @@ import { Pool } from "pg";
 import { handleError } from "./middleware/error.middleware";
 import { serverAdapter } from "./config/bullboard";
 import bullboardAuth from "./middleware/bullboardAuth.middleware";
+import emailVerify from "./routes/emailVerification.routes";
+import resendOtp from "./routes/resendOTP.routes";
 const app: Application = express();
 const PORT = env.PORT || 5000;
 
@@ -27,6 +29,8 @@ app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
 app.use("/url/checks", checkUrl);
 app.use("/user/registration", userCheck);
+app.use("/user/email-verify", emailVerify);
+app.use("/user/otp-resend", resendOtp);
 app.use("/user/login", loginCheck);
 app.use("/auth/refresh", authRefresh);
 app.use("/auth/logout", logUserOut);
