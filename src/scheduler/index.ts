@@ -4,6 +4,8 @@ import { TIMEOUT } from "../constants/constants";
 import { db } from "../db/index";
 import { UrlActiveRowsProps } from "../types/types";
 import { addToQueue } from "../queue/monitorQueue";
+import { addToDownAlertEmailQueue } from "../queue/alertEmailQueue";
+import { runStateMachine } from "../utils/stateMachine.worker";
 
 export const scheduleResponseIntoDB = () => {
   const task = cron.schedule("* * * * *", async () => {

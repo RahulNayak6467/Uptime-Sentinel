@@ -83,3 +83,30 @@ export const verifyEmail = async (email: string, otp: string) => {
     throw err;
   }
 };
+
+export const sendDownAlertEmail = async (
+  email: string,
+  monitorName: string,
+  url: string,
+  startedAt: Date,
+  errorMessage?: string | null,
+) => {
+  const { data, error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: `🔴 Monitor Down: ${monitorName}`,
+    html: `
+      <h2>Your monitor is down</h2>
+      <p><strong>Monitor:</strong> ${monitorName}</p>
+      <p><strong>URL:</strong> ${url}</p>
+      <p><strong>Down since:</strong> ${startedAt.toLocaleString()}</p>
+      ${errorMessage ? `<p><strong>Error:</strong> ${errorMessage}</p>` : ""}
+    `,
+  });
+
+  if (error) {
+    throw new Error(`Failed to send down alert: ${error.message}`);
+  }
+
+  return data;
+};

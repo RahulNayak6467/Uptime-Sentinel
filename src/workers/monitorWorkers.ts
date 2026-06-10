@@ -1,6 +1,7 @@
 import { Job, Worker } from "bullmq";
 import redis from "../Redis";
 import { checkUrlHealth } from "../services/url.services";
+import { runStateMachine } from "../utils/stateMachine.worker";
 
 console.log("monitorWorkers module loaded");
 console.log("Redis connection state:", redis.status);
@@ -35,6 +36,7 @@ const processor = async (job: Job) => {
 
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
   console.log(urlMonitorResponse);
+  await runStateMachine(url_id);
   const responseCode = urlMonitorResponse.statusCode;
 
   if (responseCode === null) {
