@@ -1,10 +1,14 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { urlSchema } from "../validators/urlValidation";
 import { ZodError } from "zod";
 import { checkUrlRegistration } from "../services/registerUrl.services";
 import { AppError } from "../errors/AppError";
 
-export const registerUrl = async (req: Request, res: Response) => {
+export const registerUrl = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const {
     url,
     urlName,
@@ -35,13 +39,14 @@ export const registerUrl = async (req: Request, res: Response) => {
   }
   try {
     urlSchema.parse({ url, urlName, intervalSeconds });
-  } catch (error) {
+  } catch (err) {
     // console.log("ERROR: ", error);
-    if (error instanceof ZodError) {
-      return res.status(400).json(error.issues[0].message);
-    } else {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+    // if (error instanceof ZodError) {
+    //   return res.status(400).json(error.issues[0].message);
+    // } else {
+    //   return res.status(500).json({ message: "Internal server error" });
+    // }
+    next(err);
   }
   try {
     const isUrlRegistered = await checkUrlRegistration(
@@ -51,9 +56,10 @@ export const registerUrl = async (req: Request, res: Response) => {
       user_id,
     );
     return res.status(201).json({ message: isUrlRegistered });
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    } else return res.status(500).json({ messafe: "Internal server error" });
+  } catch (err) {
+    // if (error instanceof AppError) {
+    //   return res.status(error.statusCode).json({ message: error.message });
+    // } else return res.status(500).json({ messafe: "Internal server error" });
+    next(err);
   }
 };

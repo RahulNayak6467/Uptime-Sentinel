@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { getIncidentsDetailsById } from "../services/sendIncidents.services";
 import { AppError } from "../errors/AppError";
 
-export const sendIncidentsById = async (req: Request, res: Response) => {
+export const sendIncidentsById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const url_id = req.params.id as string;
   const user_id = req.user?.user_id;
   console.log(user_id);
@@ -28,14 +32,15 @@ export const sendIncidentsById = async (req: Request, res: Response) => {
       message: getIncidents,
     });
   } catch (err) {
-    if (err instanceof AppError) {
-      return res.status(err.statusCode).json({
-        message: err.message,
-      });
-    } else if (err instanceof Error) {
-      return res.status(500).json({
-        message: "Internal server error",
-      });
-    }
+    // if (err instanceof AppError) {
+    //   return res.status(err.statusCode).json({
+    //     message: err.message,
+    //   });
+    // } else if (err instanceof Error) {
+    //   return res.status(500).json({
+    //     message: "Internal server error",
+    //   });
+    // }
+    next(err);
   }
 };

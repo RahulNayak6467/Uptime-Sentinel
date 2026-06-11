@@ -1,3 +1,5 @@
+import { initSentry } from "./config/sentry";
+initSentry();
 import express, { Request, Response, Application } from "express";
 import { env } from "./config/env";
 import cron from "node-cron";
@@ -24,7 +26,7 @@ const PORT = env.PORT || 5000;
 
 app.use(express.json());
 
-// scheduleResponseIntoDB();
+scheduleResponseIntoDB();
 
 app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
@@ -39,7 +41,7 @@ app.use("/url/register", registerUrl);
 app.use("/monitor", monitorCheckUrl);
 app.use("/incidents", singleIncidentData);
 app.use("/admin/queues", bullboardAuth, serverAdapter.getRouter());
-// app.use(handleError);
+app.use(handleError);
 
 app.listen(PORT, () => {
   // console.log(`Server is running at PORT ${PORT}`);

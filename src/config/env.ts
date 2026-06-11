@@ -25,5 +25,6 @@ export const env = {
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   BULL_BOARD_PASSWORD: process.env.BULL_BOARD_PASSWORD || "secret",
   BULL_BOARD_USER: process.env.BULL_BOARD_USER || "admin",
-  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_API_KEY: requireEnv("RESEND_API_KEY"),
+  SENTRY_DSN: requireEnv("SENTRY_DSN"),
 };
