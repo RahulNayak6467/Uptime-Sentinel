@@ -28,14 +28,24 @@ export const verifyEmail = async (email: string, otp: string) => {
   const update_emailVerification_value = [email];
   try {
     const getOTP = await redis.get(`emailVerify-${email}`);
+    const wrongOtpAttempts = await redis.get(`verification:attempts-${email}`);
+
+    if (Number(wrongOtpAttempts) > 5) {
+      await redis.del(`emailVerify-${email}`);
+      throw new AppError(429, "Too many attempts, request a new OTP");
+    }
+
     if (otp !== getOTP) {
+      await redis.incr(`verification:attempts-${email}`);
       throw new AppError(400, "Invalid or expired OTP");
     }
+
     const updateEmailVerification = await db.query(
       update_emailVerification_query,
       update_emailVerification_value,
     );
     await redis.del(`emailVerify-${email}`);
+    await redis.del(`verification:attempts-${email}`);
     const expiresIn = process.env.JWT_EXPIRES_IN;
     const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN;
     const secretKey = process.env.JWT_SECRET;

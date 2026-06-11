@@ -95,13 +95,19 @@ export const insertUserData = async (password: string, email: string) => {
       "EX",
       600,
     );
+    const checkOTPAttemptLimit = await redis.set(
+      `verification:attempts-${email}`,
+      0,
+      "EX",
+      600,
+    );
     const addCooldown = await redis.set(
       `emailVerifyCooldown-${email}`,
       "1",
       "EX",
       60,
     );
-    if (!addOTP || !addCooldown) {
+    if (!addOTP || !addCooldown || !checkOTPAttemptLimit) {
       throw new AppError(500, "Internal server error");
     }
     await addToEmailVerificationQueue(email, generatedOTP);

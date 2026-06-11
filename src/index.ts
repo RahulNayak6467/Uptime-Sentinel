@@ -18,12 +18,13 @@ import { serverAdapter } from "./config/bullboard";
 import bullboardAuth from "./middleware/bullboardAuth.middleware";
 import emailVerify from "./routes/emailVerification.routes";
 import resendOtp from "./routes/resendOTP.routes";
+import singleIncidentData from "./routes/singleIncidents.routes";
 const app: Application = express();
 const PORT = env.PORT || 5000;
 
 app.use(express.json());
 
-scheduleResponseIntoDB();
+// scheduleResponseIntoDB();
 
 app.use("/health", healthRouter);
 app.use("/url/health", urlHealth);
@@ -36,6 +37,7 @@ app.use("/auth/refresh", authRefresh);
 app.use("/auth/logout", logUserOut);
 app.use("/url/register", registerUrl);
 app.use("/monitor", monitorCheckUrl);
+app.use("/incidents", singleIncidentData);
 app.use("/admin/queues", bullboardAuth, serverAdapter.getRouter());
 // app.use(handleError);
 
