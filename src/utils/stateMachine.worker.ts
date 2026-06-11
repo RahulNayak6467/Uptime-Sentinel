@@ -1,5 +1,8 @@
 import { db } from "../db/index";
-import { addToDownAlertEmailQueue } from "../queue/alertEmailQueue";
+import {
+  addToDownAlertEmailQueue,
+  addToRecoveryEmailQueue,
+} from "../queue/alertEmailQueue";
 
 const getActiveIncident = async (url_id: string) => {
   let activeIncident: boolean = false;
@@ -12,6 +15,13 @@ const getActiveIncident = async (url_id: string) => {
     activeIncident = true;
   }
   return activeIncident;
+};
+
+const updateResolvedAt = async (url_id: string) => {
+  const update_resolvedAt_query =
+    "UPDATE incidents SET is_active = false, resolved_at = NOW() where monitor_id = $1";
+  const update_resolvedAt_values = [url_id];
+  await db.query(update_resolvedAt_query, update_resolvedAt_values);
 };
 
 const insertIntoIncidentsTable = async (url_id: string) => {
@@ -46,6 +56,9 @@ const getLastTwoChecks = async (url_id: string) => {
   if (isDownAlert) {
     isDown = true;
   }
+  if (!isDownAlert && isActiveIncident) {
+    await updateResolvedAt(url_id);
+  }
 
   return isDown;
 };
@@ -62,7 +75,9 @@ export const runStateMachine = async (url_id: string) => {
     },
     "NO_INCIDENT:URL_UP": async () => {},
     "INCIDENT_ACTIVE:URL_DOWN": async () => {},
-    "INCIDENT_ACTIVE:URL:UP": async () => {},
+    "INCIDENT_ACTIVE:URL_UP": async () => {
+      await addToRecoveryEmailQueue(url_id);
+    },
   };
   console.log(`${currentState}:${event}`);
   const action = transitions[`${currentState}:${event}`];

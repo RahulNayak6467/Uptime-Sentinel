@@ -6,6 +6,7 @@ import { AppError } from "../errors/AppError";
 import redis from "../Redis";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { formatDuration } from "../utils/formatDate";
 
 export const sendEmailVerification = async (email: string, otp: string) => {
   const { data, error } = await resend.emails.send({
@@ -106,6 +107,34 @@ export const sendDownAlertEmail = async (
 
   if (error) {
     throw new Error(`Failed to send down alert: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const sendRecoveryEmail = async (
+  email: string,
+  urlName: string,
+  url: string,
+  startedAt: Date,
+  resolvedAt: Date,
+) => {
+  const duration = formatDuration(startedAt, resolvedAt);
+  const { data, error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: `✅ Monitor Recovered: ${urlName}`,
+    html: `
+      <h2>Your monitor has recovered</h2>
+      <p><strong>Monitor:</strong> ${urlName}</p>
+      <p><strong>URL:</strong> ${url}</p>
+      <p><strong>Recovered at:</strong> ${resolvedAt.toLocaleString()}</p>
+      <p><strong>Outage duration:</strong> ${duration}</p>
+    `,
+  });
+
+  if (error) {
+    throw new Error(`Failed to send recovery alert: ${error.message}`);
   }
 
   return data;
