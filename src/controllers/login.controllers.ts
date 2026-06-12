@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { userSchema } from "../validators/userValidation";
 import { ZodError } from "zod";
 import { checkLoginUser } from "../services/login.services";
 import { AppError } from "../errors/AppError";
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { email, password }: { email: string; password: string } = req.body;
   if (!email && !password) {
     return res.status(400).json({ message: "Email and Passwords are missing" });
@@ -16,20 +20,22 @@ export const loginUser = async (req: Request, res: Response) => {
   }
   try {
     userSchema.parse({ email, password });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json(error.issues[0].message);
-    } else {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  } catch (err) {
+    // if (error instanceof ZodError) {
+    //   return res.status(400).json(error.issues[0].message);
+    // } else {
+    //   return res.status(500).json({ message: "Internal server error" });
+    // }
+    return next(err);
   }
 
   try {
     const loggedInUser = await checkLoginUser(email, password);
     return res.status(200).json(loggedInUser);
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    } else return res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    // if (error instanceof AppError) {
+    //   return res.status(error.statusCode).json({ message: error.message });
+    // } else return res.status(500).json({ message: "Internal server error" });
+    return next(err);
   }
 };

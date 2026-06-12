@@ -1,10 +1,14 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError";
 import { updateUrl } from "../services/updateUrl.services";
 import { urlSchema } from "../validators/urlValidation";
 import { ZodError } from "zod";
 
-export const updateUrlById = async (req: Request, res: Response) => {
+export const updateUrlById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const { url, urlName, intervalSeconds } = req.body;
 
   const user_id = req.user?.user_id;
@@ -24,14 +28,16 @@ export const updateUrlById = async (req: Request, res: Response) => {
   }
 
   try {
-    urlSchema.parse({ url, urlName, intervalSeconds });
-  } catch (error) {
+    const updateUrlSchema = urlSchema.partial();
+    updateUrlSchema.parse({ url, urlName, intervalSeconds });
+  } catch (err) {
     // console.log("ERROR: ", error);
-    if (error instanceof ZodError) {
-      return res.status(400).json(error.issues[0].message);
-    } else {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+    // if (error instanceof ZodError) {
+    //   return res.status(400).json(error.issues[0].message);
+    // } else {
+    //   return res.status(500).json({ message: "Internal server error" });
+    // }
+    return next(err);
   }
   try {
     const updatedUrlResponseMessage = await updateUrl(
@@ -42,15 +48,16 @@ export const updateUrlById = async (req: Request, res: Response) => {
       intervalSeconds,
     );
     return res.status(200).json({ message: "successfully updated url" });
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({ message: error.message });
-    } else if (error instanceof Error) {
-      return res.status(500).json({
-        message: error.message,
-      });
-    } else {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+  } catch (err) {
+    // if (error instanceof AppError) {
+    //   return res.status(error.statusCode).json({ message: error.message });
+    // } else if (error instanceof Error) {
+    //   return res.status(500).json({
+    //     message: error.message,
+    //   });
+    // } else {
+    //   return res.status(500).json({ message: "Internal server error" });
+    // }
+    return next(err);
   }
 };

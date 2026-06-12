@@ -1,6 +1,8 @@
 import { Job, Worker } from "bullmq";
 import redis from "../Redis";
 import { checkUrlHealth } from "../services/url.services";
+import { runStateMachine } from "../utils/stateMachine.worker";
+import { db } from "../db";
 
 console.log("monitorWorkers module loaded");
 console.log("Redis connection state:", redis.status);
@@ -25,6 +27,18 @@ const getWorkerOptions = () => {
   };
 };
 
+const updateMonitorStatus = async (
+  status: "UP" | "DOWN",
+  user_id: string,
+  url_id: string,
+) => {
+  const update_monitor_query =
+    "UPDATE monitor SET status = $1 where id = $2 and user_id = $3";
+  const update_monitor_values = [status, url_id, user_id];
+
+  await db.query(update_monitor_query, update_monitor_values);
+};
+
 const processor = async (job: Job) => {
   const { TIMEOUT, user_id, url_id } = job.data;
   console.log("Worker gets the job");
@@ -35,14 +49,8 @@ const processor = async (job: Job) => {
 
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
   console.log(urlMonitorResponse);
-  const responseCode = urlMonitorResponse.statusCode;
-
-  if (responseCode === null) {
-    throw new Error("Url is down");
-  }
-  if (responseCode >= 500) {
-    throw new Error(`HTTP error ${responseCode} status code`);
-  }
+  await updateMonitorStatus(urlMonitorResponse.status, user_id, url_id);
+  await runStateMachine(url_id, urlMonitorResponse.status);
 };
 
 export const urlCheckWorker = new Worker(
@@ -52,18 +60,18 @@ export const urlCheckWorker = new Worker(
 );
 
 urlCheckWorker.on("ready", () => {
-  console.log("Worker connected to Redis and ready");
+  console.log("Monitor Worker connected to Redis and ready");
 });
 
 urlCheckWorker.on("error", (error) => {
-  console.error("Worker error:", error);
+  console.error("Monitor Worker error:", error);
 });
 
 urlCheckWorker.on("completed", (job) => {
-  console.log(`Job ${job.id} completed`);
+  console.log(`Montior Job ${job.id} completed`);
 });
 
 urlCheckWorker.on("failed", (job, error) => {
-  console.log(`Job ${job?.id} failed:`, error.message);
+  console.log(`Monitor Job ${job?.id} failed:`, error.message);
   console.error("Stack:", error.stack);
 });

@@ -1,8 +1,12 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { deleteUrlById } from "../services/deleteUrl.services";
 import { AppError } from "../errors/AppError";
 
-export const removeUrlById = async (req: Request, res: Response) => {
+export const removeUrlById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const url_id = req.params.id as string;
   const user_id = req.user?.user_id;
   if (!user_id) {
@@ -18,17 +22,18 @@ export const removeUrlById = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "url successfully deleted",
     });
-  } catch (error) {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        message: error.message,
-      });
-    } else if (error instanceof Error) {
-      return res.status(500).json({ message: error.message });
-    } else {
-      return res.status(500).json({
-        message: "Internal server error",
-      });
-    }
+  } catch (err) {
+    // if (error instanceof AppError) {
+    //   return res.status(error.statusCode).json({
+    //     message: error.message,
+    //   });
+    // } else if (error instanceof Error) {
+    //   return res.status(500).json({ message: error.message });
+    // } else {
+    //   return res.status(500).json({
+    //     message: "Internal server error",
+    //   });
+    // }
+    return next(err);
   }
 };

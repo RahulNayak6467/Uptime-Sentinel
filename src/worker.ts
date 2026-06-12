@@ -1,5 +1,7 @@
 import "./config/env";
 import { urlCheckWorker } from "./workers/monitorWorkers";
+import { emailVerificationWorker } from "./workers/emailVerificationWorker";
+import { emailAlertWorker } from "./workers/alertEmailWorker";
 process.on("uncaughtException", (err) => {
   console.error("Uncaught exception:", err);
   process.exit(1);

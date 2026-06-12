@@ -1,26 +1,24 @@
 import { Queue } from "bullmq";
 import redis from "../Redis";
 
-const monitorQueue = new Queue("monitor-checks", {
+const emailVerificationQueue = new Queue("email-verification", {
   connection: redis, // your existing redis client
 });
 
-export const addToQueue = async (
-  TIMEOUT: number,
-  user_id: string,
-  url_id: string,
+export const addToEmailVerificationQueue = async (
+  email: string,
+  otp: string,
 ) => {
-  console.log("Monitor Job added to queue");
-  const addJob = await monitorQueue.add(
-    "monitor-checks",
+  console.log("Email Job added to queue");
+  const addJob = await emailVerificationQueue.add(
+    "email-verification",
     {
-      TIMEOUT,
-      user_id,
-      url_id,
+      email,
+      otp,
     },
     {
-      jobId: `monitor-check-${url_id}-${Date.now()}`,
-      attempts: 1,
+      jobId: `email-verification-${email}-${Date.now()}`,
+      attempts: 3,
       backoff: {
         type: "exponential",
         delay: 2000,
@@ -40,4 +38,4 @@ export const addToQueue = async (
   return addJob;
 };
 
-export default monitorQueue;
+export default emailVerificationQueue;
