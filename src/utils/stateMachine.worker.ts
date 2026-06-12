@@ -1,12 +1,14 @@
 import { db } from "../db/index";
 import {
+  addReminderEmailQueue,
   addToDownAlertEmailQueue,
   addToRecoveryEmailQueue,
 } from "../queue/alertEmailQueue";
+import { getMinutesDifference } from "./formatDate";
 
 const getActiveIncident = async (url_id: string) => {
   const is_active_query =
-    "SELECT id, started_at FROM incidents WHERE monitor_id = $1 AND is_active = true LIMIT 1";
+    "SELECT id, started_at,last_alert_sent_at FROM incidents WHERE monitor_id = $1 AND is_active = true LIMIT 1";
   const is_active_values = [url_id];
   const checkIsActive = await db.query(is_active_query, is_active_values);
   const activeRows = checkIsActive.rows.length;
@@ -25,7 +27,7 @@ const updateResolvedAt = async (incident_id: string) => {
 
 const insertIntoIncidentsTable = async (url_id: string) => {
   const insert_incidents_query =
-    "INSERT INTO incidents (monitor_id,is_active) VALUES($1, $2) RETURNING id";
+    "INSERT INTO incidents (monitor_id,is_active,last_alert_sent_at) VALUES($1, $2, NOW()) RETURNING id";
   const insert_incidents_values = [url_id, true];
   const result = await db.query(
     insert_incidents_query,
@@ -37,13 +39,13 @@ const insertIntoIncidentsTable = async (url_id: string) => {
 const hasConsecutiveFailures = async (url_id: string) => {
   let isDown: boolean = false;
   const check_down_query =
-    "SELECT status from url_checks where monitor_id = $1 ORDER BY checked_at DESC LIMIT 5";
+    "SELECT status from url_checks where monitor_id = $1 ORDER BY checked_at DESC LIMIT 2";
   const check_down_values = [url_id];
   const getStatusValues = await db.query(check_down_query, check_down_values);
 
   console.log(getStatusValues);
   const rows = getStatusValues.rows.length;
-  if (rows < 5) {
+  if (rows < 2) {
     return isDown;
   }
   const isDownAlert = getStatusValues.rows.every(
@@ -75,7 +77,18 @@ export const runStateMachine = async (
       await addToDownAlertEmailQueue(url_id, incident_id);
     },
     "NO_INCIDENT:URL_UP": async () => {},
-    "INCIDENT_ACTIVE:URL_DOWN": async () => {},
+    "INCIDENT_ACTIVE:URL_DOWN": async () => {
+      const reminderEmailTime = getMinutesDifference(
+        activeIncident.last_alert_sent_at,
+      );
+      console.log(activeIncident.last_alert_sent_at);
+      console.log("reminder: ", reminderEmailTime);
+      if (reminderEmailTime > 2) {
+        await addReminderEmailQueue(url_id, activeIncident.id);
+      } else {
+        return;
+      }
+    },
     "INCIDENT_ACTIVE:URL_UP": async () => {
       await updateResolvedAt(activeIncident.id);
       await addToRecoveryEmailQueue(url_id, activeIncident.id);

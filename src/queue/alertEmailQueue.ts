@@ -66,4 +66,36 @@ export const addToRecoveryEmailQueue = async (
 
   return addJob;
 };
+
+export const addReminderEmailQueue = async (
+  url_id: string,
+  incident_id: string,
+) => {
+  const addJob = await alertEmailQueue.add(
+    "reminder-email",
+    {
+      url_id,
+      incident_id,
+    },
+    {
+      jobId: `email-reminder-${url_id}-${Date.now()}`,
+      attempts: 4,
+      backoff: {
+        type: "exponential",
+        delay: 2000,
+      },
+      removeOnComplete: {
+        age: 172800,
+        count: 10,
+      },
+      removeOnFail: {
+        age: 172800,
+        count: 100,
+      },
+    },
+  );
+
+  return addJob;
+};
+
 export default alertEmailQueue;

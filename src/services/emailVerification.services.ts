@@ -16,6 +16,7 @@ export const sendEmailVerification = async (email: string, otp: string) => {
     html: `<p>Your verification code is: <strong>${otp}</strong></p>
            <p>This code expires in 10 minutes.</p>`,
   });
+  console.log("Resend response — data:", data, "error:", error);
   if (error) {
     throw new Error(`Failed to send verification email: ${error.message}`);
   }
@@ -129,6 +130,7 @@ export const sendDownAlertEmail = async (
       ${errorMessage ? `<p><strong>Error:</strong> ${errorMessage}</p>` : ""}
     `,
   });
+  console.log("Resend response — data:", data, "error:", error);
 
   if (error) {
     throw new Error(`Failed to send down alert: ${error.message}`);
@@ -157,9 +159,40 @@ export const sendRecoveryEmail = async (
       <p><strong>Outage duration:</strong> ${duration}</p>
     `,
   });
+  console.log("Resend response — data:", data, "error:", error);
 
   if (error) {
     throw new Error(`Failed to send recovery alert: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const sendStillDownAlertEmail = async (
+  email: string,
+  monitorName: string,
+  url: string,
+  startedAt: Date,
+) => {
+  const downtimeDuration = formatDuration(startedAt, new Date());
+
+  const { data, error } = await resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: `🔴 Still Down: ${monitorName} (${downtimeDuration})`,
+    html: `
+      <h2>Your monitor is still down</h2>
+      <p><strong>Monitor:</strong> ${monitorName}</p>
+      <p><strong>URL:</strong> ${url}</p>
+      <p><strong>Down since:</strong> ${startedAt.toLocaleString()}</p>
+      <p><strong>Total downtime so far:</strong> ${downtimeDuration}</p>
+    `,
+  });
+
+  console.log("Resend response — data:", data, "error:", error);
+
+  if (error) {
+    throw new Error(`Failed to send still-down alert: ${error.message}`);
   }
 
   return data;

@@ -10,7 +10,7 @@ export const handleError = (
   next: NextFunction,
 ) => {
   console.log(err);
-  // Sentry.captureException(err);
+  Sentry.captureException(err);
   if (err instanceof ZodError) {
     return res.status(400).json({ message: err.issues[0].message });
   }

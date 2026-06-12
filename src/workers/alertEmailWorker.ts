@@ -5,6 +5,7 @@ import {
   sendDownAlertEmail,
   sendEmailVerification,
   sendRecoveryEmail,
+  sendStillDownAlertEmail,
 } from "../services/emailVerification.services";
 import { db } from "../db";
 
@@ -42,6 +43,14 @@ const insertIntoNotificationsTable = async (
   const insert_notifications_values = [id, resendId, type, status];
   await db.query(insert_notifications_query, insert_notifications_values);
 };
+
+const updateLastAlertSentAt = async (incident_id: string) => {
+  const updatelast_alert_query =
+    "UPDATE incidents SET last_alert_sent_at = NOW() where id = $1";
+  const updatelast_alert_values = [incident_id];
+  await db.query(updatelast_alert_query, updatelast_alert_values);
+};
+
 const processor = async (job: Job) => {
   console.log("Job Name:", job.name);
   if (job.name === "down-alert-email") {
@@ -63,6 +72,9 @@ const processor = async (job: Job) => {
       url,
       startedAt,
     );
+
+    await updateLastAlertSentAt(incident_id);
+
     if (downAlertEmail === null) {
       await insertIntoNotificationsTable(id, null, "failed", "down");
     } else {
@@ -98,6 +110,22 @@ const processor = async (job: Job) => {
         "recovery",
       );
     }
+  } else if (job.name === "reminder-email") {
+    const { url_id, incident_id } = job.data;
+    const getEmailAndUrlInfo = await db.query(
+      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      [url_id],
+    );
+    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const getStartedAt = await db.query(
+      "SELECT started_at from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
+    );
+    const [{ started_at: startedAt }] = getStartedAt.rows;
+
+    await updateLastAlertSentAt(incident_id);
+
+    await sendStillDownAlertEmail(email, urlName, url, startedAt);
   }
 };
 

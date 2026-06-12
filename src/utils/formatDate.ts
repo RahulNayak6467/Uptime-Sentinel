@@ -10,3 +10,9 @@ export const formatDuration = (startedAt: Date, resolvedAt: Date): string => {
   if (remainingMinutes === 0) return `${hours} hour${hours !== 1 ? "s" : ""}`;
   return `${hours} hour${hours !== 1 ? "s" : ""} ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}`;
 };
+
+export const getMinutesDifference = (startTime: Date | string): number => {
+  const start = startTime instanceof Date ? startTime : new Date(startTime);
+  const diffInMilliseconds = Date.now() - start.getTime();
+  return diffInMilliseconds / (1000 * 60);
+};
