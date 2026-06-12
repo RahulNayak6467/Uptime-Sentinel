@@ -50,15 +50,7 @@ const processor = async (job: Job) => {
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
   console.log(urlMonitorResponse);
   await updateMonitorStatus(urlMonitorResponse.status, user_id, url_id);
-  await runStateMachine(url_id);
-  const responseCode = urlMonitorResponse.statusCode;
-
-  if (responseCode === null) {
-    throw new Error("Url is down");
-  }
-  if (responseCode >= 500) {
-    throw new Error(`HTTP error ${responseCode} status code`);
-  }
+  await runStateMachine(url_id, urlMonitorResponse.status);
 };
 
 export const urlCheckWorker = new Worker(

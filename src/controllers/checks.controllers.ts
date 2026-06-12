@@ -27,7 +27,7 @@ export const getAllInfo = async (
     // } else if (error instanceof Error) {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
 };
 
@@ -54,7 +54,7 @@ export const getInfoByName = async (
     // } else if (error instanceof Error) {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
 };
 
@@ -78,6 +78,6 @@ export const getInfoById = async (
     // } else {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
 };

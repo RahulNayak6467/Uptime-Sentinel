@@ -45,6 +45,6 @@ export const getSingleIncidentData = async (
     //     message: "Internal server error",
     //   });
     // }
-    next(err);
+    return next(err);
   }
 };

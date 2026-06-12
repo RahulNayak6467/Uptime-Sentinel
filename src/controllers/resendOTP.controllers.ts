@@ -19,7 +19,7 @@ export const resendOTPMessage = async (
     // } else {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
 
   try {
@@ -31,6 +31,6 @@ export const resendOTPMessage = async (
     // } else if (err instanceof Error) {
     //   return res.status(500).json("Internal server error");
     // }
-    next(err);
+    return next(err);
   }
 };

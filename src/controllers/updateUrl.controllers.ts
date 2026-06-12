@@ -28,7 +28,8 @@ export const updateUrlById = async (
   }
 
   try {
-    urlSchema.parse({ url, urlName, intervalSeconds });
+    const updateUrlSchema = urlSchema.partial();
+    updateUrlSchema.parse({ url, urlName, intervalSeconds });
   } catch (err) {
     // console.log("ERROR: ", error);
     // if (error instanceof ZodError) {
@@ -36,7 +37,7 @@ export const updateUrlById = async (
     // } else {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
   try {
     const updatedUrlResponseMessage = await updateUrl(
@@ -57,6 +58,6 @@ export const updateUrlById = async (
     // } else {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
 };

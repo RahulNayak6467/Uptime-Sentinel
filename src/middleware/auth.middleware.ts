@@ -11,7 +11,7 @@ export const authMiddleware = async (
   const getToken = req.headers.authorization;
 
   if (!getToken) {
-    return res.status(401).json({ message: "Login Failed" });
+    return res.status(401).json({ message: "UnAuthorized" });
   }
   const secretKey = process.env.JWT_SECRET;
   if (typeof secretKey !== "string") {

@@ -34,6 +34,6 @@ export const removeUrlById = async (
     //     message: "Internal server error",
     //   });
     // }
-    next(err);
+    return next(err);
   }
 };

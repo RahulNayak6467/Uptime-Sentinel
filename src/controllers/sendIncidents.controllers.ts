@@ -41,6 +41,6 @@ export const sendIncidentsById = async (
     //     message: "Internal server error",
     //   });
     // }
-    next(err);
+    return next(err);
   }
 };

@@ -45,15 +45,15 @@ const insertIntoNotificationsTable = async (
 const processor = async (job: Job) => {
   console.log("Job Name:", job.name);
   if (job.name === "down-alert-email") {
-    const { url_id } = job.data;
+    const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
       "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
       [url_id],
     );
     const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
-      "SELECT id,started_at from incidents where monitor_id = $1",
-      [url_id],
+      "SELECT id,started_at from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
     );
     const [{ id, started_at: startedAt }] = getStartedAt.rows;
 
@@ -69,15 +69,15 @@ const processor = async (job: Job) => {
       await insertIntoNotificationsTable(id, downAlertEmail.id, "sent", "down");
     }
   } else if (job.name === "recovery-email") {
-    const { url_id } = job.data;
+    const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
       "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
       [url_id],
     );
     const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
-      "SELECT id,started_at,resolved_at from incidents where monitor_id = $1",
-      [url_id],
+      "SELECT id,started_at,resolved_at from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
     );
     const [{ id, started_at: startedAt, resolved_at: resolvedAt }] =
       getStartedAt.rows;

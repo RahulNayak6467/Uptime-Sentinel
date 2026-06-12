@@ -28,7 +28,7 @@ export const handleUser = async (
     // } else {
     //   return res.status(500).json({ message: "Internal server error" });
     // }
-    next(err);
+    return next(err);
   }
   try {
     const userData = await insertUserData(password, email);
@@ -42,6 +42,6 @@ export const handleUser = async (
     //   return res.status(500).json({ message: error.message });
     // }
     // return res.status(500).json({ message: "Internal server error" });
-    next(err);
+    return next(err);
   }
 };

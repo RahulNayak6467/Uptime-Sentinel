@@ -5,11 +5,15 @@ const alertEmailQueue = new Queue("alert-email", {
   connection: redis, // your existing redis client
 });
 
-export const addToDownAlertEmailQueue = async (url_id: string) => {
+export const addToDownAlertEmailQueue = async (
+  url_id: string,
+  incident_id: string,
+) => {
   const addJob = await alertEmailQueue.add(
     "down-alert-email",
     {
       url_id,
+      incident_id,
     },
     {
       jobId: `email-check-${url_id}-${Date.now()}`,
@@ -32,11 +36,15 @@ export const addToDownAlertEmailQueue = async (url_id: string) => {
   return addJob;
 };
 
-export const addToRecoveryEmailQueue = async (url_id: string) => {
+export const addToRecoveryEmailQueue = async (
+  url_id: string,
+  incident_id: string,
+) => {
   const addJob = await alertEmailQueue.add(
     "recovery-email",
     {
       url_id,
+      incident_id,
     },
     {
       jobId: `email-recovery-${url_id}-${Date.now()}`,

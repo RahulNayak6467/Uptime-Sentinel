@@ -20,7 +20,7 @@ export const addToQueue = async (
     },
     {
       jobId: `monitor-check-${url_id}-${Date.now()}`,
-      attempts: 4,
+      attempts: 1,
       backoff: {
         type: "exponential",
         delay: 2000,

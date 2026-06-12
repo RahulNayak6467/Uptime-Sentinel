@@ -24,7 +24,7 @@ export const sendEmailVerification = async (email: string, otp: string) => {
 
 export const verifyEmail = async (email: string, otp: string) => {
   const update_emailVerification_query =
-    "UPDATE user_details set email_verified = true where email = $1 RETURNING id";
+    "UPDATE user_details set email_verified = true where email = $1 and email_verified = false RETURNING id";
   const update_emailVerification_value = [email];
   try {
     const getOTP = await redis.get(`emailVerify-${email}`);
@@ -44,6 +44,21 @@ export const verifyEmail = async (email: string, otp: string) => {
       update_emailVerification_query,
       update_emailVerification_value,
     );
+
+    const updatedRowCount: number = updateEmailVerification.rowCount as number;
+
+    const updatedRow: number = updateEmailVerification.rows.length;
+
+    console.log(updateEmailVerification);
+
+    if (updatedRowCount === 0) {
+      throw new AppError(404, "user not found");
+    }
+
+    if (updatedRow === 0) {
+      throw new AppError(409, "Email already verified");
+    }
+
     await redis.del(`emailVerify-${email}`);
     await redis.del(`verification:attempts-${email}`);
     const expiresIn = process.env.JWT_EXPIRES_IN;

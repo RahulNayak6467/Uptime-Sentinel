@@ -36,13 +36,15 @@ export const fetchUrlDataByName = async (
   const values = [url, user_id];
 
   try {
+    console.log(url);
+    console.log(user_id);
     const getUrlData = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlData.rows;
-    // console.log(getUrlData);
+    console.log(getUrlData);
     // console.log(rows.length);
     if (rows.length === 0) {
       //   return res.status(404).json({ message: "no such url exists" });
-      throw new AppError(404, "no url exists");
+      throw new AppError(404, "no checks made till now or url does not exist");
     }
     return rows;
   } catch (error) {
@@ -65,7 +67,7 @@ export const fetchUrlDataById = async (
     const rows: UrlResponseData[] = getUrlById.rows;
     // console.log(rows.length);
     if (rows.length === 0) {
-      throw new AppError(404, "no such url exists");
+      throw new AppError(404, "no checks made till now or url does not exist");
     }
     return rows[0];
   } catch (error) {
