@@ -1,7 +1,12 @@
+packages:
+  - 'apps/*'
+
 allowBuilds:
   bcrypt: true
   esbuild: false
   msgpackr-extract: false
+  sharp: true
+  unrs-resolver: true
 
 overrides:
   ioredis: "5.10.1"

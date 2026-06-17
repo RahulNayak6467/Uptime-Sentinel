@@ -1,0 +1,58 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* ── Font ── */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Colors (→ bg-*, text-*, border-*) ── */
+  --color-sf-bg: #f9fafb;
+  --color-sf-surface: #ffffff;
+  --color-sf-border: #e5e7eb;
+  --color-sf-border-faint: #f3f4f6;
+  --color-sf-text: #111827; /* primary text + button */
+  --color-sf-text-sub: #6b7280;
+  --color-sf-text-muted: #9ca3af;
+  --color-sf-green: #16a34a;
+  --color-sf-green-bg: #f0fdf4;
+  --color-sf-green-border: #bbf7d0;
+  --color-sf-red: #dc2626;
+  --color-sf-red-bg: #fef2f2;
+  --color-sf-red-border: #fecaca;
+  --color-sf-amber: #d97706;
+  --color-sf-blue: #2563eb;
+  --color-sf-blue-bg: #eff6ff;
+  --color-sf-btn-hover: #1f2937;
+  --color-sf-btn-active: #374151;
+  --color-sf-btn-disabled: #d1d5db;
+
+  /* ── Font sizes (→ text-*) ── */
+  --text-sf-tagline: 0.594rem; /* 9.5px — UPTIME label */
+  --text-sf-xs: 0.719rem; /* 11.5px — strength/terms */
+  --text-sf-sm: 0.844rem; /* 13.5px — subtitle */
+  --text-sf-label: 0.8125rem; /* 13px — input label */
+  --text-sf-h1: 1.25rem; /* 20px — heading */
+
+  /* ── Radii (→ rounded-*) ── */
+  --radius-sf-card: 12px;
+  --radius-sf: 6px;
+  --radius-sf-sm: 5px;
+
+  /* ── Shadows (→ shadow-*) ── */
+  --shadow-sf-card:
+    0 1px 3px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --shadow-sf-focus: 0 0 0 3px rgba(17, 24, 39, 0.06);
+
+  /* ── Tracking (→ tracking-*) ── */
+  --tracking-sf-tight: -0.02em;
+  --tracking-sf-wide: 0.07em;
+
+  /* ── Card width (→ max-w-*) ── */
+  --container-sf-card: 400px;
+}
+
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+} */
