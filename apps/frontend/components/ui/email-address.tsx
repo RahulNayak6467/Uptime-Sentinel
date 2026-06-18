@@ -11,7 +11,7 @@ const EmailAddressInput = ({
 }) => {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[12px] font-semibold" for="userEmail">
+      <label className="text-[12px] font-semibold" htmlFor="userEmail">
         Email address
       </label>
       <input

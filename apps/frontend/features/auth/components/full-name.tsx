@@ -11,7 +11,7 @@ const FullNameInput = ({
 }) => {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[12px] font-semibold" for="userName">
+      <label className="text-[12px] font-semibold" htmlFor="userName">
         Full name
       </label>
       <input

@@ -12,9 +12,9 @@ const UptimeSentinelImage = () => {
         points="7 20 11 10 15 16 19 8"
         fill="none"
         stroke="#FFFFFF"
-        stroke-width="1.8"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

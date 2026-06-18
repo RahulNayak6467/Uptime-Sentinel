@@ -1,3 +1,4 @@
+"use client";
 import EmailAddressInput from "@/components/ui/email-address";
 import GoogleIcon from "@/components/ui/google-icon";
 import PasswordInput from "@/components/ui/password-input";
