@@ -1,6 +1,7 @@
 // app/dashboard/layout.tsx
 
 import Sidebar from "@/components/sidebar/sidebar";
+import MonitorPreview from "@/features/new_monitor/components/monitor-preview/monitor-preview";
 
 export default function DashboardLayout({
   children,
@@ -8,11 +9,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section className="h-screen w-full  bg-sf-bg">
-      <div className="grid grid-cols-[220px_1fr] h-full">
+    <section className="h-screen overflow-hidden w-full bg-sf-bg flex">
+      <div className="w-55 h-full shrink-0">
         <Sidebar />
-        <div>{children}</div>
       </div>
+      <div className="flex-1 w-full overflow-y-auto">{children}</div>
     </section>
   );
 }
