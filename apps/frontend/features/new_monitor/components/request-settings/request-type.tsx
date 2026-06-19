@@ -115,7 +115,7 @@ const RequestType = ({
               aria-checked={followRedirects}
               onClick={() => setFollowRedirects((prev) => !prev)}
               className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 ease-in-out cursor-pointer shrink-0 ${
-                followRedirects ? "bg-sf-text" : "bg-sf-border"
+                followRedirects ? "bg-sf-toggle-on" : "bg-sf-toggle-off"
               }`}
             >
               <span

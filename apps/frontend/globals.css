@@ -29,6 +29,8 @@
   --color-sf-btn-active: #374151;
   --color-sf-btn-disabled: #d1d5db;
   --color-sf-btn-text: #ffffff;
+  --color-sf-toggle-on: #111827;
+  --color-sf-toggle-off: #d1d5db;
   --color-sf-logo-bg: #111827;
   --color-sf-logo-stroke: #ffffff;
 
@@ -185,6 +187,8 @@
   --color-sf-btn-active: #2a3040;
   --color-sf-btn-disabled: #2a2d38;
   --color-sf-btn-text: #0c0e13;
+  --color-sf-toggle-on: #4b5563;
+  --color-sf-toggle-off: #2a2f3e;
   --shadow-sf-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-sf-focus: 0 0 0 3px rgba(96, 165, 250, 0.15);
   --color-sf-logo-bg: #e2e8f0;
