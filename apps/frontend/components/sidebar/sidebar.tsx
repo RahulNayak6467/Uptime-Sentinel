@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname } from "next/navigation";
 import UptimeSentinelImage from "../ui/uptime-sentinel";
 import { configureItems, monitorItems, workspaceItems } from "./data";
 import MonitorStats from "./monitor-stats";
 import DarkModeToggle from "./dark-mode";
 
 const Sidebar = () => {
-  const [activeItem, setActiveItem] = useState<string>("Overview");
+  const pathname = usePathname();
+
   return (
     <section className="w-full h-full px-4 pt-4 pb-4 bg-sf-surface border-r border-r-sf-border">
       <div className="h-full w-full flex flex-col">
-        <div className="flex  items-center gap-2">
+        <div className="flex items-center gap-2">
           <UptimeSentinelImage />
           <div>
             <p className="text-sm text-sf-text font-bold font-sans">
@@ -28,56 +29,58 @@ const Sidebar = () => {
             Acme Inc
           </p>
         </div>
-        <div className="mt-6 ">
+
+        <div className="mt-6">
           <h3 className="uppercase text-sf-text-sub font-sans text-[11px] tracking-wider">
             Monitoring
           </h3>
           <div className="mt-1">
             {monitorItems.map((item) => (
               <MonitorStats
+                key={item.id}
                 icon={item.icon}
                 label={item.label}
+                href={item.href}
                 number={item.number}
                 color={item.color}
                 backgroundColor={item.backgroundColor}
-                isActive={activeItem === item.label}
-                onClick={() => setActiveItem(item.label)}
                 comingSoon={item.comingSoon}
-                key={item.id}
+                isActive={pathname === item.href}
               />
             ))}
           </div>
         </div>
-        <div className="mt-6 ">
+
+        <div className="mt-6">
           <h3 className="uppercase text-sf-text-sub font-sans text-[11px] tracking-wider">
             Configure
           </h3>
           <div className="mt-1">
             {configureItems.map((item) => (
               <MonitorStats
+                key={item.id}
                 icon={item.icon}
                 label={item.label}
-                isActive={activeItem === item.label}
-                onClick={() => setActiveItem(item.label)}
-                comingSoon={item.comingSoon}
-                key={item.id}
+                href={item.href}
+                isActive={pathname === item.href}
               />
             ))}
           </div>
         </div>
-        <div className="mt-6 ">
+
+        <div className="mt-6">
           <h3 className="uppercase text-sf-text-sub font-sans text-[11px] tracking-wider">
             Workspace
           </h3>
           <div className="mt-1">
             {workspaceItems.map((item) => (
               <MonitorStats
+                key={item.id}
                 icon={item.icon}
                 label={item.label}
-                isActive={activeItem === item.label}
-                onClick={() => setActiveItem(item.label)}
+                href={item.href}
                 comingSoon={item.comingSoon}
-                key={item.id}
+                isActive={pathname === item.href}
               />
             ))}
           </div>

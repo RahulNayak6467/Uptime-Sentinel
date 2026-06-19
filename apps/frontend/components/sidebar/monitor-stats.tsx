@@ -1,19 +1,20 @@
+import Link from "next/link";
 import { monitorStatsProps } from "./types";
 
 const MonitorStats = ({
   icon,
   label,
+  href,
   number,
   backgroundColor,
   color,
   isActive,
-  onClick,
   comingSoon,
 }: monitorStatsProps) => {
   const Icon = icon;
-  return (
+
+  const content = (
     <div
-      onClick={comingSoon ? undefined : onClick}
       className={`flex justify-between items-center w-full rounded-sm transition-colors ${
         comingSoon
           ? "cursor-default opacity-50"
@@ -44,8 +45,8 @@ const MonitorStats = ({
         <div
           className="h-4 w-4 mr-2 flex items-center justify-center rounded-full"
           style={{
-            color: color ? color : "",
-            background: backgroundColor ? backgroundColor : "",
+            color: color ?? "",
+            background: backgroundColor ?? "",
           }}
         >
           <span className="text-[10px]">{number}</span>
@@ -53,6 +54,10 @@ const MonitorStats = ({
       )}
     </div>
   );
+
+  if (comingSoon) return content;
+
+  return <Link href={href}>{content}</Link>;
 };
 
 export default MonitorStats;

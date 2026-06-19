@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { Clock, CalendarDays, LayoutGrid, LineChart } from "lucide-react";
-
-const renotifyOptions = ["15m", "30m", "1h", "Off"] as const;
-type RenotifyOption = (typeof renotifyOptions)[number];
-
-const groupOptions = ["Off", "1m", "5m", "15m"] as const;
-type GroupOption = (typeof groupOptions)[number];
+import { renotifyOptions, groupOptions } from "../../data";
+import { RenotifyOption, GroupOption } from "../../types";
 
 const Toggle = ({
   checked,

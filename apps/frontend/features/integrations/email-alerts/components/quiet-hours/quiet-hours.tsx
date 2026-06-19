@@ -2,13 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Check, TriangleAlert } from "lucide-react";
-
-const hours = Array.from({ length: 24 }, (_, i) =>
-  i.toString().padStart(2, "0") + ":00"
-);
-
-const dayOptions = ["Every day", "Weekdays", "Weekends"] as const;
-type DayOption = (typeof dayOptions)[number];
+import { hours, dayOptions } from "../../data";
+import { DayOption } from "../../types";
 
 const Toggle = ({
   checked,

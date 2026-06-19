@@ -167,13 +167,13 @@
   --sidebar-ring: oklch(0.556 0 0);
 
   /* StatusForge dark token overrides */
-  --color-sf-bg: #0c0e13;
-  --color-sf-surface: #13161e;
-  --color-sf-border: #1f2330;
-  --color-sf-border-faint: #181b24;
-  --color-sf-text: #e8ecf0;
-  --color-sf-text-sub: #8b929e;
-  --color-sf-text-muted: #5a6270;
+  --color-sf-bg: #0d0d0d;
+  --color-sf-surface: #111111;
+  --color-sf-border: #222222;
+  --color-sf-border-faint: #1a1a1a;
+  --color-sf-text: #f0f0f0;
+  --color-sf-text-sub: #888888;
+  --color-sf-text-muted: #555555;
   --color-sf-green: #4ade80;
   --color-sf-green-bg: #052e16;
   --color-sf-green-border: #166534;
