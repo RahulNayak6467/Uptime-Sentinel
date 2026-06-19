@@ -3,10 +3,18 @@
 import { useState } from "react";
 import { alertConditionsData } from "../../data";
 import AlertTypes from "./alert-types";
+import { newMonitorProps } from "../../types";
+import ErrorMessage from "@/features/auth/error";
 
-const AlertConditions = () => {
+const AlertConditions = ({
+  register,
+  errors,
+}: {
+  register: newMonitorProps;
+  errors: string | undefined;
+}) => {
   return (
-    <div className="w-full bg-white mt-6">
+    <div className="w-full bg-sf-surface mt-6">
       <div className="w-full h-full border border-sf-border rounded-lg">
         <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
@@ -37,6 +45,8 @@ const AlertConditions = () => {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <input
+                {...register("responseTimeAlert")}
+                {...(errors && <ErrorMessage error={errors} />)}
                 type="number"
                 defaultValue={5000}
                 min={0}

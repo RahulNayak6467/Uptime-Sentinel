@@ -4,7 +4,7 @@ const MonitorPreview = () => {
   return (
     <div className=" border border-sf-border rounded-lg bg-sf-surface overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-sf-border">
-        <span className="w-2 h-2 rounded-full bg-gray-300 shrink-0" />
+        <span className="w-2 h-2 rounded-full bg-sf-border shrink-0" />
         <span className="text-[11px] font-semibold font-sans text-sf-text-muted tracking-widest uppercase">
           Preview
         </span>
@@ -13,7 +13,7 @@ const MonitorPreview = () => {
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-2 h-2 rounded-full bg-gray-300 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-sf-border shrink-0" />
             <span className="text-[14px] font-bold font-sans text-sf-text truncate">
               Unnamed mo...
             </span>

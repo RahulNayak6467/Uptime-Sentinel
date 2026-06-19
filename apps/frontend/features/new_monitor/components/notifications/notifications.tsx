@@ -8,7 +8,7 @@ const Notifications = () => {
   const [selected, setSelected] = useState("Email");
 
   return (
-    <div className="w-full bg-white mt-6">
+    <div className="w-full bg-sf-surface mt-6">
       <div className="w-full h-full border border-sf-border rounded-lg">
         <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
@@ -29,14 +29,14 @@ const Notifications = () => {
                   comingSoon
                     ? "border-sf-border text-sf-text-muted cursor-not-allowed opacity-50"
                     : selected === label
-                      ? "bg-sf-text text-white border-sf-text cursor-pointer"
-                      : "bg-white text-sf-text border-sf-border hover:border-gray-300 cursor-pointer"
+                      ? "bg-sf-text text-sf-btn-text border-sf-text cursor-pointer"
+                      : "bg-sf-surface text-sf-text border-sf-border hover:border-sf-text-sub cursor-pointer"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 {label}
                 {comingSoon && (
-                  <span className="text-[10px] font-semibold px-1 py-0.5 rounded-full bg-gray-100 text-gray-400 tracking-wide">
+                  <span className="text-[10px] font-semibold px-1 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
                     Soon
                   </span>
                 )}

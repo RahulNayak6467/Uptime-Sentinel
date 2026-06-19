@@ -3,15 +3,26 @@
 import { useState } from "react";
 import { httpMethods } from "../../data";
 import RequestBody from "./request-body";
+import { newMonitorProps } from "../../types";
+import ErrorMessage from "@/features/auth/error";
 
 const BODY_METHODS = ["post", "put", "patch", "delete"];
 
-const RequestType = () => {
+const RequestType = ({
+  register,
+  errors,
+}: {
+  register: newMonitorProps;
+  errors: {
+    errorsTimeout: string | undefined;
+    errorsStatusCode: string | undefined;
+  };
+}) => {
   const [followRedirects, setFollowRedirects] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState("get");
 
   return (
-    <div className="w-full bg-white mt-6">
+    <div className="w-full bg-sf-surface mt-6">
       <div className="w-full h-full border border-sf-border rounded-lg">
         <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
@@ -34,8 +45,8 @@ const RequestType = () => {
                   onClick={() => setSelectedMethod(method)}
                   className={`uppercase px-2 py-1 font-sans font-medium text-[12px] rounded-lg border cursor-pointer transition-colors duration-150 ${
                     selectedMethod === method
-                      ? "bg-sf-text text-white border-sf-text"
-                      : "bg-white text-sf-text-sub border-sf-border hover:border-gray-300 hover:text-sf-text"
+                      ? "bg-sf-text text-sf-btn-text border-sf-text"
+                      : "bg-sf-surface text-sf-text-sub border-sf-border hover:border-sf-text-sub hover:text-sf-text"
                   }`}
                 >
                   {method}
@@ -60,6 +71,8 @@ const RequestType = () => {
                 </span>
               </label>
               <input
+                {...register("timeout")}
+                {...(errors && <ErrorMessage error={errors.errorsTimeout} />)}
                 id="timeout"
                 name="timeout"
                 type="number"
@@ -80,6 +93,10 @@ const RequestType = () => {
                 </span>
               </label>
               <input
+                {...register("statusCode")}
+                {...(errors && (
+                  <ErrorMessage error={errors.errorsStatusCode} />
+                ))}
                 id="expected-status"
                 name="expectedStatus"
                 type="number"
@@ -98,11 +115,11 @@ const RequestType = () => {
               aria-checked={followRedirects}
               onClick={() => setFollowRedirects((prev) => !prev)}
               className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 ease-in-out cursor-pointer shrink-0 ${
-                followRedirects ? "bg-sf-text" : "bg-gray-200"
+                followRedirects ? "bg-sf-text" : "bg-sf-border"
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-transform duration-200 ease-in-out ${
+                className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 bg-sf-bg rounded-full shadow-sm transition-transform duration-200 ease-in-out ${
                   followRedirects ? "translate-x-3.5" : "translate-x-0"
                 }`}
               />

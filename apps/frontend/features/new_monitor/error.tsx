@@ -1,9 +1,8 @@
 type errorProps = {
-  error: string | undefined;
+  error: string;
 };
 
 const ErrorMessage = ({ error }: errorProps) => {
-  if (!error) return;
   return <p className="text-red-500 text-sm mt-1">{error}</p>;
 };
 

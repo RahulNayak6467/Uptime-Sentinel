@@ -1,8 +1,14 @@
+import OverviewHeaders from "@/features/Overview/overview-headers";
+import OverviewStats from "@/features/Overview/overview-stats";
+
 const Overview = () => {
   return (
-    <div>
-      <h1>Hello Overview</h1>
-    </div>
+    <section>
+      <OverviewHeaders />
+      <div>
+        <OverviewStats />
+      </div>
+    </section>
   );
 };
 

@@ -1,6 +1,5 @@
 import ErrorMessage from "@/features/auth/error";
 import { userRegister } from "@/features/auth/types";
-import { FieldError } from "react-hook-form";
 
 const EmailAddressInput = ({
   register,

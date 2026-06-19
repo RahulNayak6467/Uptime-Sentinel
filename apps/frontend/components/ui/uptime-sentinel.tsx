@@ -7,11 +7,11 @@ const UptimeSentinelImage = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="28" height="28" rx="6" fill="#111827" />
+      <rect width="26" height="26" rx="6" fill="var(--color-sf-logo-bg)" />
       <polyline
         points="7 20 11 10 15 16 19 8"
         fill="none"
-        stroke="#FFFFFF"
+        stroke="var(--color-sf-logo-stroke)"
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -19,4 +19,5 @@ const UptimeSentinelImage = () => {
     </svg>
   );
 };
+
 export default UptimeSentinelImage;

@@ -1,4 +1,6 @@
 import { LucideIcon } from "lucide-react";
+import { UseFormRegister } from "react-hook-form";
+import { monitorInfoProps } from "./schemas/monitor-info";
 
 type checkTypeProps =
   | "HTTP/HTTPS"
@@ -29,3 +31,5 @@ export type notificationChannelProps = {
   icon: LucideIcon;
   comingSoon?: boolean;
 };
+
+export type newMonitorProps = UseFormRegister<monitorInfoProps>;

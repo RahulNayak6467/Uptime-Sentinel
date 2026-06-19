@@ -7,7 +7,7 @@ const CheckInterval = () => {
   const [selected, setSelected] = useState("5m");
 
   return (
-    <div className="w-full bg-white mt-6">
+    <div className="w-full bg-sf-surface mt-6">
       <div className="w-full h-full border border-sf-border rounded-lg">
         <div className="w-full border-b border-sf-border py-2 px-4 rounded-t-lg">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
@@ -25,8 +25,8 @@ const CheckInterval = () => {
               onClick={() => setSelected(label)}
               className={`px-3 py-1 rounded-lg border font-sans text-[12px] font-medium transition-colors duration-150 cursor-pointer ${
                 selected === label
-                  ? "bg-sf-text text-white border-sf-text"
-                  : "bg-white text-sf-text border-sf-border hover:border-gray-300"
+                  ? "bg-sf-text text-sf-btn-text border-sf-text"
+                  : "bg-sf-surface text-sf-text border-sf-border hover:border-sf-text-sub"
               }`}
             >
               {label}

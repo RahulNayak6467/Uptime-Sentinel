@@ -4,11 +4,12 @@ import { useState } from "react";
 import UptimeSentinelImage from "../ui/uptime-sentinel";
 import { configureItems, monitorItems, workspaceItems } from "./data";
 import MonitorStats from "./monitor-stats";
+import DarkModeToggle from "./dark-mode";
 
 const Sidebar = () => {
   const [activeItem, setActiveItem] = useState<string>("Overview");
   return (
-    <section className="w-full h-full px-4 pt-4 pb-4 bg-white border-r border-r-gray-200">
+    <section className="w-full h-full px-4 pt-4 pb-4 bg-sf-surface border-r border-r-sf-border">
       <div className="h-full w-full flex flex-col">
         <div className="flex  items-center gap-2">
           <UptimeSentinelImage />
@@ -84,10 +85,7 @@ const Sidebar = () => {
 
         <div className="mt-auto">
           <div className="border-t border-sf-border pt-2 flex flex-col gap-0.5">
-            <button className="flex items-center gap-3 w-full px-2 py-1.5 rounded-sf text-sf-text-sub hover:bg-sf-bg hover:text-sf-text transition-colors cursor-pointer">
-              <MoonIcon />
-              <span className="text-[13.5px] font-sans">Dark mode</span>
-            </button>
+            <DarkModeToggle />
             <button className="flex items-center gap-3 w-full px-2 py-1.5 rounded-sf text-sf-text-sub hover:bg-sf-bg hover:text-sf-text transition-colors cursor-pointer">
               <HelpIcon />
               <span className="text-[13.5px] font-sans">Help &amp; docs</span>
@@ -111,23 +109,6 @@ const Sidebar = () => {
     </section>
   );
 };
-
-function MoonIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
 
 function HelpIcon() {
   return (

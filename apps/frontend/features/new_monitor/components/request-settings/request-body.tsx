@@ -37,8 +37,8 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               onClick={() => handleBodyTypeSelect(type.id, type.contentType)}
               className={`px-3 py-1 text-[12px] font-sans font-medium rounded-lg border cursor-pointer transition-colors duration-150 ${
                 selectedBodyType === type.id
-                  ? "bg-sf-text text-white border-sf-text"
-                  : "bg-white text-sf-text-sub border-sf-border hover:border-gray-300 hover:text-sf-text"
+                  ? "bg-sf-text text-sf-btn-text border-sf-text"
+                  : "bg-sf-surface text-sf-text-sub border-sf-border hover:border-sf-text-sub hover:text-sf-text"
               }`}
             >
               {type.label}
@@ -67,7 +67,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               type="text"
               value={contentType}
               onChange={(e) => setContentType(e.target.value)}
-              className="w-full px-3 py-2 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-white outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+              className="w-full px-3 py-2 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-sf-surface outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
             />
           </div>
 
@@ -79,7 +79,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               name="requestBody"
               placeholder="Raw request body…"
               rows={7}
-              className="w-full px-3 py-2.5 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-white placeholder:text-sf-text-muted outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150 resize-y"
+              className="w-full px-3 py-2.5 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-sf-surface placeholder:text-sf-text-muted outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150 resize-y"
             />
           </div>
         </>

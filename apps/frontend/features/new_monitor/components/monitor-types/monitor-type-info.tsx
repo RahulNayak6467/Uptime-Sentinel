@@ -8,7 +8,7 @@ const MonitorTypeInfo = () => {
   const [selected, setSelected] = useState<string>("HTTP/HTTPS");
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-sf-surface">
       <div className="w-full h-full border border-sf-border rounded-lg">
         <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">

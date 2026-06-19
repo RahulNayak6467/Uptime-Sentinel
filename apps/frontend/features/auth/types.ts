@@ -1,4 +1,4 @@
-import { FieldElement, FieldError, UseFormRegister } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
 import { registerSchemaProps } from "./schemas/register-schema";
 import { loginSchemaProps } from "./schemas/login-schema";
 

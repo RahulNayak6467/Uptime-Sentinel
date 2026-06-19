@@ -17,7 +17,7 @@ const NewMonitorHeader = () => {
         <button className="px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-text border border-sf-border rounded-sf hover:bg-sf-bg transition-colors cursor-pointer">
           Cancel
         </button>
-        <button className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-white bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer">
+        <button className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer">
           <span>+</span>
           <span>Create monitor</span>
         </button>
