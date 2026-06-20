@@ -4,21 +4,13 @@ import { db } from "../db/index";
 import bcrypt from "bcrypt";
 import { SALT } from "../constants/constants";
 import { v4 as uuidv4 } from "uuid";
+import { env } from "../config/env";
 interface userInfoProps {
   id: string;
   password: string;
 }
 
-export const checkLoginUser = async (
-  email: string,
-  password: string,
-): Promise<
-  | {
-      message: string;
-      token: string;
-    }
-  | undefined
-> => {
+export const checkLoginUser = async (email: string, password: string) => {
   try {
     const query = "SELECT email,password,id FROM user_details WHERE email = $1";
     const values = [email];
@@ -32,13 +24,13 @@ export const checkLoginUser = async (
     if (!checkPassword) {
       throw new AppError(401, "Invalid login credentials");
     }
-    const secretKey = process.env.JWT_SECRET;
-    const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
+    const secretKey = env.JWT_SECRET;
+    const refreshSecretKey = env.JWT_REFRESH_SECRET;
     if (!secretKey || !refreshSecretKey) {
       throw new AppError(500, "Internal server error");
     }
-    const expiredTime = process.env.JWT_EXPIRES_IN;
-    const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN;
+    const expiredTime = env.JWT_EXPIRES_IN;
+    const refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
     const generatedToken = jwt.sign(
       { user_id, email, jti: uuidv4() },
       secretKey,
@@ -65,6 +57,7 @@ export const checkLoginUser = async (
     return {
       message: "User successfully logged in",
       token: generatedToken,
+      refreshToken: generateRefreshToken,
     };
   } catch (error) {
     throw error;

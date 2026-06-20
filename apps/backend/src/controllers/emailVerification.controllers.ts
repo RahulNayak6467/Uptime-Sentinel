@@ -3,6 +3,7 @@ import { verifyEmail } from "../services/emailVerification.services";
 import { AppError } from "../errors/AppError";
 import { emailSchema } from "../validators/emailValidation";
 import { ZodError } from "zod";
+import { env } from "../config/env";
 
 export const handleEmailVerification = async (
   req: Request,
@@ -28,8 +29,27 @@ export const handleEmailVerification = async (
     return next(err);
   }
   try {
-    const isCorrectEmail = await verifyEmail(email, otp);
-    return res.status(200).json(isCorrectEmail);
+    const {
+      message,
+      token: accessToken,
+      refreshToken,
+    } = await verifyEmail(email, otp);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json(message);
   } catch (err) {
     // if (err instanceof AppError) {
     //   res.status(err.statusCode).json({ message: err.message });

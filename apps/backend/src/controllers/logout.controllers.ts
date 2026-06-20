@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { removeToken } from "../services/logout.services";
 import { AppError } from "../errors/AppError";
+import { env } from "../config/env";
 
 export const userLogOut = async (
   req: Request,
@@ -18,6 +19,19 @@ export const userLogOut = async (
   }
   try {
     const removeRefreshToken = await removeToken(user_id, jti, expirationTime);
+
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
     return res.status(200).json({ message: removeRefreshToken });
   } catch (err) {
     // if (error instanceof AppError) {

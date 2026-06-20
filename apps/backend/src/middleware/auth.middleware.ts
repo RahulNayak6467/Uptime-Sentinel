@@ -2,18 +2,19 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
 import redis from "../Redis";
+import { env } from "../config/env";
 import { check } from "zod";
 export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const getToken = req.headers.authorization;
+  const getToken = req.cookies.accessToken;
 
   if (!getToken) {
     return res.status(401).json({ message: "UnAuthorized" });
   }
-  const secretKey = process.env.JWT_SECRET;
+  const secretKey = env.JWT_SECRET;
   if (typeof secretKey !== "string") {
     return res.status(500).json({ message: "Internal server error" });
   }

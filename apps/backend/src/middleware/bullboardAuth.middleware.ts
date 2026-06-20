@@ -1,9 +1,10 @@
 import { RequestHandler } from "express";
 import basicAuth from "express-basic-auth";
+import { env } from "../config/env";
 
 const bullboardAuth: RequestHandler = basicAuth({
   users: {
-    [process.env.BULL_BOARD_USER!]: process.env.BULL_BOARD_PASSWORD || "secret",
+    [env.BULL_BOARD_USER]: env.BULL_BOARD_PASSWORD,
   },
   challenge: true,
   realm: "Bull Board Admin",

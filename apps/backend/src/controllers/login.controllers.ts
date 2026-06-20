@@ -3,6 +3,7 @@ import { userSchema } from "../validators/userValidation";
 import { ZodError } from "zod";
 import { checkLoginUser } from "../services/login.services";
 import { AppError } from "../errors/AppError";
+import { env } from "../config/env";
 export const loginUser = async (
   req: Request,
   res: Response,
@@ -30,8 +31,27 @@ export const loginUser = async (
   }
 
   try {
-    const loggedInUser = await checkLoginUser(email, password);
-    return res.status(200).json(loggedInUser);
+    const {
+      message,
+      token: accessToken,
+      refreshToken,
+    } = await checkLoginUser(email, password);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json(message);
   } catch (err) {
     // if (error instanceof AppError) {
     //   return res.status(error.statusCode).json({ message: error.message });

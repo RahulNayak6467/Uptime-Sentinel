@@ -27,4 +27,5 @@ export const env = {
   BULL_BOARD_USER: process.env.BULL_BOARD_USER || "admin",
   RESEND_API_KEY: requireEnv("RESEND_API_KEY"),
   SENTRY_DSN: requireEnv("SENTRY_DSN"),
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
 };

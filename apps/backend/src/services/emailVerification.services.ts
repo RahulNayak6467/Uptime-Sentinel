@@ -7,6 +7,7 @@ import redis from "../Redis";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { formatDuration } from "../utils/formatDate";
+import { env } from "../config/env";
 
 export const sendEmailVerification = async (email: string, otp: string) => {
   const { data, error } = await resend.emails.send({
@@ -62,10 +63,10 @@ export const verifyEmail = async (email: string, otp: string) => {
 
     await redis.del(`emailVerify-${email}`);
     await redis.del(`verification:attempts-${email}`);
-    const expiresIn = process.env.JWT_EXPIRES_IN;
-    const refreshExpiresIn = process.env.JWT_REFRESH_EXPIRES_IN;
-    const secretKey = process.env.JWT_SECRET;
-    const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
+    const expiresIn = env.JWT_EXPIRES_IN;
+    const refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
+    const secretKey = env.JWT_SECRET;
+    const refreshSecretKey = env.JWT_REFRESH_SECRET;
     if (!secretKey) {
       throw new AppError(500, "JWT secret is not configured");
     }

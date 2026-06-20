@@ -4,9 +4,10 @@ import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
 import { email } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { env } from "../config/env";
 
 export const checkValidRefreshToken = async (refreshToken: string) => {
-  const refreshTokenSecret = process.env.JWT_REFRESH_SECRET;
+  const refreshTokenSecret = env.JWT_REFRESH_SECRET;
   // console.log(refreshTokenSecret);
   try {
     if (!refreshTokenSecret) {
@@ -32,8 +33,8 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
     if (!isCorrectRefreshToken) {
       throw new AppError(401, "Unauthorized2");
     }
-    const secretKey = process.env.JWT_SECRET;
-    const expiresIn = process.env.JWT_EXPIRES_IN;
+    const secretKey = env.JWT_SECRET;
+    const expiresIn = env.JWT_EXPIRES_IN;
     if (!secretKey) {
       throw new AppError(500, "Internal server error");
     }
