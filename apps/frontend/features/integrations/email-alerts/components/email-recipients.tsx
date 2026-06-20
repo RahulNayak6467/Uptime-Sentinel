@@ -19,7 +19,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
       : "text-sf-text border-sf-border bg-sf-surface";
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3">
+    <div className="flex items-center gap-3 px-4 py-3 hover:bg-sf-border-faint/60 transition-colors">
       <div className="w-9 h-9 rounded-full bg-sf-border flex items-center justify-center shrink-0">
         <span className="text-[11px] font-semibold font-sans text-sf-text-sub">
           {recipient.initials}

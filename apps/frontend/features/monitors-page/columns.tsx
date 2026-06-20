@@ -184,13 +184,13 @@ export const columns: ColumnDef<MonitorPageData>[] = [
   },
   {
     accessorKey: "state",
-    header: "STATE",
+    header: () => <span className="block text-center">STATE</span>,
     cell: ({ row }) => {
       const state = row.original.state;
       const color = stateColor[state];
       return (
         <span
-          className="flex items-center justify-end gap-1.5 text-[13px] font-medium"
+          className="flex items-center justify-center gap-1.5 text-[13px] font-medium"
           style={{ color }}
         >
           <span

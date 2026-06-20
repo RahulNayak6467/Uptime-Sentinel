@@ -3,13 +3,13 @@ import { IncidentListItemProps } from "./types";
 
 const statusConfig = {
   active: {
-    dot: "bg-red-500",
-    badge: "bg-red-50 text-red-500 border border-red-200",
+    dot: "bg-sf-red",
+    badge: "bg-sf-red-bg text-sf-red border border-sf-red/30",
     label: "Active",
   },
   resolved: {
-    dot: "bg-green-500",
-    badge: "bg-green-50 text-green-600 border border-green-200",
+    dot: "bg-sf-green",
+    badge: "bg-sf-green-bg text-sf-green border border-sf-green/30",
     label: "Resolved",
   },
 };
@@ -26,7 +26,7 @@ const IncidentRow = ({
   const config = statusConfig[status];
 
   return (
-    <div className="flex gap-3 px-4 py-3 border-b border-sf-border last:border-b-0">
+    <div className="flex gap-3 px-4 py-3 border-b border-sf-border last:border-b-0 hover:bg-sf-border-faint/60 transition-colors cursor-pointer">
       <span className={`w-2 h-2 rounded-full shrink-0 mt-[5px] ${config.dot}`} />
       <div className="flex flex-col gap-0.5 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">

@@ -119,7 +119,7 @@ function RegisterForm() {
 
         <button
           type="submit"
-          className="mt-4 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer border border-sf-bg"
+          className="mt-4 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg"
         >
           Create Account
         </button>

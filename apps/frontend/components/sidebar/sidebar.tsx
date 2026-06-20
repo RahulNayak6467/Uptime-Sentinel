@@ -22,7 +22,7 @@ const Sidebar = () => {
           </div>
         </div>
         <div className="flex w-full gap-2 items-center mt-2 border border-sf-border py-1.5 px-2 rounded-lg">
-          <span className="w-5.5 h-5.5 rounded-sm bg-[#464fe5] flex items-center justify-center text-[11px] font-bold text-sf-bg">
+          <span className="w-5.5 h-5.5 rounded-sm bg-[#464fe5] flex items-center justify-center text-[11px] font-bold text-white">
             A
           </span>
           <p className="text-[12px] text-sf-text font-sans font-bold">

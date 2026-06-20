@@ -12,3 +12,8 @@ export type MonitorPageData = {
   state: MonitorState;
   trend: number[];
 };
+
+export type IndividualStatsCardProps = {
+  title: string;
+  stats: number;
+};

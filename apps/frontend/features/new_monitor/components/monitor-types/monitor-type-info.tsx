@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { monitorTypesData } from "../../data";
 import MonitorType from "./monitor-type";
 
-const MonitorTypeInfo = () => {
-  const [selected, setSelected] = useState<string>("HTTP/HTTPS");
-
+const MonitorTypeInfo = ({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (type: string) => void;
+}) => {
   return (
     <div className="w-full bg-sf-surface">
       <div className="w-full h-full border border-sf-border rounded-lg">
@@ -26,7 +29,7 @@ const MonitorTypeInfo = () => {
               checkType={monitor.checkType}
               featuresOffered={monitor.featuresOffered}
               isActive={selected === monitor.checkType}
-              onClick={() => setSelected(monitor.checkType)}
+              onClick={() => onSelect(monitor.checkType)}
               comingSoon={monitor.comingSoon}
             />
           ))}

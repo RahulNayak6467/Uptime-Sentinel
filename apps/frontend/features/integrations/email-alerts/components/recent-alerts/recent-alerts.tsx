@@ -36,7 +36,7 @@ const RecentAlerts = () => {
           {alertEmails.map((alert) => (
             <div
               key={alert.id}
-              className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center"
+              className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
             >
               <span
                 className={`w-fit text-[11px] font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}

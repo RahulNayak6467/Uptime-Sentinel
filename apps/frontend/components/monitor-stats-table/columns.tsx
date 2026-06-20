@@ -147,7 +147,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
   },
   {
     accessorKey: "state",
-    header: "STATE",
+    header: () => <span className="block text-center">STATE</span>,
     cell: ({ row }) => {
       const state = row.original.state;
       const color = stateColor[state];
@@ -155,7 +155,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
         state === "up" ? "Up" : state === "down" ? "Down" : "Paused";
       return (
         <span
-          className="flex items-center gap-1.5 text-[13px] font-medium"
+          className="flex items-center justify-center gap-1.5 text-[13px] font-medium"
           style={{ color }}
         >
           <span

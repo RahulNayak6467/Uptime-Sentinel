@@ -34,7 +34,6 @@ const MonitorInfo = ({
               {...register("monitorName")}
               {...(errors && <ErrorMessage error={errors.errorsMonitorName} />)}
               id="monitor-name"
-              name="monitorName"
               className="px-4 py-2 border border-sf-border text-sf-text rounded-lg font-sans text-[14px] outline-none placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
               type="text"
               required
@@ -53,7 +52,6 @@ const MonitorInfo = ({
               {...register("url")}
               {...(errors && <ErrorMessage error={errors.errorsMonitorUrl} />)}
               id="monitor-url"
-              name="monitorUrl"
               className="px-4 py-2 border border-sf-border text-sf-text rounded-lg font-mono text-[14px] outline-none placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
               type="url"
               required

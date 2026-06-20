@@ -23,8 +23,8 @@ export const monitorItems = [
     label: "Monitors",
     href: "/dashboard/monitors",
     number: 21,
-    color: "9CA3AF",
-    backgroundColor: "F3F4F6",
+    color: "var(--color-sf-text-sub)",
+    backgroundColor: "var(--color-sf-border)",
   },
   {
     id: crypto.randomUUID(),
@@ -32,8 +32,8 @@ export const monitorItems = [
     label: "Incidents",
     href: "/dashboard/incidents",
     number: 1,
-    color: "#DC2626",
-    backgroundColor: "#FEE2E2",
+    color: "var(--color-sf-red)",
+    backgroundColor: "var(--color-sf-red-bg)",
   },
   {
     id: crypto.randomUUID(),

@@ -11,15 +11,18 @@ const BODY_METHODS = ["post", "put", "patch", "delete"];
 const RequestType = ({
   register,
   errors,
+  selectedMethod,
+  onMethodChange,
 }: {
   register: newMonitorProps;
   errors: {
     errorsTimeout: string | undefined;
     errorsStatusCode: string | undefined;
   };
+  selectedMethod: string;
+  onMethodChange: (method: string) => void;
 }) => {
   const [followRedirects, setFollowRedirects] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState("get");
 
   return (
     <div className="w-full bg-sf-surface mt-6">
@@ -42,7 +45,7 @@ const RequestType = ({
                 <button
                   key={method}
                   type="button"
-                  onClick={() => setSelectedMethod(method)}
+                  onClick={() => onMethodChange(method)}
                   className={`uppercase px-2 py-1 font-sans font-medium text-[12px] rounded-lg border cursor-pointer transition-colors duration-150 ${
                     selectedMethod === method
                       ? "bg-sf-text text-sf-btn-text border-sf-text"

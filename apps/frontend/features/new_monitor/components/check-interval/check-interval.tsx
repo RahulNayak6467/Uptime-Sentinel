@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { checkIntervals } from "../../data";
 
-const CheckInterval = () => {
-  const [selected, setSelected] = useState("5m");
-
+const CheckInterval = ({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (interval: string) => void;
+}) => {
   return (
     <div className="w-full bg-sf-surface mt-6">
       <div className="w-full h-full border border-sf-border rounded-lg">
@@ -22,7 +25,7 @@ const CheckInterval = () => {
             <button
               key={label}
               type="button"
-              onClick={() => setSelected(label)}
+              onClick={() => onSelect(label)}
               className={`px-3 py-1 rounded-lg border font-sans text-[12px] font-medium transition-colors duration-150 cursor-pointer ${
                 selected === label
                   ? "bg-sf-text text-sf-btn-text border-sf-text"

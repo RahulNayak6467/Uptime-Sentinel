@@ -24,7 +24,7 @@ const AlertConditions = ({
             Define when this monitor should trigger an incident
           </p>
         </div>
-        <div className="px-4 pt-4 pb-4">
+        <div className="px-4 pb-4">
           {alertConditionsData.map((data) => (
             <AlertTypes
               key={data.id}
@@ -50,7 +50,6 @@ const AlertConditions = ({
                 type="number"
                 defaultValue={5000}
                 min={0}
-                name="responseTimeThreshold"
                 className="w-28 px-3 py-1 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150 text-center"
               />
               <span className="text-[13px] text-sf-text-muted font-sans w-14">
