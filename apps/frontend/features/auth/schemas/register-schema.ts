@@ -6,7 +6,7 @@ export const registerSchema = z
       .string()
       .min(2, { message: "Minimum 2 characters are requried for name" })
       .max(100, { message: "Maximum 100 characters are available for name" }),
-    email: z.email({ message: "Invalid input format" }).max(255),
+    email: z.string({ message: "Invalid input format" }).max(255),
     password: z
       .string()
       .min(8, { message: "Minimum 8 characters are required" })
@@ -20,7 +20,7 @@ export const registerSchema = z
       ctx.addIssue({
         code: "custom",
         message: "Passwords do not match",
-        path: ["confirm"],
+        path: ["confirmPassword"],
       });
     }
   });

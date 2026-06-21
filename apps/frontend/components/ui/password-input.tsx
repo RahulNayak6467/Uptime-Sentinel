@@ -1,9 +1,7 @@
 "use client";
 import ErrorMessage from "@/features/auth/error";
-import { registerSchemaProps } from "@/features/auth/schemas/register-schema";
-import { userRegister } from "@/features/auth/types";
 import { useState } from "react";
-import { FieldError, UseFormRegister } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
 
 const PasswordInput = ({
   passwordType,
@@ -11,8 +9,9 @@ const PasswordInput = ({
   errors,
 }: {
   passwordType: "Password" | "Confirm Password";
-  register: userRegister;
-  errors: undefined | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: UseFormRegister<any>;
+  errors?: string;
 }) => {
   const [show, setShow] = useState(false);
   const passwordSchema =
@@ -21,23 +20,19 @@ const PasswordInput = ({
     <div className="flex flex-col gap-1">
       <label
         className="text-[12px] text-sf-text font-semibold font-sans"
-        htmlFor="user-password"
+        htmlFor={`user-${passwordSchema}`}
       >
         {passwordType}
       </label>
       <div className="relative">
         <input
           {...register(passwordSchema)}
-          {...(errors && <ErrorMessage error={errors} />)}
           className="w-full text-[14px] border border-sf-border bg-sf-surface px-3 py-2 pr-10 rounded-sf outline-none focus:border-sf-text transition-colors"
           type={show ? "text" : "password"}
-          id="user-password"
-          name="password"
-          minLength={8}
-          maxLength={32}
+          id={`user-${passwordSchema}`}
           placeholder="At least 8 characters"
-          required
         />
+        {errors && <ErrorMessage error={errors} />}
         <button
           type="button"
           onClick={() => setShow((prev) => !prev)}

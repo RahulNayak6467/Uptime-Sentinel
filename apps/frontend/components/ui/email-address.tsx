@@ -1,12 +1,13 @@
 import ErrorMessage from "@/features/auth/error";
-import { userRegister } from "@/features/auth/types";
+import { UseFormRegister } from "react-hook-form";
 
 const EmailAddressInput = ({
   register,
   errors,
 }: {
-  register: userRegister;
-  errors: undefined | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: UseFormRegister<any>;
+  errors?: string;
 }) => {
   return (
     <div className="flex flex-col gap-1">
@@ -15,14 +16,12 @@ const EmailAddressInput = ({
       </label>
       <input
         {...register("email")}
-        {...(errors && <ErrorMessage error={errors} />)}
         className="text-[14px] border border-sf-border bg-sf-surface px-2 py-2 rounded-[6px]"
         type="email"
         id="userEmail"
-        name="email"
         placeholder="name@example.com"
-        required
       />
+      {errors && <ErrorMessage error={errors} />}
     </div>
   );
 };

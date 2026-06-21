@@ -11,7 +11,7 @@ import MonitoringRegions from "./monitoring-regions/monitoring-regions";
 import Notifications from "./notifications/notifications";
 import RequestType from "./request-settings/request-type";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-resolver";
 import { monitorInfoProps, monitorInfoSchema } from "../schemas/monitor-info";
 
 const NewMonitorProperties = () => {

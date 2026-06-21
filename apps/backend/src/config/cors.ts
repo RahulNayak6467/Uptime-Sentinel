@@ -1,7 +1,7 @@
 import { env } from "./env";
 import type { CorsOptions } from "cors";
 
-const allowedOrigins: string[] = [env.FRONTEND_URL];
+const allowedOrigins: string[] = [env.FRONTEND_URL, "http://localhost:3001"];
 
 export const corsConfigOptions: CorsOptions = {
   origin: (origin, callback) => {

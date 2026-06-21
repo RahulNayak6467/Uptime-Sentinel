@@ -1,9 +1,17 @@
 node_modules/
 dist/
 coverage/
+build/
+.next/
+
+# env files — keep .env.example tracked as a template
 .env
 .env.local
-.env.*
+.env.*.local
+.env.development
+.env.production
+.env.test
+
 *.log
 .DS_Store
 .claude/settings.local.json

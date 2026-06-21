@@ -1,13 +1,13 @@
-import { FieldError } from "react-hook-form";
-import { userRegister } from "../types";
+import { UseFormRegister } from "react-hook-form";
 import ErrorMessage from "../error";
 
 const FullNameInput = ({
   register,
   errors,
 }: {
-  register: userRegister;
-  errors: undefined | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: UseFormRegister<any>;
+  errors?: string;
 }) => {
   return (
     <div className="flex flex-col gap-1">
@@ -16,14 +16,12 @@ const FullNameInput = ({
       </label>
       <input
         {...register("name")}
-        {...(errors && <ErrorMessage error={errors} />)}
         className="text-[14px] border border-sf-border bg-sf-surface px-2 py-2 rounded-[6px]"
         type="text"
         id="userName"
-        name="name"
         placeholder="John Doe"
-        required
       />
+      {errors && <ErrorMessage error={errors} />}
     </div>
   );
 };

@@ -5,10 +5,10 @@ import PasswordInput from "@/components/ui/password-input";
 import UptimeSentinelImage from "@/components/ui/uptime-sentinel";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaProps } from "../schemas/login-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-resolver";
 
 function LoginForm() {
-  const { register, handleSubmit } = useForm<loginSchemaProps>({
+  const { register, handleSubmit, formState: { errors } } = useForm<loginSchemaProps>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -52,11 +52,11 @@ function LoginForm() {
           <div className="flex-1 h-px bg-sf-border" />
         </div>
       </div>
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mt-4">
-          <EmailAddressInput register={register} />
+          <EmailAddressInput register={register} errors={errors.email?.message} />
           <div className="flex flex-col gap-1">
-            <PasswordInput register={register} passwordType="Password" />
+            <PasswordInput register={register} passwordType="Password" errors={errors.password?.message} />
             <div className="flex justify-end mt-1">
               <a
                 href="/forgot-password"

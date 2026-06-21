@@ -5,11 +5,13 @@ import PasswordInput from "@/components/ui/password-input";
 import UptimeSentinelImage from "@/components/ui/uptime-sentinel";
 import FullNameInput from "./full-name";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-resolver";
 import {
   registerSchema,
   registerSchemaProps,
 } from "../schemas/register-schema";
+import { useRegister } from "../hooks/useRegister";
+import { useRouter } from "next/navigation";
 
 function RegisterForm() {
   const {
@@ -20,8 +22,21 @@ function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
+  const router = useRouter();
+
+  const { mutate } = useRegister();
+
   const onSubmit = (data: registerSchemaProps) => {
-    console.log(data);
+    const userDetails = {
+      email: data.email,
+      password: data.password,
+    };
+
+    mutate(userDetails, {
+      onSuccess: () => {
+        router.push("/verify-email");
+      },
+    });
   };
 
   return (
@@ -60,7 +75,8 @@ function RegisterForm() {
           <div className="flex-1 h-px bg-sf-border" />
         </div>
       </div>
-      <form>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mt-4">
           <FullNameInput register={register} errors={errors.name?.message} />
           <EmailAddressInput
@@ -79,7 +95,7 @@ function RegisterForm() {
             errors={errors.confirmPassword?.message}
             passwordType="Confirm Password"
           />
-          <label className="flex items-start gap-2.5 cursor-pointer group">
+          {/*<label className="flex items-start gap-2.5 cursor-pointer group">
             <input
               type="checkbox"
               required
@@ -114,10 +130,11 @@ function RegisterForm() {
               </a>
               .
             </span>
-          </label>
+          </label>*/}
         </div>
 
         <button
+          onClick={() => console.log("Clicked")}
           type="submit"
           className="mt-4 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg"
         >

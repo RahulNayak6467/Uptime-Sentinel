@@ -38,12 +38,15 @@ The project should evolve in versions. Do not suggest advanced versions unless e
 
 ### Frontend
 
-- Vite
+- Next.js (App Router)
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
-- TanStack Query
-- Recharts
+- TanStack Table
+- Apache ECharts (echarts-for-react)
+- next-themes (dark mode)
+
+Environment variables are exposed to the browser via the `NEXT_PUBLIC_` prefix and accessed through `process.env.NEXT_PUBLIC_*` (e.g. `NEXT_PUBLIC_API_URL`).
 
 
 ## Architecture
