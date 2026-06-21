@@ -22,7 +22,9 @@ export const handleError = (
     return res.status(401).json({ message: "UnAuthorized" });
   }
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json(err.message);
+    const body: Record<string, unknown> = { message: err.message };
+    if (err.code) body.code = err.code;
+    return res.status(err.statusCode).json(body);
   }
   if (err instanceof Error) {
     return res.status(500).json({

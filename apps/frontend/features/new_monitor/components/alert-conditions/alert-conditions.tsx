@@ -45,8 +45,7 @@ const AlertConditions = ({
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <input
-                {...register("responseTimeAlert")}
-                {...(errors && <ErrorMessage error={errors} />)}
+                {...register("responseTimeAlert", { valueAsNumber: true })}
                 type="number"
                 defaultValue={5000}
                 min={0}
@@ -55,6 +54,7 @@ const AlertConditions = ({
               <span className="text-[13px] text-sf-text-muted font-sans w-14">
                 ms
               </span>
+              {errors && <ErrorMessage error={errors} />}
             </div>
           </div>
         </div>

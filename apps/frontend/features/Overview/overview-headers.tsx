@@ -1,6 +1,9 @@
+"use client";
 import { RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const OverviewHeaders = () => {
+  const router = useRouter();
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
       <h1 className="text-[16px] font-bold text-sf-text font-sans">
@@ -12,7 +15,14 @@ const OverviewHeaders = () => {
           <RefreshCw className="w-3 h-3" />
           <span>Refresh</span>
         </button>
-        <button className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold font-sans text-sf-btn-text bg-sf-text rounded-lg hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer">
+        <button
+          onClick={() =>
+            router.push(
+              `${process.env.NEXT_PUBLIC_API_URL}/dashboard/newmonitor`,
+            )
+          }
+          className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold font-sans text-sf-btn-text bg-sf-text rounded-lg hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+        >
           <span>+</span>
           <span>New Monitor</span>
         </button>

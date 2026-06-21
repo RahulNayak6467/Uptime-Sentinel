@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
+import { monitorInfoProps } from "../../schemas/monitor-info";
 
-const NewMonitorHeader = () => {
+const NewMonitorHeader = ({ handleSubmit, onSubmit }) => {
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
       <div className="flex items-center gap-3">
@@ -13,15 +14,21 @@ const NewMonitorHeader = () => {
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex items-center gap-2"
+      >
         <button className="px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-text border border-sf-border rounded-sf hover:bg-sf-bg transition-colors cursor-pointer">
           Cancel
         </button>
-        <button className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer">
+        <button
+          type="submit"
+          className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+        >
           <span>+</span>
           <span>Create monitor</span>
         </button>
-      </div>
+      </form>
     </header>
   );
 };

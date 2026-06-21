@@ -6,14 +6,42 @@ import UptimeSentinelImage from "@/components/ui/uptime-sentinel";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaProps } from "../schemas/login-schema";
 import { zodResolver } from "@/lib/zod-resolver";
+import { useLogin } from "../hooks/useLogin";
+import { useRouter } from "next/navigation";
+import { ApiError } from "@/lib/api-error";
+import { toast } from "sonner";
 
 function LoginForm() {
-  const { register, handleSubmit, formState: { errors } } = useForm<loginSchemaProps>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<loginSchemaProps>({
     resolver: zodResolver(loginSchema),
   });
 
+  const { mutate } = useLogin();
+  const router = useRouter();
   const onSubmit = (data: loginSchemaProps) => {
-    console.log(data);
+    const userLoginDetails = {
+      email: data.email,
+      password: data.password,
+    };
+    console.log("Submitting login");
+
+    mutate(userLoginDetails, {
+      onSuccess: () => {
+        router.push("/dashboard/overview");
+      },
+      onError: (err) => {
+        console.log(err);
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
+      },
+    });
   };
 
   return (
@@ -54,9 +82,16 @@ function LoginForm() {
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mt-4">
-          <EmailAddressInput register={register} errors={errors.email?.message} />
+          <EmailAddressInput
+            register={register}
+            errors={errors.email?.message}
+          />
           <div className="flex flex-col gap-1">
-            <PasswordInput register={register} passwordType="Password" errors={errors.password?.message} />
+            <PasswordInput
+              register={register}
+              passwordType="Password"
+              errors={errors.password?.message}
+            />
             <div className="flex justify-end mt-1">
               <a
                 href="/forgot-password"

@@ -19,11 +19,11 @@ export const resendOtpRequest = async (email: string) => {
     const verifiedUser: verifiedProps[] = doesUserExist.rows;
 
     if (userRows === 0) {
-      throw new AppError(404, "User not found");
+      throw new AppError(404, "User not found", "USER_NOT_FOUND");
     }
 
     if (verifiedUser[0]?.email_verified) {
-      throw new AppError(409, "Already verified user");
+      throw new AppError(409, "Already verified user", "EMAIL_ALREADY_VERIFIED");
     }
 
     const key = `ratelimit-resend-verification-${email}`;
@@ -32,11 +32,11 @@ export const resendOtpRequest = async (email: string) => {
       await redis.expire(key, 3600);
     }
     if (attempts > 3) {
-      throw new AppError(429, "Too many attempts try again later");
+      throw new AppError(429, "Too many attempts try again later", "RESEND_OTP_RATE_LIMITED");
     }
     const isCooldownOver = await redis.exists(`emailVerifyCooldown-${email}`);
     if (isCooldownOver === 1) {
-      throw new AppError(429, "Please wait before requesting another OTP");
+      throw new AppError(429, "Please wait before requesting another OTP", "RESEND_OTP_COOLDOWN_ACTIVE");
     }
     const generatedOTP = crypto.randomInt(100000, 999999).toString();
     const addOTP = await redis.set(
@@ -52,7 +52,7 @@ export const resendOtpRequest = async (email: string) => {
       60,
     );
     if (!addOTP || !addCooldown) {
-      throw new AppError(500, "Internal server error");
+      throw new AppError(500, "Internal server error", "REDIS_ERROR");
     }
     await addToEmailVerificationQueue(email, generatedOTP);
   } catch (err) {

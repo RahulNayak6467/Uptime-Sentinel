@@ -31,6 +31,7 @@ const PasswordInput = ({
           type={show ? "text" : "password"}
           id={`user-${passwordSchema}`}
           placeholder="At least 8 characters"
+          autoComplete="additional-name"
         />
         {errors && <ErrorMessage error={errors} />}
         <button

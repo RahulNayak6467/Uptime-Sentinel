@@ -74,8 +74,7 @@ const RequestType = ({
                 </span>
               </label>
               <input
-                {...register("timeout")}
-                {...(errors && <ErrorMessage error={errors.errorsTimeout} />)}
+                {...register("timeout", { valueAsNumber: true })}
                 id="timeout"
                 name="timeout"
                 type="number"
@@ -84,6 +83,7 @@ const RequestType = ({
                 defaultValue={30}
                 className="px-3 py-2 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
               />
+              {errors && <ErrorMessage error={errors.errorsTimeout} />}
             </div>
             <div className="flex flex-col gap-1 w-40">
               <label
@@ -96,10 +96,7 @@ const RequestType = ({
                 </span>
               </label>
               <input
-                {...register("statusCode")}
-                {...(errors && (
-                  <ErrorMessage error={errors.errorsStatusCode} />
-                ))}
+                {...register("statusCode", { valueAsNumber: true })}
                 id="expected-status"
                 name="expectedStatus"
                 type="number"
@@ -109,6 +106,7 @@ const RequestType = ({
                 className="px-3 py-2 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
               />
             </div>
+            {errors && <ErrorMessage error={errors.errorsStatusCode} />}
           </div>
 
           <div className="flex items-center gap-2.5">

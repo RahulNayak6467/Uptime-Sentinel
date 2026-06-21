@@ -12,6 +12,8 @@ import {
 } from "../schemas/register-schema";
 import { useRegister } from "../hooks/useRegister";
 import { useRouter } from "next/navigation";
+import { ApiError } from "@/lib/api-error";
+import { toast } from "sonner";
 
 function RegisterForm() {
   const {
@@ -25,7 +27,6 @@ function RegisterForm() {
   const router = useRouter();
 
   const { mutate } = useRegister();
-
   const onSubmit = (data: registerSchemaProps) => {
     const userDetails = {
       email: data.email,
@@ -35,6 +36,13 @@ function RegisterForm() {
     mutate(userDetails, {
       onSuccess: () => {
         router.push("/verify-email");
+      },
+      onError: (err) => {
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
       },
     });
   };

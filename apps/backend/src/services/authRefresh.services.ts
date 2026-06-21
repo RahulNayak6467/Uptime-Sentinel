@@ -11,7 +11,7 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
   // console.log(refreshTokenSecret);
   try {
     if (!refreshTokenSecret) {
-      throw new AppError(500, "Internal server error");
+      throw new AppError(500, "Internal server error", "REFRESH_SECRET_NOT_CONFIGURED");
     }
     const { user_id } = jwt.verify(refreshToken, refreshTokenSecret) as {
       user_id: string;
@@ -22,7 +22,7 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
     const result = await db.query(query, values);
     // console.log(result);
     if (result.rows.length === 0) {
-      throw new AppError(401, "Unauthorized1");
+      throw new AppError(401, "Unauthorized1", "REFRESH_TOKEN_NOT_FOUND");
     }
     const hashedRefreshToken: string = result.rows[0].token;
     // console.log(hashedRefreshToken);
@@ -31,12 +31,12 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
       hashedRefreshToken,
     );
     if (!isCorrectRefreshToken) {
-      throw new AppError(401, "Unauthorized2");
+      throw new AppError(401, "Unauthorized2", "REFRESH_TOKEN_INVALID");
     }
     const secretKey = env.JWT_SECRET;
     const expiresIn = env.JWT_EXPIRES_IN;
     if (!secretKey) {
-      throw new AppError(500, "Internal server error");
+      throw new AppError(500, "Internal server error", "JWT_SECRET_NOT_CONFIGURED");
     }
     const generateNewJWTToken = jwt.sign(
       { user_id, jti: uuidv4() },

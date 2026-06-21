@@ -13,6 +13,10 @@ import RequestType from "./request-settings/request-type";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@/lib/zod-resolver";
 import { monitorInfoProps, monitorInfoSchema } from "../schemas/monitor-info";
+import { useUrlRegister } from "../hooks/useUrlRegister";
+import { useRouter } from "next/router";
+import { ApiError } from "next/dist/server/api-utils";
+import { toast } from "sonner";
 
 const NewMonitorProperties = () => {
   const {
@@ -34,13 +38,33 @@ const NewMonitorProperties = () => {
   const statusCode = watch("statusCode");
   const responseTimeAlert = watch("responseTimeAlert");
 
+  const { mutate } = useUrlRegister();
+
   const onSubmit = (data: monitorInfoProps) => {
-    console.log(data);
+    const urlDetails = {
+      url: data.url,
+      urlName: data.monitorName,
+      intervalSeconds: data.responseTimeAlert,
+    };
+
+    mutate(urlDetails, {
+      onSuccess: () => {
+        toast.success("Url is registered");
+      },
+      onError: (err) => {
+        console.log(err);
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error(err.message);
+        }
+      },
+    });
   };
 
   return (
     <div>
-      <NewMonitorHeader />
+      <NewMonitorHeader onSubmit={onSubmit} handleSubmit={handleSubmit} />
       <div className="w-[98%] flex gap-2  ml-4 mt-4 ">
         <div className="w-[80%]">
           <MonitorTypeInfo selected={monitorType} onSelect={setMonitorType} />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Recipient, RecipientRowProps } from "../types";
 import { initialRecipients } from "../data";
+import AddRecipientModal from "./add-recipient-modal";
 
 const KebabIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -78,6 +79,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
 
 const EmailRecipients = () => {
   const [recipients, setRecipients] = useState<Recipient[]>(initialRecipients);
+  const [addOpen, setAddOpen] = useState(false);
 
   const activeCount = recipients.filter((r) => r.enabled).length;
 
@@ -102,6 +104,7 @@ const EmailRecipients = () => {
           </div>
           <button
             type="button"
+            onClick={() => setAddOpen(true)}
             className="flex items-center gap-1 px-3 py-1.5 border border-sf-border rounded-lg text-[13px] font-sans font-medium text-sf-text hover:bg-sf-bg transition-colors cursor-pointer shrink-0"
           >
             <span className="text-[15px] leading-none font-light">+</span>
@@ -119,6 +122,8 @@ const EmailRecipients = () => {
           ))}
         </div>
       </div>
+
+      <AddRecipientModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );
 };

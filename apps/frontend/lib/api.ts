@@ -1,12 +1,4 @@
-// Every request in StatusForge flows through here — once.
-class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
+import { ApiError } from "./api-error";
 
 let isRefreshing = false;
 const refreshQueue: Array<() => void> = [];
@@ -23,26 +15,45 @@ export async function apiFetch<T>(
   if (res.status === 401) return handle401<T>(endpoint, init);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, body.message ?? "Request failed");
+    throw new ApiError(body.message ?? "Request failed", res.status, body.code);
   }
   return res.json();
 }
 
-// Serialises concurrent 401s — only one refresh fires at a time.
 async function handle401<T>(endpoint: string, init?: RequestInit): Promise<T> {
+  // Prevent infinite recursion if refresh itself fails
+  if (endpoint === "/auth/refresh") {
+    throw new Error("Refresh token request failed");
+  }
+
   if (!isRefreshing) {
     isRefreshing = true;
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
-      method: "POST",
-      credentials: "include",
-    }).finally(() => {
+
+    try {
+      const refreshResponse = await fetch(
+        `${process.env.NEXT_FETCH_URL}/auth/refresh`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+
+      // Refresh failed -> stop here
+      if (!refreshResponse.ok) {
+        throw new Error("Session expired");
+      }
+    } finally {
       isRefreshing = false;
-      refreshQueue.forEach((r) => r());
+
+      refreshQueue.forEach((resolve) => resolve());
       refreshQueue.length = 0;
-    });
+    }
   } else {
-    // Queue up — wait for the in-flight refresh to finish, then retry.
-    await new Promise<void>((res) => refreshQueue.push(res));
+    await new Promise<void>((resolve) => {
+      refreshQueue.push(resolve);
+    });
   }
+
+  // Retry original request once after successful refresh
   return apiFetch<T>(endpoint, init);
 }

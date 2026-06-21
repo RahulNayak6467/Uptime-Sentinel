@@ -34,12 +34,12 @@ export const verifyEmail = async (email: string, otp: string) => {
 
     if (Number(wrongOtpAttempts) > 5) {
       await redis.del(`emailVerify-${email}`);
-      throw new AppError(429, "Too many attempts, request a new OTP");
+      throw new AppError(429, "Too many attempts, request a new OTP", "OTP_MAX_ATTEMPTS_EXCEEDED");
     }
 
     if (otp !== getOTP) {
       await redis.incr(`verification:attempts-${email}`);
-      throw new AppError(400, "Invalid or expired OTP");
+      throw new AppError(400, "Invalid or expired OTP", "OTP_INVALID");
     }
 
     const updateEmailVerification = await db.query(
@@ -54,11 +54,11 @@ export const verifyEmail = async (email: string, otp: string) => {
     console.log(updateEmailVerification);
 
     if (updatedRowCount === 0) {
-      throw new AppError(404, "user not found");
+      throw new AppError(404, "user not found", "USER_NOT_FOUND");
     }
 
     if (updatedRow === 0) {
-      throw new AppError(409, "Email already verified");
+      throw new AppError(409, "Email already verified", "EMAIL_ALREADY_VERIFIED");
     }
 
     await redis.del(`emailVerify-${email}`);
@@ -68,10 +68,10 @@ export const verifyEmail = async (email: string, otp: string) => {
     const secretKey = env.JWT_SECRET;
     const refreshSecretKey = env.JWT_REFRESH_SECRET;
     if (!secretKey) {
-      throw new AppError(500, "JWT secret is not configured");
+      throw new AppError(500, "JWT secret is not configured", "JWT_SECRET_NOT_CONFIGURED");
     }
     if (!refreshSecretKey) {
-      throw new AppError(500, "Refresh secret is not configured");
+      throw new AppError(500, "Refresh secret is not configured", "REFRESH_SECRET_NOT_CONFIGURED");
     }
     // const user_id = updateEmailVerificationAndGetId;
     const selectQuery = "SELECT id FROM user_details WHERE email = $1";

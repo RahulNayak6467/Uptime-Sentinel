@@ -1,5 +1,6 @@
 import ErrorMessage from "@/features/auth/error";
 import { newMonitorProps } from "../../types";
+import { Dispatch, SetStateAction } from "react";
 
 const MonitorInfo = ({
   register,
@@ -32,7 +33,6 @@ const MonitorInfo = ({
             </label>
             <input
               {...register("monitorName")}
-              {...(errors && <ErrorMessage error={errors.errorsMonitorName} />)}
               id="monitor-name"
               className="px-4 py-2 border border-sf-border text-sf-text rounded-lg font-sans text-[14px] outline-none placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
               type="text"
@@ -40,6 +40,7 @@ const MonitorInfo = ({
               autoComplete="off"
               placeholder="e.g. API Gateway, Checkout, Redis"
             />
+            {errors && <ErrorMessage error={errors.errorsMonitorName} />}
           </div>
           <div className="flex flex-col gap-1">
             <label

@@ -10,9 +10,11 @@
 
 export class AppError extends Error {
   statusCode: number;
-  constructor(statusCode: number, message: string) {
+  code?: string;
+  constructor(statusCode: number, message: string, code?: string) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
     this.name = "AppError";
     Object.setPrototypeOf(this, AppError.prototype);
   }

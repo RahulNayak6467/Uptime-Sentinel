@@ -8,26 +8,30 @@ import { env } from "../config/env";
 interface userInfoProps {
   id: string;
   password: string;
+  email_verified: boolean;
 }
 
 export const checkLoginUser = async (email: string, password: string) => {
   try {
-    const query = "SELECT email,password,id FROM user_details WHERE email = $1";
+    const query = "SELECT email,password,id,email_verified FROM user_details WHERE email = $1";
     const values = [email];
     const getUserInfo = await db.query(query, values);
     if (getUserInfo.rows.length === 0) {
-      throw new AppError(401, "Invalid login credentials");
+      throw new AppError(401, "Invalid login credentials", "INVALID_CREDENTIALS");
     }
-    const { id: user_id, password: userPassword }: userInfoProps =
+    const { id: user_id, password: userPassword, email_verified }: userInfoProps =
       getUserInfo.rows[0];
     const checkPassword = await bcrypt.compare(password, userPassword);
     if (!checkPassword) {
-      throw new AppError(401, "Invalid login credentials");
+      throw new AppError(401, "Invalid login credentials", "INVALID_CREDENTIALS");
+    }
+    if (!email_verified) {
+      throw new AppError(403, "Email not verified", "EMAIL_NOT_VERIFIED");
     }
     const secretKey = env.JWT_SECRET;
     const refreshSecretKey = env.JWT_REFRESH_SECRET;
     if (!secretKey || !refreshSecretKey) {
-      throw new AppError(500, "Internal server error");
+      throw new AppError(500, "Internal server error", "JWT_SECRET_NOT_CONFIGURED");
     }
     const expiredTime = env.JWT_EXPIRES_IN;
     const refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;

@@ -1,21 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 
-export type userRegistrationProps = {
+export type userLoginResponseProps = {
   message: string;
 };
 
-export type userDetailsProps = {
+export type userLoginProps = {
   email: string;
   password: string;
 };
 
-export const useRegister = () => {
+export const useLogin = () => {
   const { mutate } = useMutation({
-    mutationFn: (userDetails: userDetailsProps) =>
-      apiFetch<userRegistrationProps>("/user/registration", {
+    mutationFn: (userLoginDetails: userLoginProps) =>
+      apiFetch<userLoginResponseProps>("/user/login", {
         method: "POST",
-        body: JSON.stringify(userDetails),
+        body: JSON.stringify(userLoginDetails),
       }),
     retry: false,
   });

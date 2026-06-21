@@ -6,5 +6,8 @@
     "dev:worker": "pnpm --filter @statusforge/backend worker",
     "dev:frontend": "pnpm --filter @statusforge/frontend dev",
     "dev": "pnpm --parallel --filter './apps/*' dev"
+  },
+  "dependencies": {
+    "zustand": "^5.0.14"
   }
 }

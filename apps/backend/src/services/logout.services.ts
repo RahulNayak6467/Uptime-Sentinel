@@ -13,7 +13,7 @@ export const removeToken = async (
     const removeToken = await db.query(query, values);
     const rows = removeToken.rowCount;
     if (!rows) {
-      throw new AppError(200, "Already loggedout");
+      throw new AppError(200, "Already loggedout", "ALREADY_LOGGED_OUT");
     }
     const timeLeftToLive = expirationTime - Math.floor(Date.now() / 1000);
     console.log("TimeLeftToLive: ", timeLeftToLive);
@@ -24,7 +24,7 @@ export const removeToken = async (
       timeLeftToLive,
     );
     if (!addAccessTokens) {
-      throw new AppError(500, "Internal server error");
+      throw new AppError(500, "Internal server error", "REDIS_ERROR");
     }
     return "successfully logged out";
   } catch (error) {

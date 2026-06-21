@@ -85,13 +85,19 @@ const MonitorPreview = ({
               className={`flex flex-col gap-0.5 border rounded-lg px-3 py-2 ${
                 fullWidth ? "col-span-2" : ""
               } ${
-                available ? "border-sf-border" : "border-sf-border-faint bg-sf-bg"
+                available
+                  ? "border-sf-border"
+                  : "border-sf-border-faint bg-sf-bg"
               }`}
             >
-              <span className={`text-[10px] font-semibold font-sans tracking-widest uppercase ${available ? "text-sf-text-muted" : "text-sf-text-muted opacity-50"}`}>
+              <span
+                className={`text-[10px] font-semibold font-sans tracking-widest uppercase ${available ? "text-sf-text-muted" : "text-sf-text-muted opacity-50"}`}
+              >
                 {label}
               </span>
-              <span className={`text-[13px] font-semibold font-sans ${available ? "text-sf-text" : "text-sf-text-muted"}`}>
+              <span
+                className={`text-[13px] font-semibold font-sans ${available ? "text-sf-text" : "text-sf-text-muted"}`}
+              >
                 {value}
               </span>
             </div>
@@ -102,15 +108,18 @@ const MonitorPreview = ({
           <Bell className="w-3.5 h-3.5 text-sf-amber shrink-0" />
           <p className="text-[12px] font-sans text-sf-text-sub leading-snug">
             Alerts if response exceeds{" "}
-            <strong className="text-sf-text font-semibold">{alertDisplay}</strong>
+            <strong className="text-sf-text font-semibold">
+              {alertDisplay}
+            </strong>
           </p>
         </div>
 
         <div className="flex items-start gap-2 bg-sf-bg border border-sf-border-faint rounded-lg px-3 py-2.5 opacity-50">
           <Info className="w-3.5 h-3.5 text-sf-text-muted shrink-0 mt-0.5" />
           <p className="text-[12px] font-sans text-sf-text-muted leading-snug">
-            Checks run every <strong>{interval}</strong> (~<strong>{perDay}</strong>/day) from{" "}
-            <strong>2</strong> regions once active.
+            Checks run every <strong>{interval}</strong> (~
+            <strong>{perDay}</strong>/day) from <strong>2</strong> regions once
+            active.
           </p>
         </div>
 
