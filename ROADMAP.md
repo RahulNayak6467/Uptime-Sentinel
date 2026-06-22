@@ -1,914 +1,175 @@
-# StatusForge Version Roadmap
-
-This file defines the project versions and the scope of each version.
-
-The goal is to build the project incrementally without jumping into advanced features too early.
-
----
-
-## Current Target
-
-First polished target:
-
-```txt
-V5 + Basic V6
-```
-
-This is the first resume-worthy version.
-
-It should include:
-
-- authentication
-- endpoint CRUD
-- manual checks
-- automatic checks
-- Redis/BullMQ worker
-- PostgreSQL check history
-- latest status snapshot
-- incidents
-- down/recovery email alerts
-- basic uptime/latency dashboard
-
----
-
-# V0 — URL Checker Prototype
-
-## Goal
-
-Prove the core monitoring logic.
-
-## Scope
-
-Build a simple backend that accepts a URL, checks it, and returns whether it is UP or DOWN.
-
-## Features
-
-- `GET /health`
-- `POST /check-url`
-- Accept URL in request body
-- Validate URL
-- Send HTTP GET request to URL
-- Measure response time
-- Return:
-  - status: `UP` or `DOWN`
-  - status code
-  - response time
-  - error message if failed
-
-## Handles
-
-- valid URL
-- missing URL
-- invalid URL
-- `200` response
-- `404` response
-- `500` response
-- timeout
-- network error
-
-## Tech / Concepts
-
-- Node.js
-- Express
-- TypeScript
-- Zod
-- `fetch`
-- `AbortSignal.timeout`
-- async/await
-- try/catch
-- HTTP status codes
-
-## Out of Scope
-
-- database
-- authentication
-- Redis
-- BullMQ
-- workers
-- incidents
-- email alerts
-- frontend
-
----
-
-# V1 — Endpoint Manager
-
-## Goal
-
-Allow users to save endpoints and manually check them.
-
-## Scope
-
-Add endpoint CRUD and database-backed check history.
-
-## Features
-
-- Create endpoint
-- Get all endpoints
-- Get one endpoint
-- Update endpoint
-- Delete endpoint
-- Manually check endpoint by ID
-- Store every check result
-- Store latest status snapshot on endpoint
-
-## Routes
-
-- `POST /endpoints`
-- `GET /endpoints`
-- `GET /endpoints/:id`
-- `PATCH /endpoints/:id`
-- `DELETE /endpoints/:id`
-- `POST /endpoints/:id/check`
-- `GET /endpoints/:id/checks`
-
-## Database Models
-
-- `Endpoint`
-- `Check`
-
-## Important Design
-
-`Check` stores history.
-
-`Endpoint` stores latest snapshot:
-
-- `currentStatus`
-- `lastStatusCode`
-- `lastResponseTime`
-- `lastCheckedAt`
-
-## Tech / Concepts
-
-- PostgreSQL
-- Prisma
-- migrations
-- one-to-many relation
-- CRUD
-- route/controller/service structure
-- basic database querying
-- latest snapshot pattern
-
-## Out of Scope
-
-- authentication
-- user-specific endpoints
-- automatic checks
-- Redis/BullMQ
-- incidents
-- email alerts
-
----
-
-# V2 — Authenticated Dashboard
-
-## Goal
-
-Make the app multi-user.
-
-## Scope
-
-Add users, login, protected routes, and ownership checks.
-
-## Features
-
-- Register
-- Login
-- JWT authentication
-- Password hashing
-- Protected routes
-- User-specific endpoints
-- User-specific check history
-- Basic dashboard data
-
-## Routes
-
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /auth/me`
-
-Existing endpoint routes become protected.
-
-## Database Models
-
-- `User`
-- `Endpoint`
-- `Check`
-
-## Important Rule
-
-When user ownership matters, query using both resource ID and user ID.
-
-Example:
-
-```ts
-await prisma.endpoint.findFirst({
-  where: {
-    id: endpointId,
-    userId: currentUser.id,
-  },
-});
-```
-
-## Tech / Concepts
-
-- JWT
-- bcrypt
-- auth middleware
-- protected routes
-- ownership checks
-- authorization
-- `401` vs `403`
-- user-specific database queries
-
-## Out of Scope
-
-- automatic checks
-- Redis/BullMQ
-- incidents
-- email alerts
-- public status pages
-
----
-
-# V3 — Automatic Monitoring
-
-## Goal
-
-Automatically check endpoints based on their configured interval.
-
-## Scope
-
-Add scheduling logic so endpoints are checked without manual action.
-
-## Features
-
-- Add `interval`
-- Add `nextCheckAt`
-- Add `isPaused`, optional
-- Scheduler runs every minute
-- Scheduler finds due endpoints
-- Scheduler checks due endpoints
-- Scheduler updates `nextCheckAt`
-
-## Scheduler Logic
-
-```txt
-Every minute:
-  find endpoints where nextCheckAt <= now
-  skip paused endpoints
-  check endpoint
-  save check result
-  update latest status
-  update nextCheckAt
-```
-
-## Tech / Concepts
-
-- node-cron
-- scheduled jobs
-- date/time handling
-- `nextCheckAt`
-- periodic background logic
-- due endpoint query
-
-## Out of Scope
-
-- Redis/BullMQ queue
-- separate worker process
-- incidents
-- email alerts
-- advanced retry system
-
----
-
-# V4 — Queue + Worker
-
-## Goal
-
-Move endpoint checks out of the main API server.
-
-## Scope
-
-Use Redis and BullMQ so checks run in a background worker.
-
-## Features
-
-- Add Redis
-- Add BullMQ
-- Create check queue
-- Create worker process
-- Scheduler enqueues check jobs
-- Worker processes check jobs
-- Worker saves check results
-- Worker updates latest endpoint status
-- Add basic retries
-- Add basic failed job handling
-- Add worker concurrency
-
-## Architecture
-
-```txt
-API Server / Scheduler
-  ↓
-BullMQ Queue
-  ↓
-Worker
-  ↓
-External Endpoint
-  ↓
-PostgreSQL
-```
-
-## Tech / Concepts
-
-- Redis
-- BullMQ
-- queue
-- job
-- worker
-- producer/consumer pattern
-- retries
-- backoff
-- concurrency
-- separate process
-
-## Out of Scope
-
-- incidents
-- email alerts
-- advanced observability
-- Bull Board, unless needed for debugging
-
----
-
-# V5 — Incidents + Email Alerts
-
-## Goal
-
-Make the app product-like and resume-worthy.
-
-## Scope
-
-Detect continuous downtime incidents and send email alerts.
-
-## Features
-
-- Create incident when endpoint goes DOWN
-- Resolve incident when endpoint comes back UP
-- Send DOWN email alert
-- Send RECOVERY email alert
-- Avoid duplicate incidents
-- Avoid repeated email spam
-- Store incident history
-- Optionally store notification logs
-
-## Database Models
-
-- `Incident`
-- `NotificationLog`, optional
-
-## Incident Logic
-
-```txt
-If check is DOWN and no active incident exists:
-  create incident
-  send down alert
-
-If check is DOWN and active incident already exists:
-  do nothing
-
-If check is UP and active incident exists:
-  resolve incident
-  send recovery alert
-
-If check is UP and no active incident exists:
-  do nothing
-```
-
-## Tech / Concepts
-
-- incident lifecycle
-- state transitions
-- email service
-- alert deduplication
-- recovery detection
-- transactions
-- notification logs
-- worker-side business logic
-
-## Out of Scope
-
-- custom monitoring rules
-- public status pages
-- billing
-- multi-region monitoring
-- advanced scaling
-
----
-
-# Basic V6 — Analytics
-
-## Goal
-
-Show useful uptime and latency metrics.
-
-## Scope
-
-Add basic dashboard analytics from check history.
-
-## Features
-
-- Uptime percentage
-- Average response time
-- Response-time chart
-- Recent checks
-- Recent incidents
-- Current UP/DOWN count
-- Endpoint detail metrics
-
-## Suggested Routes
-
-- `GET /dashboard/summary`
-- `GET /endpoints/:id/metrics?range=24h`
-- `GET /endpoints/:id/checks?limit=50`
-- `GET /endpoints/:id/incidents`
-
-## Tech / Concepts
-
-- aggregation
-- time-window queries
-- average latency
-- uptime calculation
-- chart data APIs
-- pagination/limits
-- query optimization basics
-
-## Out of Scope
-
-- advanced analytics
-- P95/P99 unless explicitly added
-- caching
-- complex reporting
-
----
-
-# V7 — Custom Monitoring Rules
-
-## Goal
-
-Let users define what “healthy” means.
-
-## Scope
-
-Make endpoint health checks configurable.
-
-## Features
-
-- Expected status code
-- Allowed status range
-- Custom timeout
-- Failure threshold
-- Recovery threshold
-- Pause/resume endpoint
-- Optional response body keyword check
-- Optional custom headers
-
-## Example Rules
-
-```txt
-Expected status code: 200
-Timeout: 3000ms
-Alert after: 3 consecutive failures
-Recover after: 2 consecutive successes
-```
-
-## Tech / Concepts
-
-- configurable backend logic
-- rule evaluation
-- custom validation
-- false-positive reduction
-- failure counters
-- recovery counters
-- safer request configuration
-
-## Out of Scope
-
-- full synthetic testing
-- complex browser checks
-- authenticated browser flows
-
----
-
-# V8 — Public Status Pages
-
-## Goal
-
-Add SaaS/product feel by allowing public service status pages.
-
-## Scope
-
-Users can create a public page showing endpoint/service status.
-
-## Features
-
-- Create public status page
-- Custom slug
-- Add endpoints/services to status page
-- Show current status
-- Show recent incidents
-- Show uptime summary
-- Optional maintenance messages
-
-## Example
-
-```txt
-/status/tripweaver
-```
-
-## Tech / Concepts
-
-- public/private data separation
-- slug routing
-- public read-only pages
-- status page modeling
-- incident visibility
-- service grouping
-
-## Out of Scope
-
-- custom domains
-- subscriber notifications
-- advanced branding
-- paid plans
-
----
-
-# V9 — Teams + Workspaces
-
-## Goal
-
-Turn the app into a team-based SaaS.
-
-## Scope
-
-Add organizations/workspaces and role-based access.
-
-## Features
-
-- Create workspace
-- Invite members
-- Roles:
-  - owner
-  - admin
-  - member
-  - viewer
-- Shared endpoints
-- Team-level alert settings
-- Optional audit logs
-
-## Database Models
-
-- `Workspace`
-- `WorkspaceMember`
-- `Invite`
-- `Role`
-- `AuditLog`, optional
-
-## Tech / Concepts
-
-- multi-tenancy
-- RBAC
-- many-to-many relations
-- invites
-- authorization design
-- audit logs
-
-## Out of Scope
-
-- billing
-- enterprise SSO
-- advanced compliance
-
----
-
-# V10 — Security Hardening
-
-## Goal
-
-Make user-submitted URL monitoring safer.
-
-## Scope
-
-Protect the app from abuse and SSRF risks.
-
-## Features
-
-- Allow only `http` and `https`
-- Block localhost
-- Block private IP ranges
-- Block metadata service IPs
-- Validate redirects
-- Limit redirects
-- Limit response body size
-- Set strict timeouts
-- Rate limit manual checks
-- Rate limit endpoint creation
-- Validate custom headers if V7 exists
-
-## Risks Addressed
-
-- SSRF
-- internal network probing
-- localhost access
-- redirect abuse
-- large response abuse
-- excessive check abuse
-
-## Tech / Concepts
-
-- SSRF protection
-- URL validation
-- DNS/IP checks
-- private IP ranges
-- rate limiting
-- abuse prevention
-- threat modeling
-
-## Out of Scope
-
-- perfect enterprise-grade security
-- WAF
-- advanced bot detection
-
----
-
-# V11 — Scaling + Performance
-
-## Goal
-
-Handle more endpoints and larger check history.
-
-## Scope
-
-Improve database performance, worker throughput, and data retention.
-
-## Features
-
-- Add indexes based on query patterns
-- Add pagination
-- Add check retention policy
-- Add aggregated metrics
-- Add worker concurrency control
-- Add batch scheduling
-- Optimize dashboard queries
-- Avoid N+1 queries
-- Add cleanup jobs
-
-## Useful Indexes
-
-```prisma
-@@index([userId])
-@@index([endpointId, checkedAt])
-@@index([nextCheckAt])
-@@index([endpointId, resolvedAt])
-```
-
-## Tech / Concepts
-
-- indexes
-- pagination
-- retention policy
-- aggregation
-- query optimization
-- worker concurrency
-- batching
-- database growth management
-
-## Out of Scope
-
-- multi-region monitoring
-- Kubernetes
-- complex distributed systems
-
----
-
-# V12 — Multi-Region Monitoring
-
-## Goal
-
-Check APIs from different geographic regions.
-
-## Scope
-
-Run workers in multiple regions and compare regional health/latency.
-
-## Features
-
-- Region-specific workers
-- Region-specific check results
-- Regional latency comparison
-- Regional outage detection
-- Region-based alerting
-
-## Example
-
-```txt
-US region: UP, 120ms
-India region: UP, 310ms
-EU region: DOWN
-```
-
-## Tech / Concepts
-
-- distributed workers
-- regional infrastructure
-- latency by geography
-- multi-region coordination
-- regional outage detection
-
-## Out of Scope
-
-- first production release
-- beginner MVP
-- billing
-
----
-
-# V13 — Integrations
-
-## Goal
-
-Send alerts to external tools.
-
-## Scope
-
-Add third-party alert channels.
-
-## Features
-
-- Slack alerts
-- Discord alerts
-- Telegram alerts
-- Webhook alerts
-- Optional PagerDuty/Opsgenie-style integration
-- Notification channel settings
-
-## Tech / Concepts
-
-- webhooks
-- third-party APIs
-- retryable notifications
-- idempotency
-- external failure handling
-- integration secrets
-
-## Out of Scope
-
-- OAuth integrations unless explicitly needed
-- marketplace-style integrations
-
----
-
-# V14 — Billing + Plans
-
-## Goal
-
-Make the app commercially structured.
-
-## Scope
-
-Add plans, limits, and subscriptions.
-
-## Features
-
-- Free plan
-- Pro plan
-- Team plan
-- Endpoint limits
-- Check interval limits
-- History retention limits
-- Billing provider integration
-- Plan upgrade/downgrade
-- Billing portal
-
-## Example Plans
-
-```txt
-Free:
-5 endpoints
-5-minute checks
-7-day history
-
-Pro:
-50 endpoints
-1-minute checks
-90-day history
-
-Team:
-500 endpoints
-workspace support
-status pages
-```
-
-## Tech / Concepts
-
-- billing provider
-- subscriptions
-- webhooks
-- entitlements
-- usage limits
-- plan enforcement
-
-## Out of Scope
-
-- complex tax handling
-- enterprise contracts
-
----
-
-# V15 — Observability
-
-## Goal
-
-Make the monitoring platform itself debuggable and monitorable.
-
-## Scope
-
-Add logs, error tracking, queue monitoring, and internal health checks.
-
-## Features
-
-- Structured logs
-- Request logs
-- Worker logs
-- Error tracking
-- Bull Board
-- Queue health
-- Worker health
-- Internal health endpoint
-- Basic metrics
-- Slow query visibility
-
-## Useful Events
-
-- `endpoint_check_started`
-- `endpoint_check_completed`
-- `endpoint_check_failed`
-- `incident_created`
-- `incident_resolved`
-- `email_alert_sent`
-- `email_alert_failed`
-- `job_failed`
-
-## Tech / Concepts
-
-- observability
-- structured logging
-- error tracking
-- queue monitoring
-- worker health
-- debugging production systems
-- internal service health
-
-## Out of Scope
-
-- full enterprise observability stack
-- complex OpenTelemetry setup unless explicitly added later
-
----
-
-# Recommended Build Order
-
-## First Release
-
-```txt
-V0 → V1 → V2 → V3 → V4 → V5 → Basic V6
-```
-
-This is the first strong resume-worthy release.
-
-## Later Product/Backend Depth
-
-```txt
-Selected V7 → V10 → V11 → V15
-```
-
-This turns the app into a production-inspired backend project.
-
-## Optional SaaS/Product Expansion
-
-```txt
-V8 → V9 → V13 → V14
-```
-
-This makes the app feel more like a real SaaS product.
-
-## Advanced Long-Term Expansion
-
-```txt
-V12
-```
-
-Multi-region monitoring should be treated as advanced and long-term.
+# StatusForge — Master Roadmap (Index)
+
+StatusForge is a backend-focused learning project that grows from a URL checker
+into a production-oriented API monitoring platform. Each version introduces a
+bounded set of features and concepts; unfinished work is carried forward before
+new version work begins.
+
+This file is the **index only**. Full per-version detail lives in
+`docs/roadmap/vN.md`. Read the index plus the active version's file — do not load
+every version to understand scope.
+
+## How to read this roadmap
+
+- `[ ]` not started, `[~]` partial, `[x]` complete.
+- Each version file has: **Goal and scope**, **Core features**, **Supporting
+  work**, **Concepts learned**, and **Out of scope**.
+- **Out of scope** in a version means deferred, not forgotten — see the
+  [deferred-work register](#deferred-work-register) below.
+
+## Current development state
+
+- **Current active version: V6 — Analytics Dashboard and Real-Time Frontend.**
+  Detail: [`docs/roadmap/v6.md`](docs/roadmap/v6.md).
+- Earlier version checklists remain the source of truth for any unfinished work;
+  active work on V6 does not automatically mark every carried-forward item as
+  complete.
+- Known carried-forward items:
+  1. [ ] `PATCH /monitors/:id`
+  2. [ ] `DELETE /monitors/:id`
+  3. [ ] `GET /auth/me`
+- First polished milestone: V5 plus the basic analytics/dashboard portion of V6.
+
+## Project pillars
+
+- **Backend:** REST APIs, layered architecture, databases, authentication,
+  authorization, queues, workers, real-time delivery, and API lifecycle.
+- **Cloud:** object storage, containers, CI/CD, environment management,
+  deployment, and regional workers.
+- **Monitoring:** HTTP, SSL, and DNS checks; uptime and latency; incidents;
+  alerts; thresholds; and live dashboards.
+- **Security:** JWTs, refresh-token rotation, blacklisting, SSRF protection,
+  injection prevention, CORS, rate limiting, RBAC, signatures, and API keys.
+- **Reliability:** retries, dead-letter handling, idempotency, graceful shutdown,
+  concurrency control, retention, and aggregated metrics.
+- **Observability:** structured logs, error tracking, health checks, correlation
+  IDs, query/worker monitoring, metrics, traces, and queue visibility.
+- **Testing:** unit, integration, and end-to-end tests; dependency mocking; test
+  databases; CI; and coverage.
+
+## Version map
+
+| Version | Title | Goal (one line) | Status | Detail |
+|---------|-------|-----------------|--------|--------|
+| V0 | URL Checker Prototype | One-off `UP`/`DOWN` check for a single URL | Complete | [v0](docs/roadmap/v0.md) |
+| V1 | Endpoint Manager | Persist monitors + check history, CRUD, manual checks | Partial | [v1](docs/roadmap/v1.md) |
+| V2 | Authenticated Dashboard | Multi-user auth with access/refresh tokens, ownership | Partial | [v2](docs/roadmap/v2.md) |
+| V3 | Automatic Monitoring | In-process `node-cron` scheduler for due monitors | Complete* | [v3](docs/roadmap/v3.md) |
+| V4 | Queue and Worker | Move checks to BullMQ producer/consumer + token blacklist | Not started | [v4](docs/roadmap/v4.md) |
+| V5 | Incidents and Email Alerts | Incident state machine + down/recovery emails | Not started | [v5](docs/roadmap/v5.md) |
+| **V6** | **Analytics Dashboard and Real-Time Frontend** | **Analytics APIs + Next.js dashboard + chosen live transport** | **In progress** | [v6](docs/roadmap/v6.md) |
+| V7 | Custom Rules and Extended Check Types | User-defined health rules + SSL/DNS checks | Not started | [v7](docs/roadmap/v7.md) |
+| V8 | Public Status Pages, Exports, and S3 | Public status pages + CSV/screenshot exports on S3 | Not started | [v8](docs/roadmap/v8.md) |
+| V9 | Teams and Workspaces | Tenant-isolated workspaces + RBAC | Not started | [v9](docs/roadmap/v9.md) |
+| V10 | Security Hardening and API Versioning | SSRF protection, rate limits, Helmet, `/v1` + OpenAPI | Not started | [v10](docs/roadmap/v10.md) |
+| V11 | Scaling and Performance | Indexes, cursor pagination, retention, caching, aggregates | Not started | [v11](docs/roadmap/v11.md) |
+| V12 | Multi-Region Monitoring | Regional workers + `UP`/`DOWN`/`DEGRADED` aggregation | Not started | [v12](docs/roadmap/v12.md) |
+| V13 | Integrations | Slack/Discord/signed-webhook alert channels | Not started | [v13](docs/roadmap/v13.md) |
+| V14 | Billing and Plans | Stripe subscriptions + plan entitlements | Not started | [v14](docs/roadmap/v14.md) |
+| V15 | Application Observability | Pino logs, correlation IDs, Sentry, health checks | Not started | [v15](docs/roadmap/v15.md) |
+| V16 | Comprehensive Testing | Unit/integration tests, fixtures, CI quality gates | Not started | [v16](docs/roadmap/v16.md) |
+| V17 | Docker, CI/CD, and Production Deployment | Containers, pipelines, managed deps, zero-downtime | Not started | [v17](docs/roadmap/v17.md) |
+| V18 | Production Monitoring and Dogfooding | Prometheus/Grafana/Loki/OTel, SLOs, runbooks | Not started | [v18](docs/roadmap/v18.md) |
+
+\* V3 complete with carried-forward V1/V2 gaps.
+
+## Deferred-work register
+
+Concerns that are **deliberately scheduled for a later version**. Before flagging
+any of these as missing during code review or planning, check this table first.
+
+- A concern listed here is **not a defect** in the current version. Note it at
+  most once as "tracked for V<n>", then move on.
+- Only raise a deferred item early if it actively breaks **current-version
+  correctness** (e.g. a missing unique constraint allowing duplicate rows is a
+  correctness bug, not deferred performance work).
+
+| Concern | Lands in | Notes |
+|---------|----------|-------|
+| Redis-backed access-token blacklist / revocation | V4 | Auth works without it pre-V4 |
+| Queues, workers, multi-process execution | V4 | Checks run in-process until V4 |
+| Database schema migrations (replace ad-hoc table creation) | V4 | |
+| Incident state machine + email alerts | V5 | |
+| Basic Sentry initialization | V5 | Full error tracking in V15 |
+| API pagination on list endpoints (limit/offset) | V6 | Cursor pagination later in V11 |
+| Credential-aware CORS for frontend origin | V6 | Strict CORS hardening in V10 |
+| Basic Pino logger (replace `console.log`) | V6 | Full structured logging in V15 |
+| Basic Docker Compose (Postgres + Redis, local dev) | V6 | Production Docker/CI-CD in V17 |
+| Configurable health rules / thresholds | V7 | |
+| SSL certificate checks | V7 | |
+| DNS record checks + change detection | V7 | |
+| Public status pages | V8 | |
+| S3 object storage, CSV exports, screenshots | V8 | |
+| Teams / workspaces / RBAC / multi-tenant roles | V9 | |
+| SSRF protection (private/link-local/metadata IPs) | V10 | |
+| Rate limiting (route-specific) | V10 | Public-route rate limiting noted in V8 |
+| Helmet, request/response size limits | V10 | |
+| API versioning (`/v1`), OpenAPI/Swagger, deprecation | V10 | |
+| **Database indexing / query optimization** | **V11** | **Performance is explicitly post-V6** |
+| Cursor pagination for high-volume lists | V11 | |
+| Check retention + nightly cleanup | V11 | |
+| Pre-aggregated tables + cached dashboard summaries | V11 | |
+| N+1 elimination, `EXPLAIN ANALYZE`, query tuning | V11 | Optimize only with measured evidence |
+| Multi-region checks + `DEGRADED` state | V12 | |
+| Slack/Discord/webhook integrations + HMAC | V13 | |
+| Billing, Stripe, plan limits/entitlements | V14 | |
+| Full structured logging, correlation IDs, health checks | V15 | |
+| Comprehensive automated tests + CI quality gates | V16 | Useful per-feature tests still expected earlier |
+| Production Docker images, CI/CD, deployment | V17 | |
+| Prometheus/Grafana/Loki/OpenTelemetry, SLOs, runbooks | V18 | |
+
+## Review scoping rule
+
+Before raising a finding, check the deferred-work register above.
+
+- If the concern is scheduled for a later version, do **not** report it as a
+  defect. You may note it once as: "Tracked for V11 (indexing) — no action this
+  version."
+- Only flag deferred work early if it actively breaks current-version
+  correctness.
+- Keep implementation work within the current active version's scope.
+
+## Off-roadmap suggestions
+
+This roadmap is a guide, not a ceiling. Useful features or improvements that are
+not listed in any version are welcome as **proposals** — for example, an
+escalation alert when a monitor stays down, added alongside V5 incidents.
+
+StatusForge is a backend learning project: the developer implements their own
+concepts, and AI assists with review, test cases, and improving existing code.
+Suggestions follow that same spirit — they propose, they do not take over the
+implementation.
+
+- Suggest only genuinely valuable ideas that fit the **current active version's
+  theme**. Keep them few and high-signal.
+- Label them clearly (e.g. "Suggestion (off-roadmap)") with a one-line rationale
+  and tradeoff, separate from required in-scope work.
+- They are proposals only — do not implement until the developer agrees, and even
+  then default to teaching/reviewing rather than writing the full feature unless
+  explicitly asked.
+- When an off-roadmap idea is accepted, record it in the relevant
+  `docs/roadmap/vN.md` file so this roadmap stays the source of truth.
+
+## Build milestones
+
+### Milestone 1 — Resume-worthy MVP
+
+V0–V6: REST API, PostgreSQL, authentication, scheduling, BullMQ/Redis, incident
+detection, email alerts, analytics, frontend, a deliberately selected real-time
+transport, basic Docker/Compose, Pino, and Sentry.
+
+### Milestone 2 — Production-grade backend
+
+V7, V8, V10, V11, and V16: custom checks, SSL/DNS, S3 and exports, security,
+API lifecycle, database performance, retention, caching, comprehensive tests,
+and CI.
+
+### Milestone 3 — Full product
+
+V9 and V13–V17: workspaces/RBAC, integrations, billing, observability,
+containerization, CI/CD, and production deployment.
+
+### Milestone 4 — Long-term advanced work
+
+V12 and V18: multi-region checks, geographic failure states, Prometheus,
+Grafana, Loki, OpenTelemetry, SLOs, runbooks, and dogfooding.

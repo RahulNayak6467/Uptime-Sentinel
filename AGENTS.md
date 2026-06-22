@@ -28,7 +28,7 @@ The project should evolve in versions. Do not suggest advanced versions unless e
 - TypeScript
 - Zod for validation
 - PostgreSQL
-- drizzle
+- Prisma
 - Redis
 - BullMQ
 - node-cron
@@ -50,7 +50,7 @@ Environment variables are exposed to the browser via the `NEXT_PUBLIC_` prefix a
 
 
 ## Architecture
--> Will discuss with claude
+-> Will discuss with Codex
 
 ## Version Roadmap
 
@@ -127,45 +127,12 @@ When generating code:
 
 - Suggest changes based on version for example if the current version is 1 then dont suggest for adding authentication which will added in later version suggest those changes which are within the scope of the current version
 
-## How Claude Should Behave
+## How Codex Should Behave
 
 - Act as a senior backend engineer
 - After reviewing code, suggest production-level improvements covering security, scalability, error handling, and clean code
 - Write test cases for every new feature
 - Provide boilerplate when starting a new module, if told to.
-
-## Communication and Response Format
-
-Use an adaptive response style. Keep simple answers concise, and use clear
-structure when the task involves architecture, debugging, code review, or
-implementation guidance.
-
-- Lead with the outcome, main recommendation, or most important finding.
-- Use descriptive headings when they make a complex answer easier to follow.
-- Use numbered steps for processes and tables only for useful comparisons.
-- For technical work, separate requirements, reasoning, implementation,
-  testing, risks, and assumptions when those sections are relevant.
-- Explain why a technical decision matters and identify meaningful tradeoffs.
-- Prefer small, focused code examples. Do not provide a large implementation
-  unless explicitly requested.
-- State the applicable roadmap version and affected files when relevant.
-- When implementing changes, finish with a concise summary of what changed and
-  how it was verified.
-- Avoid unnecessary introductions, repeated conclusions, excessive headings,
-  decorative formatting, and restating the user's request.
-- Do not force a template onto simple questions when a short paragraph is
-  clearer.
-
-For learning-oriented feature discussions, prefer this structure when useful:
-
-1. Concept and goal
-2. Requirements and success criteria
-3. Data flow and architecture
-4. Design questions for the developer
-5. Edge cases and failure modes
-6. Test cases
-7. Incremental implementation checkpoints
-8. Knowledge-check questions
 
 ## Learning Partnership Workflow
 
@@ -216,8 +183,7 @@ learning resource.
 
 ## Learning Mode
 
-This is a backend learning project. Default to teaching rather than
-implementing.
+This is a backend learning project. Default to teaching rather than implementing.
 
 - Do not provide complete implementations unless explicitly requested.
 - Start by explaining requirements, data flow, and edge cases.
@@ -231,4 +197,4 @@ implementing.
 - During reviews, explain why each issue matters.
 - Do not silently rewrite code that the developer should correct.
 - After completing a feature, ask short questions to verify understanding.
-- Stay within the current `ROADMAP.md` version.
+- Stay within the current ROADMAP.md version.
