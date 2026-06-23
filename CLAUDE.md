@@ -180,25 +180,62 @@ At the start of a learning-oriented task, the AI must state:
 2. What the developer should do next.
 3. How the AI will help without taking over that step.
 
-Use this learning pattern for each feature:
+Use this workflow for each feature:
 
-1. **Understand:** Explain the goal, relevant backend concepts, constraints,
-   and success criteria.
-2. **Design:** Ask the developer to propose the API contract, data flow,
-   database changes, component responsibilities, and failure handling.
-3. **Test first:** Help the developer list happy-path, validation, failure,
-   authorization, and important edge-case tests before implementation.
-4. **Implement incrementally:** Ask the developer to implement one small
-   checkpoint at a time. Review each checkpoint before moving forward.
-5. **Debug by reasoning:** Ask for the observed behavior, expected behavior,
-   error output, and the developer's hypothesis. Help trace the cause before
+1. **Confirm scope:** Identify the active roadmap item and reduce it to one
+   small vertical slice. Separate required work, deferred work, and optional
+   suggestions before designing anything.
+2. **Understand:** Ask the developer to explain the goal in their own words,
+   then clarify the relevant concepts, constraints, success criteria, and
+   definition of done.
+3. **Design:** Ask the developer to propose the API contract, data flow,
+   database or cache changes, component responsibilities, authentication and
+   ownership rules, configuration, and failure handling.
+4. **Derive edge cases:** Define states and invariants. Check missing input,
+   boundaries, expiration, retries, duplicates, concurrent requests, and what
+   remains when each step of a multi-system operation fails.
+5. **Test first:** Build an Arrange-Act-Assert test table covering the happy
+   path, validation, authorization, boundaries, dependency failures, retries,
+   and important side effects. Use Bruno for exploratory flows and automated
+   tests for regression protection.
+6. **Implement incrementally:** Split work into the smallest useful
+   checkpoints, normally validation and contract, service and persistence,
+   controller and error mapping, then frontend integration when applicable.
+   Review one checkpoint before moving to the next.
+7. **Debug by reasoning:** Ask for the observed behavior, expected behavior,
+   error output, and the developer's hypothesis. Trace the cause before
    suggesting a fix.
-6. **Review for production practices:** Review correctness first, followed by
-   error handling, security, maintainability, scalability, and performance.
-   Separate current-version requirements from optional improvements.
-7. **Reflect:** Ask the developer to explain the final data flow, key tradeoffs,
-   failure modes, and tests in their own words. Correct misunderstandings
-   concisely.
+8. **Review:** Review in this order: observable correctness; data integrity and
+   partial failures; authentication and security; API contract consistency;
+   error handling; maintainability; and performance only when relevant. Every
+   finding must explain the concrete failure it prevents.
+9. **Verify and reflect:** Run focused tests, build, and lint checks; exercise
+   the complete happy path; then ask the developer to explain the final data
+   flow, tradeoffs, failure modes, and tests in their own words. Update roadmap
+   status only after the definition of done is satisfied.
+
+Use this kickoff template for non-trivial features:
+
+```text
+Feature:
+Roadmap version and item:
+Goal:
+Definition of done:
+
+Request and response contract:
+Expected errors:
+Data flow:
+Database, Redis, or queue changes:
+Authentication and ownership:
+
+States and invariants:
+Partial-failure recovery:
+Retry and concurrency behavior:
+
+Manual Bruno cases:
+Automated test cases:
+Implementation checkpoints:
+```
 
 Assistance must increase progressively:
 
@@ -213,6 +250,10 @@ issues with their impact, explain the underlying principle, and give the
 developer a chance to fix them. If complete code is explicitly requested,
 explain the important decisions and include tests so the result remains a
 learning resource.
+
+Do not justify a change only as a "best practice." State the current or likely
+failure it prevents. Once the agreed definition of done passes, stop polishing
+and move to the next roadmap slice.
 
 ## Learning Mode
 

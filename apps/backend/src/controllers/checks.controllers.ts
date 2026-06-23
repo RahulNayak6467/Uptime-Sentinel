@@ -3,7 +3,7 @@ import {
   fetchUrlDataById,
   fetchUrlDataByName,
 } from "../services/checks.services";
-import { AppError, PostgresError } from "../errors/AppError";
+
 import { UrlResponseData } from "../types/types";
 import { NextFunction, Request, Response } from "express";
 

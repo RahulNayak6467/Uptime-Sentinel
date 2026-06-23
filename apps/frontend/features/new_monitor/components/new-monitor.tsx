@@ -38,7 +38,7 @@ const NewMonitorProperties = () => {
   const statusCode = watch("statusCode");
   const responseTimeAlert = watch("responseTimeAlert");
 
-  const { mutate } = useUrlRegister();
+  const { mutate, isPending } = useUrlRegister();
 
   const onSubmit = (data: monitorInfoProps) => {
     const urlDetails = {
@@ -64,7 +64,11 @@ const NewMonitorProperties = () => {
 
   return (
     <div>
-      <NewMonitorHeader onSubmit={onSubmit} handleSubmit={handleSubmit} />
+      <NewMonitorHeader
+        onSubmit={onSubmit}
+        handleSubmit={handleSubmit}
+        isPending={isPending}
+      />
       <div className="w-[98%] flex gap-2  ml-4 mt-4 ">
         <div className="w-[80%]">
           <MonitorTypeInfo selected={monitorType} onSelect={setMonitorType} />

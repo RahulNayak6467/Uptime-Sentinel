@@ -13,7 +13,7 @@ export type verifyOtpProps = {
 };
 
 export const useVerifyOtp = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (verificationOtp: verifyOtpProps) =>
       apiFetch<emailVerificationProps>("/user/email-verify", {
         method: "POST",
@@ -29,5 +29,5 @@ export const useVerifyOtp = () => {
     retry: false,
   });
 
-  return { mutate };
+  return { mutate, isPending };
 };

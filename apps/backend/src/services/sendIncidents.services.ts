@@ -29,7 +29,7 @@ export const getIncidentsDetailsById = async (
     const rows = getFromIncidentTable.rows.length;
 
     if (rows === 0) {
-      throw new AppError(404, "No incidents exist");
+      throw new AppError(404, "No incidents exist", "INCIDENTS_NOT_FOUND");
     }
 
     const response: incidentsTableDataProps[] = getFromIncidentTable.rows.map(

@@ -8,16 +8,16 @@ export const deleteUrlById = async (url_id: string, user_id: string) => {
     const deletedRows = await db.query(remove_url_query, remove_url_value);
     const rows = deletedRows.rowCount;
     if (rows === null || rows === 0) {
-      throw new AppError(404, "No such url exists");
+      throw new AppError(404, "No such url exists", "URL_NOT_FOUND");
     }
     return;
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.code === "22P02") {
-        throw new AppError(400, "Invalid uuid format");
-      }
+    if (error instanceof AppError) {
       throw error;
-    } else if (error instanceof AppError) {
+    } else if (error instanceof Error) {
+      if (error.code === "22P02") {
+        throw new AppError(400, "Invalid uuid format", "INVALID_UUID");
+      }
       throw error;
     }
   }

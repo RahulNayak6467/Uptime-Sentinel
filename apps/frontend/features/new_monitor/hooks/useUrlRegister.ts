@@ -8,7 +8,7 @@ type urlRegisterProps = {
 };
 
 export const useUrlRegister = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (urlRegister: urlRegisterProps) =>
       apiFetch<{ message: string }>("/url/register", {
         method: "POST",
@@ -16,5 +16,5 @@ export const useUrlRegister = () => {
       }),
   });
 
-  return { mutate };
+  return { mutate, isPending };
 };

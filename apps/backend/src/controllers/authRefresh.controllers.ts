@@ -4,6 +4,7 @@ import { UrlResponseData } from "../types/types";
 import { NextFunction, Request, Response } from "express";
 import { checkValidRefreshToken } from "../services/authRefresh.services";
 import { env } from "../config/env";
+import { accessTokenCookieOptions } from "../auth-config";
 
 export const generateAccessToken = async (
   req: Request,
@@ -12,7 +13,7 @@ export const generateAccessToken = async (
 ) => {
   // console.log(req);
   const refreshTokens = req.cookies.refreshToken;
-  // console.log(refreshTokens);
+  console.log("RefreshToken: ", refreshTokens);
   if (!refreshTokens) {
     return res.status(400).json({ message: "Missing Tokens" });
   }
@@ -24,14 +25,9 @@ export const generateAccessToken = async (
     const { message, token: accessToken } =
       await checkValidRefreshToken(refreshTokens);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000,
-    });
+    res.cookie("accessToken", accessToken, accessTokenCookieOptions);
 
-    return res.status(201).json(message);
+    return res.status(201).json({ message });
   } catch (err) {
     return next(err);
   }

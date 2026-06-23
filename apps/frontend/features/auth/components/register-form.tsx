@@ -12,8 +12,10 @@ import {
 } from "../schemas/register-schema";
 import { useRegister } from "../hooks/useRegister";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ApiError } from "@/lib/api-error";
 import { toast } from "sonner";
+import Spinner from "@/components/ui/spinner";
 
 function RegisterForm() {
   const {
@@ -26,10 +28,11 @@ function RegisterForm() {
 
   const router = useRouter();
 
-  const { mutate } = useRegister();
+  const { mutate, isPending } = useRegister();
+  const [serverError, setServerError] = useState("");
   const onSubmit = (data: registerSchemaProps) => {
     const userDetails = {
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       password: data.password,
     };
 
@@ -38,6 +41,7 @@ function RegisterForm() {
         router.push("/verify-email");
       },
       onError: (err) => {
+        console.log(err);
         if (err instanceof ApiError) {
           toast.error(err.message);
         } else {
@@ -142,16 +146,23 @@ function RegisterForm() {
         </div>
 
         <button
-          onClick={() => console.log("Clicked")}
           type="submit"
-          className="mt-4 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg"
+          disabled={isPending}
+          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Create Account
+          {isPending ? (
+            <>
+              <Spinner label="Creating account" />
+              Creating account…
+            </>
+          ) : (
+            "Create Account"
+          )}
         </button>
 
         <p className="mt-5 text-center text-[13px] text-sf-text-sub font-sans">
           <a
-            href="/register"
+            href="/login"
             className="text-sf-text-sub font-semibold hover:underline"
           >
             Already have an account?

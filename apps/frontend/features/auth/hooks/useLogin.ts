@@ -11,7 +11,7 @@ export type userLoginProps = {
 };
 
 export const useLogin = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (userLoginDetails: userLoginProps) =>
       apiFetch<userLoginResponseProps>("/user/login", {
         method: "POST",
@@ -20,5 +20,5 @@ export const useLogin = () => {
     retry: false,
   });
 
-  return { mutate };
+  return { mutate, isPending };
 };

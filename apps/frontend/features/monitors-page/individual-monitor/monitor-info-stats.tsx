@@ -9,10 +9,31 @@ import {
   responseTimeHours,
   responseTimeP95,
 } from "./data";
-import { IndividualStatsCardProps, RegionMonitorProps } from "./types";
+import Error from "../../Overview/components/error"
+import Loader from "../../Overview/components/loading"
+import {IndividualStatsCardProps, RegionMonitorProps, } from "./types";
 import Chart from "@/utils/chart";
+import {useIndividualStats} from "@/features/monitors-page/individual-monitor/hooks/useIndividualStats";
+import {useParams} from "next/navigation";
+
+
 
 const IndividualMonitorInfoStats = () => {
+   const params = useParams<{id:string }>()
+  const id = params.id;
+
+   const {data:individualMonitorStats,isLoading,isError,refetch} = useIndividualStats(id)
+
+  if(isLoading ){
+    return <Loader />
+  }
+
+  if(isError || !individualMonitorStats ){
+    return <Error refetch={refetch} />
+  }
+
+
+
   return (
     <div>
       <div className="border border-b-sf-border bg-sf-surface mt-6 rounded-sf">
@@ -51,20 +72,29 @@ const IndividualMonitorInfoStats = () => {
       </div>
       <div className="flex gap-2">
         {IndividualStatsCardData.map((data) => (
-          <StatsCard key={data.id} title={data.title} stats={data.stats} />
+            <StatsCard key={data.title} title={data.title} unit={data.unit} value={data.value} context={individualMonitorStats[data.value]} />
         ))}
       </div>
     </div>
   );
 };
 
-const StatsCard = ({ title, stats }: IndividualStatsCardProps) => {
+const StatsCard = ({ title, value, unit , context}: IndividualStatsCardProps) => {
   return (
     <div className="w-full bg-sf-surface mt-6 flex flex-col gap-1 p-4  rounded-sf border border-sf-border hover:border-sf-text-muted transition-colors">
       <p className="text-[14px] text-sf-text-sub font-sans font-medium">
         {title}
       </p>
-      <p className="text-[20px] text-sf-text font-sans font-medium">{stats}</p>
+      <p className="text-[20px] text-sf-text font-sans font-medium">
+        {context === null ? (
+          <span className="text-[14px] text-sf-text-muted">No data</span>
+        ) : (
+          <>
+            {context}
+            <span className="ml-1 text-[14px] text-sf-text-muted">{unit}</span>
+          </>
+        )}
+      </p>
     </div>
   );
 };

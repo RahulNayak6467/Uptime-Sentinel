@@ -53,7 +53,7 @@ export const checkUrlHealth = async (
           errorMessage: err.message,
         };
       } else if (err.code === "22P02") {
-        throw new AppError(400, "Invalid uuid format");
+        throw new AppError(400, "Invalid uuid format", "INVALID_UUID");
       } else {
         throw new Error("Internal server error");
       }

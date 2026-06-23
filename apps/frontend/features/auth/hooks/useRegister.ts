@@ -11,7 +11,7 @@ export type userDetailsProps = {
 };
 
 export const useRegister = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (userDetails: userDetailsProps) =>
       apiFetch<userRegistrationProps>("/user/registration", {
         method: "POST",
@@ -20,5 +20,5 @@ export const useRegister = () => {
     retry: false,
   });
 
-  return { mutate };
+  return { mutate, isPending };
 };

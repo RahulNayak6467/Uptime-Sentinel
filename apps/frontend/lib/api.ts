@@ -12,7 +12,12 @@ export async function apiFetch<T>(
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
-  if (res.status === 401) return handle401<T>(endpoint, init);
+  // if (res.status === 401) return handle401<T>(endpoint, init);
+  if (endpoint == "/user/login" && res.status === 401)
+    throw new ApiError("Invalid Login Credentials", 401, "INVALID_CREDENTIALS");
+  else if (res.status === 401) return handle401<T>(endpoint, init);
+  console.log(res.ok);
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new ApiError(body.message ?? "Request failed", res.status, body.code);
@@ -21,7 +26,6 @@ export async function apiFetch<T>(
 }
 
 async function handle401<T>(endpoint: string, init?: RequestInit): Promise<T> {
-  // Prevent infinite recursion if refresh itself fails
   if (endpoint === "/auth/refresh") {
     throw new Error("Refresh token request failed");
   }
@@ -31,14 +35,13 @@ async function handle401<T>(endpoint: string, init?: RequestInit): Promise<T> {
 
     try {
       const refreshResponse = await fetch(
-        `${process.env.NEXT_FETCH_URL}/auth/refresh`,
+        `${process.env.NEXT_PUBLIC_FETCH_URL}/auth/refresh`,
         {
           method: "POST",
           credentials: "include",
         },
       );
 
-      // Refresh failed -> stop here
       if (!refreshResponse.ok) {
         throw new Error("Session expired");
       }

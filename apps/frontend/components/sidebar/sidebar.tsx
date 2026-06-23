@@ -6,6 +6,7 @@ import { useLogout } from "@/features/auth/hooks/useLogout";
 import { configureItems, monitorItems, workspaceItems } from "./data";
 import MonitorStats from "./monitor-stats";
 import DarkModeToggle from "./dark-mode";
+import Spinner from "../ui/spinner";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -114,7 +115,7 @@ const Sidebar = () => {
               className="shrink-0 text-sf-text-sub hover:text-sf-text transition-colors cursor-pointer disabled:opacity-50"
               title="Log out"
             >
-              <LogoutIcon />
+              {isPending ? <Spinner label="Logging out" /> : <LogoutIcon />}
             </button>
           </div>
         </div>

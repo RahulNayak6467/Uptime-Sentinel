@@ -4,9 +4,9 @@ const IncidentAlert = () => {
   return (
     <div className="mx-6 mt-4 rounded-sf border border-sf-red-border bg-sf-red-bg px-4 py-3">
       <div className="flex items-start justify-between gap-6">
-        {/* Left: title + description */}
+
         <div className="flex flex-col gap-1.5 min-w-0">
-          {/* Title row */}
+=
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[14px] font-bold text-sf-text">
               Checkout Service
@@ -19,7 +19,7 @@ const IncidentAlert = () => {
             </span>
           </div>
 
-          {/* Description row */}
+
           <div className="flex items-center gap-2">
             <span className="mt-0.5 flex items-center justify-center w-6 h-6 rounded bg-sf-red/10 shrink-0">
               <TriangleAlert className="w-3.5 h-3.5 text-sf-red" />
@@ -35,7 +35,6 @@ const IncidentAlert = () => {
           </div>
         </div>
 
-        {/* Right: timer + action */}
         <div className="flex items-center gap-3 shrink-0 self-center">
           <span className="flex items-center gap-1.5 text-[13px] text-sf-text-sub whitespace-nowrap">
             <Clock className="w-3.5 h-3.5" />

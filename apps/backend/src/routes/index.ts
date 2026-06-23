@@ -11,8 +11,10 @@ import logUserOut from "./logout.routes";
 import registerUrl from "./registerUrl.routes";
 import monitorCheckUrl from "./monitorUrl.routes";
 import singleIncidentData from "./singleIncidents.routes";
+import dashboardoverviewRoutes from "./dashboardoverview.routes";
 import bullboardAuth from "../middleware/bullboardAuth.middleware";
 import { serverAdapter } from "../config/bullboard";
+import individualMonitorRoutes from "./individualMonitor.routes";
 
 const router: Router = Router();
 
@@ -28,6 +30,8 @@ router.use("/auth/logout", logUserOut);
 router.use("/url/register", registerUrl);
 router.use("/monitor", monitorCheckUrl);
 router.use("/incidents", singleIncidentData);
+router.use("/dashboard/overview/stats",dashboardoverviewRoutes )
+router.use("/monitors",individualMonitorRoutes)
 router.use("/admin/queues", bullboardAuth, serverAdapter.getRouter());
 
 export default router;

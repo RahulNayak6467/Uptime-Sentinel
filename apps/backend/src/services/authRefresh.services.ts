@@ -5,6 +5,7 @@ import { AppError } from "../errors/AppError";
 import { email } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "../config/env";
+import { ACCESS_TOKEN_TTL_SECONDS } from "../auth-config";
 
 export const checkValidRefreshToken = async (refreshToken: string) => {
   const refreshTokenSecret = env.JWT_REFRESH_SECRET;
@@ -34,7 +35,7 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
       throw new AppError(401, "Unauthorized2", "REFRESH_TOKEN_INVALID");
     }
     const secretKey = env.JWT_SECRET;
-    const expiresIn = env.JWT_EXPIRES_IN;
+    const expiresIn = ACCESS_TOKEN_TTL_SECONDS;
     if (!secretKey) {
       throw new AppError(500, "Internal server error", "JWT_SECRET_NOT_CONFIGURED");
     }

@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useResendOTP } from "../hooks/useResendOTP";
 import { useState } from "react";
 import OtpError from "./otp-error";
+import Spinner from "@/components/ui/spinner";
 
 function OtpForm() {
   const {
@@ -26,12 +27,14 @@ function OtpForm() {
   const router = useRouter();
 
   const [isOtpError, setIsOtpError] = useState<boolean>(false);
-  const { mutate } = useVerifyOtp();
-  const { mutate: resendMutate } = useResendOTP();
+  const { mutate, isPending: isVerifying } = useVerifyOtp();
+  const { mutate: resendMutate, isPending: isResending } = useResendOTP();
 
   const onSubmit = (data: OtpSchemaProps) => {
     const otp: string = data.otp;
-    const email = process.env.NEXT_PUBLIC_EMAIL as string;
+    const email = (process.env.NEXT_PUBLIC_EMAIL as string)
+      .trim()
+      .toLowerCase();
 
     mutate(
       { otp, email },
@@ -102,19 +105,35 @@ function OtpForm() {
 
         <button
           type="submit"
-          className="mt-6 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isVerifying || isResending}
+          className="mt-6 w-full flex items-center justify-center gap-2 py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Verify Email
+          {isVerifying ? (
+            <>
+              <Spinner label="Verifying email" />
+              Verifying…
+            </>
+          ) : (
+            "Verify Email"
+          )}
         </button>
 
         <p className="mt-4 text-center text-[13px] text-sf-text-sub font-sans">
           Didn&apos;t receive a code?{" "}
           <button
             type="button"
-            className="text-sf-text font-semibold hover:underline"
+            disabled={isVerifying || isResending}
+            className="inline-flex items-center gap-1.5 text-sf-text font-semibold hover:underline disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => resendOtp()}
           >
-            Resend
+            {isResending ? (
+              <>
+                <Spinner size={13} label="Resending verification code" />
+                Sending…
+              </>
+            ) : (
+              "Resend"
+            )}
           </button>
         </p>
       </form>

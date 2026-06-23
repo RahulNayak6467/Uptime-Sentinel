@@ -14,7 +14,7 @@ export const fetchUrlData = async (
     const rows: UrlResponseData[] = getAllData.rows;
     if (rows.length === 0) {
       //   return res.status(200).json({ message: "no request made till now" });
-      throw new AppError(200, "no request made till now");
+      throw new AppError(200, "no request made till now", "NO_CHECKS_FOUND");
     }
     // return res.status(200).json(rows);
     return rows;
@@ -44,7 +44,11 @@ export const fetchUrlDataByName = async (
     // console.log(rows.length);
     if (rows.length === 0) {
       //   return res.status(404).json({ message: "no such url exists" });
-      throw new AppError(404, "no checks made till now or url does not exist");
+      throw new AppError(
+        404,
+        "no checks made till now or url does not exist",
+        "CHECKS_NOT_FOUND",
+      );
     }
     return rows;
   } catch (error) {
@@ -67,7 +71,11 @@ export const fetchUrlDataById = async (
     const rows: UrlResponseData[] = getUrlById.rows;
     // console.log(rows.length);
     if (rows.length === 0) {
-      throw new AppError(404, "no checks made till now or url does not exist");
+      throw new AppError(
+        404,
+        "no checks made till now or url does not exist",
+        "CHECKS_NOT_FOUND",
+      );
     }
     return rows[0];
   } catch (error) {
@@ -75,7 +83,7 @@ export const fetchUrlDataById = async (
     if (error instanceof AppError) {
       throw error;
     } else if (error.code === "22P02") {
-      throw new AppError(400, "invalid uuid format");
+      throw new AppError(400, "invalid uuid format", "INVALID_UUID");
     }
     throw error;
   }

@@ -1,7 +1,19 @@
 import { ArrowLeft } from "lucide-react";
-import { monitorInfoProps } from "../../schemas/monitor-info";
+import Spinner from "@/components/ui/spinner";
+import type { SubmitHandler, UseFormHandleSubmit } from "react-hook-form";
+import type { monitorInfoProps } from "../../schemas/monitor-info";
 
-const NewMonitorHeader = ({ handleSubmit, onSubmit }) => {
+type NewMonitorHeaderProps = {
+  handleSubmit: UseFormHandleSubmit<monitorInfoProps>;
+  onSubmit: SubmitHandler<monitorInfoProps>;
+  isPending: boolean;
+};
+
+const NewMonitorHeader = ({
+  handleSubmit,
+  onSubmit,
+  isPending,
+}: NewMonitorHeaderProps) => {
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
       <div className="flex items-center gap-3">
@@ -23,10 +35,20 @@ const NewMonitorHeader = ({ handleSubmit, onSubmit }) => {
         </button>
         <button
           type="submit"
-          className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+          disabled={isPending}
+          className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <span>+</span>
-          <span>Create monitor</span>
+          {isPending ? (
+            <>
+              <Spinner label="Creating monitor" />
+              <span>Creating monitor…</span>
+            </>
+          ) : (
+            <>
+              <span>+</span>
+              <span>Create monitor</span>
+            </>
+          )}
         </button>
       </form>
     </header>

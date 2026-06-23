@@ -12,7 +12,7 @@ export type resendOtpProps = {
 };
 
 export const useResendOTP = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (resendOtp: resendOtpProps) =>
       apiFetch<resendEmailProps>("/user/otp-resend", {
         method: "POST",
@@ -31,5 +31,5 @@ export const useResendOTP = () => {
     retry: false,
   });
 
-  return { mutate };
+  return { mutate, isPending };
 };

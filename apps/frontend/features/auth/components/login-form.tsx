@@ -10,6 +10,7 @@ import { useLogin } from "../hooks/useLogin";
 import { useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api-error";
 import { toast } from "sonner";
+import Spinner from "@/components/ui/spinner";
 
 function LoginForm() {
   const {
@@ -20,11 +21,11 @@ function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const { mutate } = useLogin();
+  const { mutate, isPending } = useLogin();
   const router = useRouter();
   const onSubmit = (data: loginSchemaProps) => {
     const userLoginDetails = {
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       password: data.password,
     };
     console.log("Submitting login");
@@ -105,9 +106,17 @@ function LoginForm() {
 
         <button
           type="submit"
-          className="mt-4 w-full py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg"
+          disabled={isPending}
+          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-sf-text text-sf-btn-text text-[14px] font-semibold font-sans rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active hover:text-sf-surface transition-colors cursor-pointer border border-sf-bg disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Sign in
+          {isPending ? (
+            <>
+              <Spinner label="Signing in" />
+              Signing in…
+            </>
+          ) : (
+            "Sign in"
+          )}
         </button>
 
         <p className="mt-5 text-center text-[13px] text-sf-text-sub font-sans">

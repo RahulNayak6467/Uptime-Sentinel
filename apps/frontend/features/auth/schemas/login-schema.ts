@@ -5,9 +5,7 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(8, { message: "Minimum 8 characters are required" })
-    .max(72, { message: "Maximum 72 characters are available" })
-    .regex(/[A-Z]/, "Must contain uppercase")
-    .regex(/[0-9]/, "Must contain number"),
+    .max(72, { message: "Maximum 72 characters are available" }),
 });
 
 export type loginSchemaProps = z.infer<typeof loginSchema>;

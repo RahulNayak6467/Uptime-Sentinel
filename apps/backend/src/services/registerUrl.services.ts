@@ -3,7 +3,7 @@ import { db } from "../db/index";
 
 export const checkUrlRegistration = async (
   url: string,
-  urlName: string,
+  urlName: string | undefined,
   intervalSeconds: number,
   user_id: string,
 ) => {
@@ -16,7 +16,11 @@ export const checkUrlRegistration = async (
       check_monitor_value,
     );
     if (check_monitor_rows.rows.length !== 0) {
-      throw new AppError(409, "The url is already registered");
+      throw new AppError(
+        409,
+        "The url is already registered",
+        "URL_ALREADY_REGISTERED",
+      );
     }
     const insert_monitor_url =
       "INSERT INTO monitor (url,url_name,interval_seconds,user_id) VALUES($1,$2,$3,$4)";
@@ -24,7 +28,7 @@ export const checkUrlRegistration = async (
     await db.query(insert_monitor_url, values_monitor_url);
     return "url successfully registered";
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
     throw error;
   }
 };

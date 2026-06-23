@@ -1,8 +1,10 @@
 export type OverviewStatsProps = {
-  metric: string;
-  value: string | number;
+  metric:string ;
+  value: keyof DashboardOverviewResponse;
   context: string;
   color: string;
+  stats:number | null;
+  format?: (value: number) => string;
 };
 
 export type MonitorState = "up" | "down" | "paused";
@@ -18,3 +20,13 @@ export type monitorDataProps = {
   state: MonitorState;
   trend: number[];
 };
+
+export type DashboardOverviewResponse = {
+  total_checks: number;
+  avg_total_checks: number | null;
+  up_count: number;
+  down_count: number;
+  total_monitors: number;
+  paused_monitors: number;
+  uptime_percentage: number | null;
+}

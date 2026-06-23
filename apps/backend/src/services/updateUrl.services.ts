@@ -4,9 +4,9 @@ import { AppError } from "../errors/AppError";
 export const updateUrl = async (
   url_id: string,
   user_id: string,
-  url: string,
-  urlName: string,
-  intervalSeconds: string,
+  url?: string,
+  urlName?: string,
+  intervalSeconds?: number,
 ) => {
   const updates = [];
   const values = [];
@@ -41,17 +41,17 @@ export const updateUrl = async (
     console.log(updateUrlAttributes);
     const rows = updateUrlAttributes.rowCount;
     if (rows === null || rows === 0) {
-      throw new AppError(404, "No such url exists");
+      throw new AppError(404, "No such url exists", "URL_NOT_FOUND");
     }
     return;
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof AppError) {
+      return error;
+    } else if (error instanceof Error) {
       if (error.code === "22P02") {
-        throw new AppError(400, "Invalid uuid format");
+        throw new AppError(400, "Invalid uuid format", "INVALID_UUID");
       }
       throw error;
-    } else if (error instanceof AppError) {
-      return error;
     }
   }
 };

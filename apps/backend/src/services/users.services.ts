@@ -118,7 +118,7 @@ export const insertUserData = async (password: string, email: string) => {
       if ((error as NodeJS.ErrnoException).code === "23505") {
         throw new AppError(409, "email already taken", "EMAIL_ALREADY_TAKEN");
       }
-      throw new AppError(500, error.message, "DB_ERROR");
+      throw new AppError(500, "Internal server error", "INTERNAL_ERROR");
     } else {
       throw new AppError(500, "Internal server error", "INTERNAL_ERROR");
     }

@@ -9,7 +9,7 @@ export const pauseUrl = async (url_id: string, user_id: string) => {
     const isPaused = await db.query(pause_url_query, pause_url_value);
     const rows = isPaused.rowCount;
     if (rows === 0 || null) {
-      throw new AppError(404, "no such url exists");
+      throw new AppError(404, "no such url exists", "URL_NOT_FOUND");
     }
     return;
   } catch (error) {
@@ -27,7 +27,7 @@ export const resumeUrl = async (url_id: string, user_id: string) => {
     const isResumed = await db.query(pause_url_query, pause_url_value);
     const rows = isResumed.rowCount;
     if (rows === 0 || null) {
-      throw new AppError(404, "no such url exists");
+      throw new AppError(404, "no such url exists", "URL_NOT_FOUND");
     }
     return;
   } catch (error) {

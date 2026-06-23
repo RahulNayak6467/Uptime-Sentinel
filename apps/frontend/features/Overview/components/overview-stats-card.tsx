@@ -1,10 +1,11 @@
-import { OverviewStatsProps } from "./types";
+import { OverviewStatsProps } from "../types";
 
 const OverviewStatsCard = ({
   metric,
-  value,
   context,
   color,
+    stats,
+  format,
 }: OverviewStatsProps) => {
   return (
     <div className="px-3 py-3 flex-1 flex flex-col border-r border-b border-sf-border bg-sf-surface hover:bg-sf-bg transition-colors">
@@ -15,7 +16,13 @@ const OverviewStatsCard = ({
         className="text-2xl font-bold font-sans leading-tight"
         style={{ color }}
       >
-        {value}
+          {stats == null ? (
+            <span className="text-lg">No Data</span>
+          ) : format ? (
+            format(stats)
+          ) : (
+            stats
+          )}
       </p>
       <p className="text-[12px] font-sans text-sf-text-muted">{context}</p>
     </div>

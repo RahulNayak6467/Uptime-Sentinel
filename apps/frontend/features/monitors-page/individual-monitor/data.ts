@@ -1,27 +1,32 @@
 import { IndividualStatsCardProps, RegionMonitorProps } from "./types";
 
-type IndividualStatsCardDataProps = { id: string } & IndividualStatsCardProps;
 
-export const IndividualStatsCardData: IndividualStatsCardDataProps[] = [
+
+
+export const IndividualStatsCardData: IndividualStatsCardProps[] = [
   {
-    id: crypto.randomUUID(),
     title: "Uptime (24h)",
-    stats: "99.96%",
+    unit: "%",
+    value: "uptime_24hr",
+    context: null,
   },
   {
-    id: crypto.randomUUID(),
     title: "Uptime (7d)",
-    stats: "99.88%",
+    unit: "%",
+    value: "uptime_7d",
+    context: null
   },
   {
-    id: crypto.randomUUID(),
-    title: "Uptime (90d)",
-    stats: "99.98%",
+    title: "Uptime (30d)",
+    unit: "%",
+    value: "uptime_30d",
+    context: null
   },
   {
-    id: crypto.randomUUID(),
     title: "Avg response",
-    stats: "142ms",
+    unit: "ms",
+    value: "avg_response_24hr",
+    context: null
   },
 ];
 
