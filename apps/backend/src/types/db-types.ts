@@ -17,3 +17,12 @@ export interface individualStatsProps {
     uptime_30d: string | null
     avg_response_24hr: string | null
 }
+
+export interface individualStatsState {
+    url:string,
+    url_name:string,
+    next_check_at: Date,
+    interval_seconds: number ,
+    status: "UP" | "DOWN" | "UNKNOWN"
+    is_active: boolean
+}

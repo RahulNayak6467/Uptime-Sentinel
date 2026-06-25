@@ -273,3 +273,21 @@ implementing.
 - Do not silently rewrite code that the developer should correct.
 - After completing a feature, ask short questions to verify understanding.
 - Stay within the current `ROADMAP.md` version.
+
+### Foundation gate before implementing
+
+Before implementing any slice, judge whether the developer already has the
+foundation for the concept it depends on, and say which case applies:
+
+- **Known concept** (e.g. SQL aggregation): skip the teaching and go straight to
+  design and implementation. The developer wants to spend their time coding here.
+- **New concept** (e.g. Docker Compose, pagination patterns, SSE/WebSockets):
+  first give a short, focused list of topics to study, explain why each one
+  matters and the failure it prevents, and only move to implementation once the
+  developer is ready.
+
+Keep study lists minimal and high-signal — the few concepts that matter plus the
+concrete failure each prevents, not a textbook. When unsure whether a topic is
+new to the developer, ask "have you used X before?" and let them answer "skip, I
+know this." The goal is that the developer never implements on top of a concept
+they have never seen.

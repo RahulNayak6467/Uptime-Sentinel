@@ -22,6 +22,9 @@ export async function apiFetch<T>(
     const body = await res.json().catch(() => ({}));
     throw new ApiError(body.message ?? "Request failed", res.status, body.code);
   }
+  if(res.status === 204){
+    return null
+  }
   return res.json();
 }
 

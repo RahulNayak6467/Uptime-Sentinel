@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { ResponseTimeTrend } from "./monitor-info-stats";
 
-const RANGES = ["24h", "7d", "30d"] as const;
+const RANGES = ["1h", "24h", "7d", "30d"] as const;
 const REGIONS = ["Global", "US", "EU", "Asia"] as const;
 
 const IndividualMonitorCharts = () => {
-  const [range, setRange] = useState<(typeof RANGES)[number]>("24h");
+  const [range, setRange] = useState<(typeof RANGES)[number]>("1h");
 
   return (
     <div className="bg-sf-surface border border-sf-border mt-6 px-4 pt-4 pb-8 rounded-sf">
@@ -26,7 +26,9 @@ const IndividualMonitorCharts = () => {
               <button
                 key={r}
                 type="button"
-                onClick={() => setRange(r)}
+                onClick={() =>
+                  setRange(r)
+                }
                 className={`px-4 py-1 text-[12px] font-sans font-semibold border-r border-sf-border last:border-r-0 transition-colors cursor-pointer ${
                   range === r
                     ? "bg-sf-text text-sf-btn-text"
@@ -55,7 +57,7 @@ const IndividualMonitorCharts = () => {
         </div>
       </div>
       <div>
-        <ResponseTimeTrend />
+        <ResponseTimeTrend  currentRange={range}/>
       </div>
       <div className="flex gap-2 items-center mt-4">
         <div className="flex gap-1 items-center">

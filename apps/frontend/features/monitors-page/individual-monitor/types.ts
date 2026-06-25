@@ -24,3 +24,36 @@ export type IndividualStatsCardState = {
   uptime_30d: number | null;
   avg_response_24hr: number | null
 }
+
+export type TimeRangeDataProps = {
+  range: string
+  series: {
+    p50: number | null
+    p95: number | null
+    bucket: Date
+  }[]
+}
+
+type LastChecksProps = {
+  monitor_status: "UP" | "DOWN" | "UNKNOWN"
+  response_time: number | null
+  checked_at: Date | null
+  current_status: "UP" | "DOWN" | null
+}
+
+
+export type LastChecksDataProps = {
+  state: "CHECKED" | "UNCHECKED",
+  checks: LastChecksProps[]
+}
+
+export type TimeRangeProps = "1h" | "24h" | "7d" | "30d"
+
+export type IndividualOverviewStatsProps = {
+  url:string,
+  urlName:string,
+  status: "UP" | "DOWN" | "UNKNOWN"
+  nextCheckAt: Date
+  intervalSeconds: number
+  isActive:boolean
+}

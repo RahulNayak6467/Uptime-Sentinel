@@ -1,6 +1,14 @@
+"use client"
 import { MapPin, Shield, Wifi } from "lucide-react";
 import { RegionMonitorProps } from "./types";
 import { RegionalLatencyStats } from "./data";
+import {useLastChecks} from "@/features/monitors-page/individual-monitor/hooks/useLastChecks";
+import {useParams} from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import Error from "../../Overview/components/error";
+import MonitorUnchecked from "./monitor-unchecked";
+import {formatChartDate} from "@/utils/format-chart-date";
+import CheckTooltip from "@/features/monitors-page/individual-monitor/check-tooltip";
 
 const ComingSoonOverlay = () => (
   <div className="absolute inset-0 bg-sf-surface/70 backdrop-blur-[2px] rounded-sf flex items-center justify-center z-10">
@@ -14,7 +22,7 @@ const CertificatesMonitor = () => {
   return (
     <>
       <div>
-        <LastThreeMonthsCheck />
+        <LastChecksBar />
       </div>
 
       <div className="mt-6 flex gap-4">
@@ -74,32 +82,91 @@ const CertificatesMonitor = () => {
   );
 };
 
-const LastThreeMonthsCheck = () => {
-  const arr = [...Array(60).fill(1), 0, 0, 0, ...Array(27).fill(1)];
-  return (
-    <div className="mt-6 px-4 py-4 pb-6 bg-sf-surface border border-sf-border rounded-sf">
-      <div className="flex justify-between items-center">
-        <h3 className="text-[14px] font-sans font-medium text-sf-text">
-          Uptime · last 90 checks
-        </h3>
-        <p className="text-[12px] text-sf-text-muted font-sans font-medium">
-          99.98% over 90 days
-        </p>
-      </div>
-      <div className="flex gap-0.5 mt-2">
-        {arr.map((el, index) => (
-          <div
-            style={{
-              backgroundColor:
-                el === 0 ? "var(--color-sf-red)" : "var(--color-sf-green)",
-              borderRadius: "2px",
-            }}
-            key={index}
-            className="w-2 h-8"
-          ></div>
-        ))}
-      </div>
+const LastChecksSkeleton = () => (
+  <div
+    role="status"
+    aria-busy="true"
+    className="mt-6 px-4 py-4 pb-6 bg-sf-surface border border-sf-border rounded-sf"
+  >
+    <Skeleton className="h-4 w-40" />
+    <div className="flex gap-0.5 mt-3">
+      {Array.from({ length: 90 }, (_, index) => (
+        <Skeleton key={index} className="w-2 h-8 rounded-[2px]" />
+      ))}
     </div>
+  </div>
+);
+
+const LastChecksBar = () => {
+  const params = useParams<{id:string }>()
+  const id = params.id;
+
+  const {data,isLoading,isError,refetch} = useLastChecks(id)
+
+  if(isLoading){
+    return <LastChecksSkeleton />
+  }
+  if(isError || !data){
+    return (
+      <div className="mt-6">
+        <Error refetch={refetch} />
+      </div>
+    )
+  }
+  if(data.state === "UNCHECKED"){
+    return <MonitorUnchecked className="mt-6" />
+  }
+
+  const dataChecks = data.checks.toReversed().map((el) => {
+    return {...el,isUp: el.current_status === "UP" ? 1 : 0}
+  })
+
+
+  const upCount = dataChecks.filter((el) => el.isUp === 1).length;
+  const uptimePct =
+    dataChecks.length === 0
+      ? null
+      : Math.round((upCount / dataChecks.length) * 100);
+
+  return (
+      <div className="mt-6 px-4 py-4 pb-6 bg-sf-surface border border-sf-border rounded-sf">
+        <div className="flex justify-between items-center">
+          <h3 className="text-[14px] font-sans font-medium text-sf-text">
+            Uptime · last 90 checks
+          </h3>
+          {uptimePct !== null && (
+            <span className="text-[12px] font-sans text-sf-text-muted">
+              <span className="font-semibold text-sf-text">{uptimePct}%</span>
+              {" · "}
+              {upCount}/{dataChecks.length} up
+            </span>
+          )}
+        </div>
+
+        <div>
+          <div className="flex gap-1.5 mt-2">
+            {dataChecks.map((el, index) => (
+                <div
+                    key={`${el.checked_at}-${id}`}
+                    style={{
+                      backgroundColor:
+                          el.isUp === 0
+                              ? "var(--color-sf-red)"
+                              : "var(--color-sf-green)",
+                      borderRadius: "2px",
+                    }}
+                    className="relative group w-2 h-8 origin-bottom transition-all duration-150 hover:scale-y-125 hover:brightness-110"
+                >
+                  <CheckTooltip
+                      status={el.current_status}
+                      responseTime={el.response_time}
+                      checkedAt={el.checked_at}
+                  />
+                </div>
+            ))}
+          </div>
+        </div>
+      </div>
   );
 };
 

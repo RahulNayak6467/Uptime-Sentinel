@@ -8,7 +8,7 @@ export const fetchUrlData = async (
   try {
     // const query = "select * from url_checks where user_id = $1";
     const query =
-      "select c.* from url_checks c inner join monitor m on m.id = c.monitor_id where m.user_id = $1";
+      "select m.url_name,m.url,m.interval_seconds,c.* from url_checks c inner join monitor m on m.id = c.monitor_id where m.user_id = $1";
     const values = [user_id];
     const getAllData = await db.query(query, values);
     const rows: UrlResponseData[] = getAllData.rows;
@@ -62,10 +62,10 @@ export const fetchUrlDataByName = async (
 export const fetchUrlDataById = async (
   id: string,
   user_id: string,
-): Promise<UrlResponseData> => {
+): Promise<UrlResponseData[]> => {
   try {
     const query =
-      "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id where c.id = $1 and m.user_id = $2";
+      "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id where m.id = $1 and m.user_id = $2";
     const values = [id, user_id];
     const getUrlById = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlById.rows;
@@ -77,7 +77,7 @@ export const fetchUrlDataById = async (
         "CHECKS_NOT_FOUND",
       );
     }
-    return rows[0];
+    return rows;
   } catch (error) {
     // console.log(error);
     if (error instanceof AppError) {

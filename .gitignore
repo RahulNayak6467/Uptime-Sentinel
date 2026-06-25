@@ -18,3 +18,7 @@ build/
 *.pem
 *.key
 *.tsbuildinfo
+
+# personal learning notes — not part of the project
+docs/learning/v6-mistakes-review.md
+docs/learning/backend-review-checklist.md

@@ -30,6 +30,28 @@ every version to understand scope.
   3. [ ] `GET /auth/me`
 - First polished milestone: V5 plus the basic analytics/dashboard portion of V6.
 
+## Planned refactor (post-V6)
+
+After V6 is complete, the project enters a dedicated refactoring phase **before
+V7 feature work begins**. As the codebase has grown, the folder structure has
+drifted and needs to be reorganized for clarity and maintainability.
+
+- **Scope:** primarily folder and module structure, not behavior. Reorganize the
+  **backend** (routes, controllers, services, validators, queues, workers, etc.)
+  and the **frontend** (features, components, hooks, utils) into a consistent,
+  scalable layout.
+- **Goal:** a predictable structure so later versions add features without the
+  current folder sprawl. No new product features land in this phase.
+- **Constraint:** keep changes behavior-preserving — no functional regressions.
+  Existing tests and the happy path must still pass after the reorganization.
+- **State management:** evaluate introducing **Zustand** for shared client-side
+  UI state (e.g. cross-component selection such as the bulk-action bar) where
+  neither TanStack Query (server state) nor local `useState` fits well. Server
+  data stays in TanStack Query — Zustand is for client state only, and is adopted
+  where there is a concrete shared-state need, not as a blanket layer.
+
+This is a structural milestone, not a version; it runs between V6 and V7.
+
 ## Project pillars
 
 - **Backend:** REST APIs, layered architecture, databases, authentication,

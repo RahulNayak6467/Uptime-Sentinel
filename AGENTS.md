@@ -249,6 +249,25 @@ than requesting a complete design. Examples include an endpoint contract, a
 data-flow sketch, an uptime formula, five test cases, or one debugging
 hypothesis.
 
+### Foundation gate before implementing
+
+Before implementing any slice, assess whether the developer already holds the
+foundation for the concept it depends on, and state which case applies.
+
+- If the concept is already known to the developer (for example, SQL
+  aggregation), skip the teaching and proceed to design and implementation. The
+  developer wants to spend effort coding rather than re-learning the concept.
+- If the concept is new to the developer (for example, Docker Compose,
+  pagination patterns, or SSE/WebSockets), first provide a short, focused list of
+  topics to study. Explain why each topic matters and the concrete failure it
+  prevents, then move to implementation once the developer is ready.
+
+Keep study lists minimal and high-signal: the few concepts that matter and the
+failure each prevents, never a textbook dump. When it is unclear whether a topic
+is new, ask "have you used X before?" and let the developer answer, including
+"skip, I know this." The developer must never implement on top of a concept they
+have never encountered.
+
 ### Help levels
 
 Use the lowest help level that can unblock progress:

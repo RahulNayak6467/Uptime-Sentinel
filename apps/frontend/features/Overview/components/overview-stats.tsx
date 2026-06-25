@@ -8,14 +8,14 @@ import Error from "../components/error"
 
 const OverviewStats = () => {
     const {data: overViewStatsData, isLoading, isError, refetch} = useDashboardOverview()
-
+   
     if(isLoading){
-        return <Loader refetch={refetch} />
+        return <Loader />
     }
+
     if(isError || !overViewStatsData){
   return <Error refetch={refetch} />
     }
-
 
 
   return (

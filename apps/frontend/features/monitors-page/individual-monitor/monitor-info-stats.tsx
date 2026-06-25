@@ -10,71 +10,85 @@ import {
   responseTimeP95,
 } from "./data";
 import Error from "../../Overview/components/error"
-import Loader from "../../Overview/components/loading"
-import {IndividualStatsCardProps, RegionMonitorProps, } from "./types";
+import {ChartSkeleton, MetricCardsSkeleton} from "@/components/loading/dashboard-skeletons";
+import {IndividualStatsCardProps, RegionMonitorProps, TimeRangeProps,} from "./types";
 import Chart from "@/utils/chart";
 import {useIndividualStats} from "@/features/monitors-page/individual-monitor/hooks/useIndividualStats";
 import {useParams} from "next/navigation";
+import {useTimeRange} from "@/features/monitors-page/individual-monitor/hooks/useTimeRange";
+import {ChartTimeRange, formatChartDate} from "@/utils/format-chart-date";
+import {IndividualOverviewStatsProps} from "./types";
+import {
+  useIndividualMonitorOverview
+} from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
+import {OperationalSkeleton, OperationalError} from "./monitor-overview-states";
+import {formatTimeAgo} from "@/utils/format-time-ago";
 
 
+const StripStat = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex flex-col justify-center items-center">
+    <p className="text-[14px] text-sf-text-muted font-sans">{label}</p>
+    <p className="text-[14px] text-sf-text font-sans">{value}</p>
+  </div>
+);
 
-const IndividualMonitorInfoStats = () => {
+const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
+  const nextCheck = !data.isActive
+    ? "Paused"
+    : data.status === "UNKNOWN"
+      ? "Pending"
+      : new Date(data.nextCheckAt) <= new Date()
+        ? "Due now"
+        : formatTimeAgo(data.nextCheckAt);
+
+  return (
+    <div className="border border-b-sf-border bg-sf-surface mt-6 rounded-sf">
+      <div className="px-4 py-2 flex items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <p className="text-[16px] font-sans font-medium text-sf-text">
+            {data.isActive ? "Operational" : "Not operational"}
+          </p>
+          <a className="cursor-pointer text-sf-blue text-[14px] hover:underline">
+            {data.url}
+          </a>
+        </div>
+        <div className="flex gap-8 items-center">
+          <StripStat label="Next check" value={nextCheck} />
+          <StripStat label="Intervals" value={`${data.intervalSeconds}s`} />
+          <StripStat label="Regions" value="5" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const IndividualMonitorInfoStats = ({monitorOverviewData,monitorOverviewLoading,monitorOverviewError}:{monitorOverviewData: NoInfer<IndividualOverviewStatsProps> | undefined,monitorOverviewLoading:boolean,monitorOverviewError:boolean}) => {
+
    const params = useParams<{id:string }>()
-  const id = params.id;
-
-   const {data:individualMonitorStats,isLoading,isError,refetch} = useIndividualStats(id)
-
-  if(isLoading ){
-    return <Loader />
-  }
-
-  if(isError || !individualMonitorStats ){
-    return <Error refetch={refetch} />
-  }
-
-
+   const id = params.id;
+   const {data:individualMonitorStats,isLoading:individualMonitorStatsLoading,isError:individualMonitorStatsError,refetch} = useIndividualStats(id)
 
   return (
     <div>
-      <div className="border border-b-sf-border bg-sf-surface mt-6 rounded-sf">
-        <div className="px-4 py-2 flex items-center justify-between">
-          <div className="flex gap-2 items-center">
-            <p className="text-[16px] font-sans font-medium text-sf-text">
-              Operational
-            </p>
-            <a className="cursor-pointer text-sf-blue text-[14px] hover:underline">
-              https://statusforge.io
-            </a>
-          </div>
-          <div className="flex gap-4 items-center">
-            <div className="flex flex-col justify-center">
-              <p className="text-[16px] text-sf-text-muted font-sans">
-                Checked
-              </p>
-              <p className="text-[14px] text-sf-text font-sans">8s ago</p>
-            </div>
-            <div className="flex flex-col ">
-              <p className="text-[16px] text-sf-text-muted font-sans">
-                Intervals
-              </p>
-              <p className="text-sf-label text-sf-text font-sans">60s</p>
-            </div>
-            <div className="flex flex-col justify-center">
-              <p className="text-[16px] text-sf-text-muted font-sans">
-                Regions
-              </p>
-              <p className="text-[14px] text-sf-text font-sans">
-                Global: 5regions
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-2">
-        {IndividualStatsCardData.map((data) => (
+      {monitorOverviewLoading ? (
+        <OperationalSkeleton />
+      ) : monitorOverviewError || !monitorOverviewData ? (
+        <OperationalError />
+      ) : (
+        <OperationalStrip data={monitorOverviewData} />
+      )}
+
+      {individualMonitorStatsLoading ? (
+        <MetricCardsSkeleton />
+      ) : individualMonitorStatsError || !individualMonitorStats ? (
+        <Error refetch={refetch} />
+      ) : (
+        <div className="flex gap-2">
+          {IndividualStatsCardData.map((data) => (
             <StatsCard key={data.title} title={data.title} unit={data.unit} value={data.value} context={individualMonitorStats[data.value]} />
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -117,15 +131,63 @@ const useDarkMode = () => {
   return isDark;
 };
 
-export const ResponseTimeTrend = () => {
+export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) => {
+
   const isDark = useDarkMode();
+
+
+  const params = useParams<{id:string }>()
+  const id = params.id;
+
+  const {data,isLoading,isError,refetch} = useTimeRange(id,currentRange)
+
+
+  if(isLoading){
+    return <ChartSkeleton />
+  }
+
+  if(isError || !data){
+    return <Error refetch={refetch} />
+  }
+
+  const bucketData = data.series.map((item) =>{
+      return {
+         bucket: formatChartDate(item.bucket, data.range as ChartTimeRange),
+         p50Data: item.p50 === null ? null : Math.round(item.p50),
+         p95Data: item.p95 === null ? null : Math.round(item.p95)
+      }
+  }
+  );
+
+  const bucket = bucketData.map((el) => el.bucket)
+  const p50Data = bucketData.map((el) => el.p50Data)
+  const p95Data = bucketData.map((el) => el.p95Data)
+
+
 
   const green = isDark ? "#4ade80" : "#16a34a";
   const amber = isDark ? "#fbbf24" : "#d97706";
   const red = isDark ? "#f87171" : "#dc2626";
   const axisLine = isDark ? "#333333" : "#cbd5e1";
 
-  const threshold = 400;
+  const threshold = 1000;
+
+  // Latency is a magnitude, so keep the baseline at 0 and only grow the top.
+  // Drop gap (null) buckets. `threshold` is always included so the threshold line
+  // stays on-chart even with no data yet (Math.max(...[], threshold) === threshold).
+  // Pick a round step (100/200/500/...) so every gridline is a clean number.
+  const seriesValues = [...p50Data, ...p95Data].filter(
+    (value): value is number => value !== null,
+  );
+
+  const rawMax = Math.max(...seriesValues, threshold) * 1.15;
+  const roughStep = rawMax / 5; // aim for ~5 gridlines
+  const niceSteps = [100, 200, 500, 1000, 2000, 5000, 10000];
+  const step =
+    niceSteps.find((value) => value >= roughStep) ??
+    niceSteps[niceSteps.length - 1];
+  const yAxisMax = Math.ceil(rawMax / step) * step;
+  const yAxisInterval = step;
 
   const option = {
     tooltip: {
@@ -134,12 +196,29 @@ export const ResponseTimeTrend = () => {
         type: "line",
         lineStyle: { color: axisLine, type: "dashed", width: 1 },
       },
-      formatter: (params: { seriesName: string; value: number; axisValue: string }[]) => {
+      formatter: (params: { seriesName: string; value: number | null; axisValue: string }[]) => {
         const time = params[0]?.axisValue ?? "";
+        const hasData = params.some(
+          (p) => typeof p.value === "number" && Number.isFinite(p.value)
+        );
+
+        if (!hasData) {
+          return `<div style="font-weight:600;margin-bottom:2px">${time}</div><span>No response-time data available for this time.</span>`;
+        }
+
         const rows = params
-          .map((p) => `<span style="color:${p.seriesName === "Avg response" ? green : amber}">●</span> ${p.seriesName}: <b>${p.value}ms</b>`)
+          .map((p) => {
+            const value =
+              typeof p.value === "number" && Number.isFinite(p.value)
+                ? `${p.value}ms`
+                : "No data";
+
+            return `<span style="color:${p.seriesName === "p50" ? green : amber}">●</span> ${p.seriesName}: <b>${value}</b>`;
+          })
           .join("<br/>");
-        const breach = params.some((p) => p.value >= threshold)
+        const breach = params.some(
+          (p) => typeof p.value === "number" && p.value >= threshold
+        )
           ? `<br/><span style="color:${red}">▲ above ${threshold}ms threshold</span>`
           : "";
         return `<div style="font-weight:600;margin-bottom:2px">${time}</div>${rows}${breach}`;
@@ -147,7 +226,7 @@ export const ResponseTimeTrend = () => {
     },
     legend: {
       data: [
-        { name: "Avg response", icon: "rect" },
+        { name: "p50", icon: "rect" },
         { name: "p95", icon: "rect" },
       ],
       right: 4,
@@ -159,24 +238,25 @@ export const ResponseTimeTrend = () => {
     },
     xAxis: {
       type: "category",
-      data: responseTimeHours,
+      data: bucket,
       boundaryGap: false,
       axisLabel: { fontSize: 11, margin: 10 },
     },
     yAxis: {
       type: "value",
       min: 0,
-      max: 500,
-      interval: 100,
+      max: yAxisMax,
+      interval: yAxisInterval,
       axisLabel: { formatter: "{value}ms", fontSize: 11 },
       splitLine: { lineStyle: { type: "dashed", opacity: 0.5 } },
     },
     series: [
       {
-        name: "Avg response",
+        name: "p50",
         type: "line",
         smooth: 0.4,
-        data: responseTimeAvg,
+        data: p50Data,
+        connectNulls: false,
         emphasis: { focus: "series" },
         areaStyle: {
           color: {
@@ -190,7 +270,8 @@ export const ResponseTimeTrend = () => {
         },
         itemStyle: { color: green },
         lineStyle: { color: green, width: 2 },
-        symbol: "none",
+        symbol: "circle",
+        symbolSize: 4,
         markLine: {
           silent: true,
           symbol: "none",
@@ -206,19 +287,21 @@ export const ResponseTimeTrend = () => {
         markArea: {
           silent: true,
           itemStyle: { color: red + "12" },
-          data: [[{ yAxis: threshold }, { yAxis: 500 }]],
+          data: [[{ yAxis: threshold }, { yAxis: yAxisMax }]],
         },
       },
       {
         name: "p95",
         type: "line",
         smooth: 0.4,
-        data: responseTimeP95,
+        data: p95Data,
+        connectNulls: false,
         emphasis: { focus: "series" },
         areaStyle: null,
         itemStyle: { color: amber },
         lineStyle: { color: amber, width: 1.5, type: "dashed", dashOffset: 4 },
-        symbol: "none",
+        symbol: "circle",
+        symbolSize: 4,
       },
     ],
     grid: { left: 8, right: 8, top: 28, bottom: 4, containLabel: true },

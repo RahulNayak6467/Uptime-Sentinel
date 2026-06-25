@@ -24,7 +24,7 @@ const PageHeaderSkeleton = ({ actions = 2 }: { actions?: number }) => (
   </div>
 );
 
-const MetricCardsSkeleton = ({ count = 4 }: { count?: number }) => (
+export const MetricCardsSkeleton = ({ count = 4 }: { count?: number }) => (
   <div className="grid grid-cols-2 gap-3 px-6 py-5 lg:grid-cols-4">
     {Array.from({ length: count }, (_, index) => (
       <div
@@ -76,7 +76,7 @@ const MonitorTableSkeleton = ({ rows = 7 }: { rows?: number }) => (
   </div>
 );
 
-const ChartSkeleton = () => (
+export const ChartSkeleton = () => (
   <div className="rounded-sf border border-sf-border bg-sf-surface p-4">
     <div className="flex items-start justify-between">
       <div>

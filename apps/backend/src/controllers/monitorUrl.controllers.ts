@@ -56,7 +56,7 @@ export const pauseUrlById = async (
   }
   try {
     const pause = await pauseUrl(url_id, user_id);
-    return res.status(204).json({});
+    return res.status(204).json();
   } catch (err) {
     // if (error instanceof AppError) {
     //   return res.status(error.statusCode).json({ message: error.message });
@@ -84,7 +84,7 @@ export const resumeUrlById = async (
   }
   try {
     const pause = await resumeUrl(url_id, user_id);
-    return res.status(204).json({});
+    return res.status(204).json();
   } catch (err) {
     // if (error instanceof AppError) {
     //   return res.status(error.statusCode).json({ message: error.message });

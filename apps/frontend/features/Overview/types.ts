@@ -10,14 +10,14 @@ export type OverviewStatsProps = {
 export type MonitorState = "up" | "down" | "paused";
 
 export type monitorDataProps = {
-  name: string;
+  url_name: string;
   url: string;
   uptime: number;
   responseTime: number | null;
   statusCode: number | null;
-  interval: number;
-  lastCheck: string;
-  state: MonitorState;
+  interval_seconds: number;
+  next_check_at: string;
+  status: MonitorState;
   trend: number[];
 };
 
@@ -29,4 +29,12 @@ export type DashboardOverviewResponse = {
   total_monitors: number;
   paused_monitors: number;
   uptime_percentage: number | null;
+}
+
+export type MonitorsDataProps = {
+  url:string
+  url_name: string,
+  interval_seconds: number,
+  status: "UP" | "DOWN" | "UNKNOWN"
+  next_check_at: Date;
 }
