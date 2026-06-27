@@ -42,7 +42,7 @@ export const MetricCardsSkeleton = ({ count = 4 }: { count?: number }) => (
   </div>
 );
 
-const MonitorTableSkeleton = ({ rows = 7 }: { rows?: number }) => (
+export const MonitorTableSkeleton = ({ rows = 7 }: { rows?: number }) => (
   <div className="px-6 py-4">
     <div className="overflow-hidden rounded-sf border border-sf-border bg-sf-surface">
       <div className="grid grid-cols-[40px_1.2fr_1.5fr_90px_90px_90px] gap-4 border-b border-sf-border px-4 py-3">

@@ -12,7 +12,7 @@ export const sendIncidentsById = async (
   console.log(user_id);
   if (!user_id) {
     return res.status(401).json({
-      message: "Unauthorized",
+      message: "Unauthenticated",
     });
   }
   if (!url_id) {

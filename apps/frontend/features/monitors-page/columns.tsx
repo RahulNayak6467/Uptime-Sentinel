@@ -10,6 +10,7 @@ const stateColor: Record<MonitorState, string> = {
   down: "var(--color-sf-red)",
   degraded: "var(--color-sf-amber)",
   paused: "var(--color-sf-text-muted)",
+  unknown: "var(--color-sf-text-muted)",
 };
 
 const stateLabel: Record<MonitorState, string> = {
@@ -17,6 +18,7 @@ const stateLabel: Record<MonitorState, string> = {
   down: "Down",
   degraded: "Degraded",
   paused: "Paused",
+  unknown: "Unknown",
 };
 
 const typeBadge: Record<MonitorType, string> = {
@@ -29,23 +31,27 @@ export const columns: ColumnDef<MonitorPageData>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-        aria-label="Select all"
-        className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
-      />
+      <span className="flex justify-center">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+          aria-label="Select all"
+          className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
+        />
+      </span>
     ),
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(v) => row.toggleSelected(!!v)}
-        aria-label="Select row"
-        className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
-      />
+      <span className="flex justify-center">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(v) => row.toggleSelected(!!v)}
+          aria-label="Select row"
+          className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
+        />
+      </span>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -59,16 +65,15 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       return (
         <div className="flex items-center gap-2.5">
           <span
-            className="w-2.5 h-2.5 rounded-full shrink-0"
+            className="h-2 w-2 shrink-0 rounded-full"
             style={{
               backgroundColor: color,
-              boxShadow:
-                state === "down"
-                  ? `0 0 0 4px color-mix(in srgb, ${color} 16%, transparent)`
-                  : undefined,
             }}
           />
-          <span className="text-[13px] font-semibold text-sf-text">
+          <span
+            className="line-clamp-1 text-[13px] font-semibold text-sf-text"
+            title={row.getValue<string>("name")}
+          >
             {row.getValue<string>("name")}
           </span>
         </div>
@@ -79,18 +84,21 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     accessorKey: "url",
     header: "URL",
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub truncate block max-w-[200px]">
+      <span
+        className="block truncate font-mono text-[12px] text-sf-text-sub"
+        title={row.getValue<string>("url")}
+      >
         {row.getValue<string>("url")}
       </span>
     ),
   },
   {
     accessorKey: "type",
-    header: "TYPE",
+    header: () => <span className="block text-center">TYPE</span>,
     cell: ({ row }) => {
       const t = row.getValue<MonitorType>("type");
       return (
-        <span className="px-1.5 py-0.5 rounded text-[11px] font-semibold font-mono bg-sf-text/10 text-sf-text-sub border border-sf-border tracking-wide">
+        <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[11px] font-medium tracking-wide text-sf-text-sub">
           {typeBadge[t]}
         </span>
       );
@@ -98,33 +106,35 @@ export const columns: ColumnDef<MonitorPageData>[] = [
   },
   {
     accessorKey: "uptime",
-    header: () => <span className="block text-right">UPTIME</span>,
+    header: () => <span className="block text-center">UPTIME</span>,
     cell: ({ row }) => {
-      const uptime = row.getValue<number>("uptime");
+      const uptime = row.getValue<number | null>("uptime");
       const colorVar =
-        uptime >= 99.9
+        uptime == null
+          ? "var(--color-sf-text-muted)"
+          : uptime >= 99.9
           ? "var(--color-sf-text)"
           : uptime >= 99
             ? "var(--color-sf-amber)"
             : "var(--color-sf-red)";
       return (
         <span
-          className="block text-right font-mono text-[12px] tabular-nums"
+          className="block text-center font-mono text-[12px] font-medium tabular-nums"
           style={{ color: colorVar }}
         >
-          {uptime.toFixed(2)}%
+          {uptime == null ? "—" : `${uptime}%`}
         </span>
       );
     },
   },
   {
     accessorKey: "trend",
-    header: "TREND",
+    header: () => <span className="block text-center">TREND</span>,
     cell: ({ row }) => {
       const state = row.original.state;
       if (state === "paused") {
         return (
-          <span className="font-mono text-[13px] tracking-widest text-sf-text-muted">
+          <span className="block text-center font-mono text-[13px] tracking-widest text-sf-text-muted">
             — —
           </span>
         );
@@ -136,12 +146,14 @@ export const columns: ColumnDef<MonitorPageData>[] = [
             ? "var(--color-sf-amber)"
             : "var(--color-sf-green)";
       return (
-        <Sparkline
-          data={row.getValue<number[]>("trend")}
-          color={sparkColor}
-          w={88}
-          h={28}
-        />
+        <span className="flex w-full justify-center">
+          <Sparkline
+            data={row.getValue<number[]>("trend")}
+            color={sparkColor}
+            w={88}
+            h={26}
+          />
+        </span>
       );
     },
   },
@@ -166,19 +178,19 @@ export const columns: ColumnDef<MonitorPageData>[] = [
   },
   {
     accessorKey: "interval",
-    header: "INTERVAL",
+    header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub">
+      <span className="block text-center font-mono text-[12px] text-sf-text-sub">
         {row.getValue<string>("interval")}
       </span>
     ),
   },
   {
-    accessorKey: "lastCheck",
-    header: "LAST CHECK",
+    accessorKey: "nextCheck",
+    header: () => <span className="block text-center">NEXT CHECK</span>,
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
-        {row.getValue<string>("lastCheck")}
+      <span className="block text-center font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
+        {row.getValue<string>("nextCheck")}
       </span>
     ),
   },
@@ -190,11 +202,16 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const color = stateColor[state];
       return (
         <span
-          className="flex items-center justify-center gap-1.5 text-[13px] font-medium"
-          style={{ color }}
+          className="mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border border-sf-border bg-sf-surface px-2 py-0.5 text-[12px] font-medium text-sf-text-sub"
+          style={{
+            color:
+              state === "paused" || state === "unknown"
+                ? "var(--color-sf-text-muted)"
+                : color,
+          }}
         >
           <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ backgroundColor: color }}
           />
           {stateLabel[state]}

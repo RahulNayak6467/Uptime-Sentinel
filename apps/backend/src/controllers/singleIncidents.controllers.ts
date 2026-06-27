@@ -13,7 +13,7 @@ export const getSingleIncidentData = async (
   console.log(incident_id, user_id);
   if (!user_id) {
     return res.status(401).json({
-      message: "Unauthorized",
+      message: "Unauthenticated",
     });
   }
   if (!incident_id) {

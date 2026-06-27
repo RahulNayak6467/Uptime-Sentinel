@@ -1,13 +1,12 @@
 "use client"
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
-import {MonitorsDataProps} from "@/features/Overview/types";
-// import {DashboardOverviewResponse} from "@/features/Overview/types";
+import {allMonitorsDataDashboardViewProps} from "@/features/Overview/types";
 
-export const useMonitorsData = () => {
+export const useAllMonitorsData = () => {
     const {data, isLoading,isError, refetch} = useQuery({
-        queryKey: ["monitorsData"],
-        queryFn: () => apiFetch<MonitorsDataProps[]>("/url/checks/monitor/data")
+        queryKey: ["all monitors overview data"],
+        queryFn: () => apiFetch<allMonitorsDataDashboardViewProps[]>("/monitor/data")
     })
     return {data,isLoading,isError,refetch}
 }

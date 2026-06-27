@@ -22,7 +22,7 @@ import {
   useIndividualMonitorOverview
 } from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
 import {OperationalSkeleton, OperationalError} from "./monitor-overview-states";
-import {formatTimeAgo} from "@/utils/format-time-ago";
+import {formatTimeUntil} from "@/utils/format-time-until";
 
 
 const StripStat = ({ label, value }: { label: string; value: string }) => (
@@ -39,7 +39,7 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
       ? "Pending"
       : new Date(data.nextCheckAt) <= new Date()
         ? "Due now"
-        : formatTimeAgo(data.nextCheckAt);
+        : formatTimeUntil(data.nextCheckAt);
 
   return (
     <div className="border border-b-sf-border bg-sf-surface mt-6 rounded-sf">

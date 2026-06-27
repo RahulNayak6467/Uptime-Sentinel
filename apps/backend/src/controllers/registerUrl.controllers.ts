@@ -11,7 +11,7 @@ export const registerUrl = async (
   try {
     const user_id = req.user?.user_id;
     if (!user_id) {
-      throw new AppError(401, "Unauthorized", "UNAUTHORIZED");
+      throw new AppError(401, "Unauthenticated", "UNAUTHORIZED");
     }
     const validatedData = urlSchema.parse(req.body);
     const isUrlRegistered = await checkUrlRegistration(

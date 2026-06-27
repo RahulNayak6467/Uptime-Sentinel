@@ -10,7 +10,7 @@ export const removeUrlById = async (
   const url_id = req.params.id as string;
   const user_id = req.user?.user_id;
   if (!user_id) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthenticated" });
   }
   if (!url_id) {
     return res.status(400).json({

@@ -1,5 +1,5 @@
 import { Activity, Bell, CircleCheck, Link2, Mail, Send, Shield, TriangleAlert, Zap } from "lucide-react";
-import { AlertEmail, Channel, DayOption, EventType, GroupOption, Recipient, RenotifyOption } from "./types";
+import { Channel, DayOption, EventType, GroupOption, Recipient, RenotifyOption } from "./types";
 
 export const initialRecipients: Recipient[] = [
   {
@@ -72,73 +72,10 @@ export const hours: string[] = Array.from({ length: 24 }, (_, i) =>
 
 export const dayOptions: DayOption[] = ["Every day", "Weekdays", "Weekends"];
 
-export const alertEmails: AlertEmail[] = [
-  {
-    id: "1",
-    event: "Down",
-    dot: "bg-sf-red",
-    subject: "Checkout Service is DOWN (HTTP 503)",
-    monitor: "Checkout Service",
-    recipients: 4,
-    sent: "12m ago",
-    delivery: "Delivered",
-  },
-  {
-    id: "2",
-    event: "Degraded",
-    dot: "bg-sf-amber",
-    subject: "Search API degraded — p95 412ms",
-    monitor: "Search API",
-    recipients: 4,
-    sent: "2h ago",
-    delivery: "Delivered",
-  },
-  {
-    id: "3",
-    event: "Recovery",
-    dot: "bg-sf-green",
-    subject: "Auth Service recovered",
-    monitor: "Auth Service",
-    recipients: 4,
-    sent: "1d ago",
-    delivery: "Delivered",
-  },
-  {
-    id: "4",
-    event: "Down",
-    dot: "bg-sf-red",
-    subject: "Email Service is DOWN",
-    monitor: "Email Service",
-    recipients: 2,
-    sent: "2d ago",
-    delivery: "Delivered",
-  },
-  {
-    id: "5",
-    event: "Recovery",
-    dot: "bg-sf-green",
-    subject: "Status Page DNS recovered",
-    monitor: "Status Page DNS",
-    recipients: 4,
-    sent: "3d ago",
-    delivery: "Delivered",
-  },
-  {
-    id: "6",
-    event: "Down",
-    dot: "bg-sf-red",
-    subject: "CDN Images is DOWN",
-    monitor: "CDN Images",
-    recipients: 4,
-    sent: "5d ago",
-    delivery: "Failed",
-  },
-];
-
 export const eventBadgeClass: Record<EventType, string> = {
-  Down: "text-sf-red border-sf-red/30 bg-sf-red-bg",
-  Degraded: "text-sf-amber border-sf-amber/30 bg-amber-50 dark:bg-amber-950/20",
-  Recovery: "text-sf-green border-sf-green/30 bg-sf-green-bg",
+  down: "text-sf-red border-sf-red/30 bg-sf-red-bg",
+  reminder: "text-sf-amber border-sf-amber/30 bg-amber-50 dark:bg-amber-950/20",
+  recovery: "text-sf-green border-sf-green/30 bg-sf-green-bg",
 };
 
 export const alertTypes = [

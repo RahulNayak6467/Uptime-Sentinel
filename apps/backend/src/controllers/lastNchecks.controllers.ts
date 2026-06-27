@@ -13,7 +13,7 @@ export const getLastLimitChecks = async (req:Request, res:Response, next:NextFun
     try {
         if(!user_id){
 
-            throw new AppError(401,"Unauthorized","UNAUTHORIZED");
+            throw new AppError(401,"Unauthenticated","UNAUTHORIZED");
         }
 
         uuidSchema.parse(monitor_id)

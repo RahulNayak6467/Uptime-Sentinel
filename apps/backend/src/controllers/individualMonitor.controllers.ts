@@ -8,7 +8,7 @@ export const getIndividualMonitorStats = async(req: Request, res: Response,next:
     const monitor_id = req.params.id as string;
 
     const user_id = req.user?.user_id;
-    if(!user_id) return res.status(401).json({message: "Unauthorized"});
+    if(!user_id) return res.status(401).json({message: "Unauthenticated"});
 
     try {
         uuidSchema.parse(monitor_id);

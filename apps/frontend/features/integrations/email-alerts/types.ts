@@ -40,7 +40,7 @@ export type GroupOption = "Off" | "1m" | "5m" | "15m";
 
 export type DayOption = "Every day" | "Weekdays" | "Weekends";
 
-export type EventType = "Down" | "Degraded" | "Recovery";
+export type EventType = "down" | "reminder" | "recovery";
 
 export type DeliveryStatus = "Delivered" | "Failed";
 
@@ -53,4 +53,16 @@ export type AlertEmail = {
   recipients: number;
   sent: string;
   delivery: DeliveryStatus;
+};
+
+export type RecentAlertItem = {
+  id: string;
+  type: EventType;
+  urlName: string;
+  status: "sent" | "failed";
+  sentAt: string;
+};
+
+export type RecentAlerts = {
+  alerts: RecentAlertItem[];
 };

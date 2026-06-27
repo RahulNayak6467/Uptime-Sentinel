@@ -117,6 +117,7 @@ any of these as missing during code review or planning, check this table first.
 | Credential-aware CORS for frontend origin | V6 | Strict CORS hardening in V10 |
 | Basic Pino logger (replace `console.log`) | V6 | Full structured logging in V15 |
 | Basic Docker Compose (Postgres + Redis, local dev) | V6 | Production Docker/CI-CD in V17 |
+| Failed-reminder backoff | post-V6 | A failed send no longer advances `last_alert_sent_at`, so reminders retry every check cycle while email delivery is broken; add backoff/cap so a persistent email outage doesn't spam send attempts |
 | Configurable health rules / thresholds | V7 | |
 | SSL certificate checks | V7 | |
 | DNS record checks + change detection | V7 | |

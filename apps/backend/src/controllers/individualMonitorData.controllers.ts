@@ -10,7 +10,7 @@ export const IndividualMonitorStatsData = async(req: Request, res: Response,next
 
     try {
         if(!user_id){
-            throw new AppError(401,"Unauthorized","UNAUTHORIZED")
+            throw new AppError(401,"Unauthenticated","UNAUTHORIZED")
         }
         uuidSchema.parse(monitor_id);
         const getIndividualMonitorData = await individualMonitorInfo(user_id,monitor_id)

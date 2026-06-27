@@ -5,32 +5,37 @@ import { monitorDataProps } from "@/features/Overview/types";
 import Sparkline from "@/utils/sparkline";
 
 const stateColor = {
-  up: "var(--color-sf-green)",
-  down: "var(--color-sf-red)",
-  paused: "var(--color-sf-text-muted)",
+  UP: "var(--color-sf-green)",
+  DOWN: "var(--color-sf-red)",
+  UNKNOWN: "var(--color-sf-text-muted)",
 } as const;
+
+const normalizeStatus = (status: string) => {
+  if (status === "up" || status === "UP") return "UP";
+  if (status === "down" || status === "DOWN") return "DOWN";
+  return "UNKNOWN";
+};
 
 export const columns: ColumnDef<monitorDataProps>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "url_name",
     header: "MONITOR",
     cell: ({ row }) => {
-      const state = row.original.state;
+      const state = normalizeStatus(row.original.status);
       const color = stateColor[state];
       return (
         <div className="flex items-center gap-3">
           <span
-            className="w-2.5 h-2.5 rounded-full shrink-0"
+            className="h-2 w-2 shrink-0 rounded-full"
             style={{
               backgroundColor: color,
-              boxShadow:
-                state === "down"
-                  ? `0 0 0 4px color-mix(in srgb, ${color} 16%, transparent)`
-                  : undefined,
             }}
           />
-          <span className="text-[13px] font-semibold text-sf-text whitespace-normal leading-snug">
-            {row.getValue<string>("name")}
+          <span
+            className="line-clamp-1 text-[13px] font-semibold text-sf-text leading-snug"
+            title={row.getValue<string>("url_name")}
+          >
+            {row.getValue<string>("url_name")}
           </span>
         </div>
       );
@@ -40,51 +45,58 @@ export const columns: ColumnDef<monitorDataProps>[] = [
     accessorKey: "url",
     header: "URL",
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub whitespace-normal break-all">
+      <span
+        className="block truncate font-mono text-[12px] text-sf-text-sub"
+        title={row.getValue<string>("url")}
+      >
         {row.getValue<string>("url")}
       </span>
     ),
   },
   {
     accessorKey: "uptime",
-    header: "UPTIME",
+    header: () => <span className="block text-center">UPTIME</span>,
     cell: ({ row }) => {
-      const uptime = row.getValue<number>("uptime");
+      const uptime = row.getValue<number | null>("uptime");
       const color =
-        uptime >= 99.9
+        uptime == null
+          ? "var(--color-sf-text-muted)"
+          : uptime >= 99.9
           ? "var(--color-sf-text)"
-          : uptime >= 99
+          : uptime >= 95
             ? "var(--color-sf-amber)"
             : "var(--color-sf-red)";
       return (
         <span
-          className="font-mono text-[12px] tabular-nums"
+          className="block text-center font-mono text-[12px] font-medium tabular-nums"
           style={{ color }}
         >
-          {uptime.toFixed(2)}%
+          {uptime == null ? "—" : `${uptime}%`}
         </span>
       );
     },
   },
   {
     accessorKey: "trend",
-    header: "TREND",
+    header: () => <span className="block text-center">TREND</span>,
     cell: ({ row }) => {
-      const state = row.original.state;
-      if (state === "paused") {
+      const state = normalizeStatus(row.original.status);
+      if (state === "UNKNOWN") {
         return (
-          <span className="font-mono text-[13px] tracking-widest text-sf-text-muted">
+          <span className="block text-center font-mono text-[13px] tracking-widest text-sf-text-muted">
             – – –
           </span>
         );
       }
       return (
-        <Sparkline
-          data={row.getValue<number[]>("trend")}
-          color={stateColor[state]}
-          w={96}
-          h={30}
-        />
+        <span className="flex w-full justify-center">
+          <Sparkline
+            data={row.getValue<number[]>("trend")}
+            color={stateColor[state]}
+            w={88}
+            h={26}
+          />
+        </span>
       );
     },
   },
@@ -109,15 +121,19 @@ export const columns: ColumnDef<monitorDataProps>[] = [
   },
   {
     accessorKey: "statusCode",
-    header: "STATUS",
+    header: () => <span className="block text-center">STATUS</span>,
     cell: ({ row }) => {
       const code = row.getValue<number | null>("statusCode");
       if (code === null)
-        return <span className="font-mono text-[12px] text-sf-text-muted">—</span>;
+        return (
+          <span className="block text-center font-mono text-[12px] text-sf-text-muted">
+            —
+          </span>
+        );
       const isOk = code >= 200 && code < 300;
       return (
         <span
-          className="font-mono text-[12px] tabular-nums"
+          className="mx-auto block w-fit rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-center font-mono text-[11px] font-medium tabular-nums"
           style={{
             color: isOk ? "var(--color-sf-green)" : "var(--color-sf-red)",
           }}
@@ -128,38 +144,40 @@ export const columns: ColumnDef<monitorDataProps>[] = [
     },
   },
   {
-    accessorKey: "interval",
-    header: "INTERVAL",
+    accessorKey: "interval_seconds",
+    header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub tabular-nums">
-        {row.getValue<number>("interval")}s
+      <span className="block text-center font-mono text-[12px] text-sf-text-sub tabular-nums">
+        {row.getValue<number>("interval_seconds")}s
       </span>
     ),
   },
   {
-    accessorKey: "lastCheck",
-    header: "LAST CHECK",
+    accessorKey: "next_check_at",
+    header: () => <span className="block text-center">NEXT CHECK</span>,
     cell: ({ row }) => (
-      <span className="font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
-        {row.getValue<string>("lastCheck")}
+      <span className="block text-center font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
+        {row.getValue<string>("next_check_at")}
       </span>
     ),
   },
   {
-    accessorKey: "state",
+    accessorKey: "status",
     header: () => <span className="block text-center">STATE</span>,
     cell: ({ row }) => {
-      const state = row.original.state;
+      const state = normalizeStatus(row.original.status);
       const color = stateColor[state];
       const label =
-        state === "up" ? "Up" : state === "down" ? "Down" : "Paused";
+        state === "UP" ? "Up" : state === "DOWN" ? "Down" : "Unknown";
       return (
         <span
-          className="flex items-center justify-center gap-1.5 text-[13px] font-medium"
-          style={{ color }}
+          className="mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border border-sf-border bg-sf-surface px-2 py-0.5 text-[12px] font-medium text-sf-text-sub"
+          style={{
+            color: state === "UNKNOWN" ? "var(--color-sf-text-muted)" : color,
+          }}
         >
           <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
+            className="h-1.5 w-1.5 shrink-0 rounded-full"
             style={{ backgroundColor: color }}
           />
           {label}

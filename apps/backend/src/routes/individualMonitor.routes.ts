@@ -16,4 +16,5 @@ router.get("/:id/checks", authMiddleware,getLastLimitChecks);
 
 router.get("/:id/info", authMiddleware,IndividualMonitorStatsData);
 
+
 export default router;

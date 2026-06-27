@@ -184,7 +184,7 @@ export const sendDownAlertEmail = async (
   console.log("Resend response — data:", data, "error:", error);
 
   if (error) {
-    throw new Error(`Failed to send down alert: ${error.message}`);
+    return null;
   }
 
   return data;
@@ -213,7 +213,7 @@ export const sendRecoveryEmail = async (
   console.log("Resend response — data:", data, "error:", error);
 
   if (error) {
-    throw new Error(`Failed to send recovery alert: ${error.message}`);
+    return null;
   }
 
   return data;
@@ -243,7 +243,7 @@ export const sendStillDownAlertEmail = async (
   console.log("Resend response — data:", data, "error:", error);
 
   if (error) {
-    throw new Error(`Failed to send still-down alert: ${error.message}`);
+    return null;
   }
 
   return data;

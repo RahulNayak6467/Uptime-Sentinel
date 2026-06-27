@@ -1,7 +1,46 @@
+"use client";
 import { ExternalLink, CheckCircle2, XCircle } from "lucide-react";
-import { alertEmails, eventBadgeClass } from "../../data";
+import { eventBadgeClass } from "../../data";
+import { useRecentAlerts } from "@/features/integrations/email-alerts/hooks/useRecentAlerts";
+import { formatTimeAgo } from "@/utils/format-time-ago";
+import RecentAlertsSkeleton from "./recent-alerts-skeleton";
+import RecentAlertsError from "./recent-alerts-error";
+import RecentAlertsEmpty from "./recent-alerts-empty";
 
 const RecentAlerts = () => {
+  const { data, isLoading, isError, refetch } = useRecentAlerts();
+
+  if (isLoading) {
+    return <RecentAlertsSkeleton />;
+  }
+
+  if (isError || !data) {
+    return <RecentAlertsError refetch={refetch} />;
+  }
+
+  if (data.alerts.length === 0) {
+    return <RecentAlertsEmpty />;
+  }
+
+  const subject = {
+    down: "is down",
+    recovery: "is recovered",
+    reminder: "is still down",
+  };
+
+  const requiredData = data.alerts.map((email) => {
+    return {
+      id: email.id,
+      event: email.type,
+      dot: email.type === "recovery" ? "bg-sf-green" : "bg-sf-red",
+      subject: `${email.urlName} ${subject[email.type]}`,
+      monitor: email.urlName,
+      recipients: 4,
+      sent: formatTimeAgo(email.sentAt),
+      delivery: email.status === "sent" ? "Delivered" : "Failed",
+    };
+  });
+
   return (
     <div className="w-full bg-sf-surface border border-sf-border rounded-lg mt-6">
       <div className="py-3 px-4 border-b border-sf-border flex items-start justify-between">
@@ -33,7 +72,7 @@ const RecentAlerts = () => {
         </div>
 
         <div className="divide-y divide-sf-border">
-          {alertEmails.map((alert) => (
+          {requiredData.map((alert) => (
             <div
               key={alert.id}
               className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
@@ -46,7 +85,9 @@ const RecentAlerts = () => {
 
               <div className="flex flex-col gap-0.5 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${alert.dot}`} />
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${alert.dot}`}
+                  />
                   <span className="text-[13px] font-sans font-medium text-sf-text truncate">
                     {alert.subject}
                   </span>

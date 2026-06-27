@@ -74,12 +74,12 @@ export function MonitorsDataTable({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="border-b border-sf-border hover:bg-transparent"
+                className="border-b border-sf-border bg-sf-bg/60 hover:bg-sf-bg/60"
               >
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="px-4 py-2.5 font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-sf-text-muted align-bottom"
+                    className="px-4 py-2.5 align-middle font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-sf-text-muted"
                   >
                     {header.isPlaceholder
                       ? null
@@ -95,7 +95,7 @@ export function MonitorsDataTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
-                  className="border-b border-sf-border hover:bg-sf-border-faint/60 transition-colors data-[state=selected]:bg-sf-border-faint"
+                  className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70 data-[state=selected]:bg-sf-border-faint"
                 >
                   {row.getVisibleCells().map((cell) => {
                     const colId = cell.column.id;
@@ -103,12 +103,27 @@ export function MonitorsDataTable({
                       colId === "select"
                         ? "w-10"
                         : colId === "name"
-                          ? "w-[180px]"
+                          ? "w-[190px] max-w-[190px]"
                           : colId === "url"
-                            ? "w-[200px]"
+                            ? "w-[260px] max-w-[260px]"
                             : "";
+                    const align =
+                      colId === "select" ||
+                      colId === "type" ||
+                      colId === "uptime" ||
+                      colId === "trend" ||
+                      colId === "interval" ||
+                      colId === "nextCheck" ||
+                      colId === "state"
+                        ? "text-center"
+                        : colId === "responseTime"
+                          ? "text-right"
+                          : "";
                     return (
-                      <TableCell key={cell.id} className={`px-4 py-2.5 align-middle ${w}`}>
+                      <TableCell
+                        key={cell.id}
+                        className={`px-4 py-2.5 align-middle ${w} ${align}`}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     );

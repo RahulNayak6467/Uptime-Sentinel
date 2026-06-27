@@ -1,14 +1,14 @@
 export type MonitorType = "http" | "tcp" | "dns";
-export type MonitorState = "up" | "down" | "degraded" | "paused";
+export type MonitorState = "up" | "down" | "degraded" | "paused" | "unknown";
 
 export type MonitorPageData = {
   name: string;
   url: string;
   type: MonitorType;
-  uptime: number;
+  uptime: number | null;
   responseTime: number | null;
   interval: string;
-  lastCheck: string;
+  nextCheck: string;
   state: MonitorState;
   trend: number[];
 };

@@ -48,13 +48,15 @@ export function DataTable<TData, TValue>({
   return (
     <div className="overflow-hidden rounded-sf border border-sf-border bg-sf-surface">
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-sf-border">
+      <div className="flex items-center justify-between border-b border-sf-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-[15px] font-bold text-sf-text">Monitors</span>
-          <span className="text-[15px] text-sf-text-sub">{data.length}</span>
+          <span className="text-[14px] font-semibold text-sf-text">Monitors</span>
+          <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[11px] text-sf-text-sub">
+            {data.length}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 border border-sf-border rounded-sf bg-sf-surface text-sf-text-muted">
+          <div className="flex items-center gap-2 rounded-sf border border-sf-border bg-sf-bg px-3 py-1.5 text-sf-text-muted">
             <Search className="w-3.5 h-3.5 shrink-0" />
             <input
               type="text"
@@ -63,7 +65,7 @@ export function DataTable<TData, TValue>({
               disabled
             />
           </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-semibold text-sf-text border border-sf-border rounded-sf hover:bg-sf-bg transition-colors cursor-pointer">
+          <button className="flex cursor-pointer items-center gap-1.5 rounded-sf border border-sf-border px-3 py-1.5 text-[13px] font-medium text-sf-text transition-colors hover:bg-sf-bg">
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Filter</span>
           </button>
@@ -75,12 +77,12 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className="border-b border-sf-border hover:bg-transparent"
+              className="border-b border-sf-border bg-sf-bg/60 hover:bg-sf-bg/60"
             >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
-                  className="px-4 py-2.5 font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-sf-text-muted align-bottom"
+                  className="px-4 py-2.5 align-middle font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-sf-text-muted"
                 >
                   {header.isPlaceholder
                     ? null
@@ -99,19 +101,30 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="border-b border-sf-border hover:bg-sf-border-faint/60 transition-colors"
+                className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70"
               >
                 {row.getVisibleCells().map((cell) => {
                   const widthClass =
-                    cell.column.id === "name"
-                      ? "w-[190px]"
+                    cell.column.id === "url_name"
+                      ? "w-[190px] max-w-[190px]"
                       : cell.column.id === "url"
-                        ? "w-[240px]"
+                        ? "w-[260px] max-w-[260px]"
                         : "";
+                  const alignClass =
+                    cell.column.id === "uptime" ||
+                    cell.column.id === "trend" ||
+                    cell.column.id === "statusCode" ||
+                    cell.column.id === "interval_seconds" ||
+                    cell.column.id === "next_check_at" ||
+                    cell.column.id === "status"
+                      ? "text-center"
+                      : cell.column.id === "responseTime"
+                        ? "text-right"
+                      : "";
                   return (
                     <TableCell
                       key={cell.id}
-                      className={`px-4 py-2.5 align-middle ${widthClass}`}
+                      className={`px-4 py-2.5 align-middle ${widthClass} ${alignClass}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

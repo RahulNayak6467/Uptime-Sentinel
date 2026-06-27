@@ -16,6 +16,7 @@ const DOT_COLOR: Record<MonitorState, string> = {
   down: "var(--color-sf-red)",
   degraded: "var(--color-sf-amber)",
   paused: "var(--color-sf-text-muted)",
+  unknown: "var(--color-sf-text-muted)",
 };
 
 const TABS: { key: Tab; label: string }[] = [
@@ -23,6 +24,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "up", label: "Up" },
   { key: "down", label: "Down" },
   { key: "degraded", label: "Degraded" },
+  { key: "unknown", label: "Unknown" },
   { key: "paused", label: "Paused" },
 ];
 

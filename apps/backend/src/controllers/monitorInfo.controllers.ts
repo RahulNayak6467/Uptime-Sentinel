@@ -4,7 +4,7 @@ import {getMonitorsDetails} from "../services/monitorInfo.services";
 export const getMonitorsData = async (req:Request,res:Response,next:NextFunction) => {
     const user_id = req.user?.user_id;
     if(!user_id){
-        return res.status(401).json({error:"Unauthorized"});
+        return res.status(401).json({message:"Unauthenticated"});
     }
 
     try{

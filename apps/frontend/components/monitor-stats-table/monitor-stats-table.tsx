@@ -1,49 +1,48 @@
 "use client"
 import { columns } from "./columns";
-import { servicesStatus } from "./data";
 import { DataTable } from "./data-table";
-import {useDashboardOverview} from "@/features/Overview/hooks/useDashboardOverview";
-import Loader from "@/features/Overview/components/loading";
-import Error from "@/features/Overview/components/error";
-import {useMonitorsData} from "@/features/Overview/hooks/useMonitorsData";
+import {useAllMonitorsData} from "@/features/Overview/hooks/useMonitorsData";
+import {formatTimeUntil} from "@/utils/format-time-until";
+import { MonitorTableSkeleton } from "@/components/loading/dashboard-skeletons";
+import PageError from "@/components/page-error";
+
+
 
 const MonitorStatsTable = () => {
-    const {data:overviewDataMonitorsData,isLoading:MonitorDataLoading,isError:MonitorDataError,refetch:MonitorRefetch} = useMonitorsData()
+    const {data,isLoading,isError,refetch} = useAllMonitorsData();
 
-    if(MonitorDataLoading){
-        return <Loader />
+    if (isLoading) {
+        return <MonitorTableSkeleton rows={5} />
     }
 
-    if(MonitorDataError || !overviewDataMonitorsData){
-        return <Error refetch={MonitorRefetch} />
+    if(isError || !data){
+        return (
+            <PageError
+                title="Couldn't load monitors"
+                description="We couldn't load your monitor data. Please try again."
+                onRetry={() => refetch()}
+            />
+        )
     }
 
-    console.log(overviewDataMonitorsData)
-
-    const data = overviewDataMonitorsData.map((el) => {
-        return {...el,next_check_at: "23days ago" ,  uptime: 99.99,    responseTime: 112,
-            statusCode: 200,    trend: [
-                0.4, 0.46, 0.52, 0.58, 0.62, 0.6, 0.54, 0.48, 0.42, 0.39, 0.43, 0.49,
-                0.55, 0.6, 0.58, 0.52, 0.46, 0.42, 0.46, 0.52, 0.57, 0.6, 0.55, 0.49,
-                0.44, 0.48,
-            ],}
+    const requiredData = data.map((el) => {
+        return {
+            url_name: el.urlName,
+            url: el.url,
+            uptime: el.uptimePercentage,
+            responseTime:el.avgResponseTime !== null ? Number(el.avgResponseTime) : null,
+            statusCode: 200,
+            interval_seconds: el.intervalSeconds,
+            next_check_at: formatTimeUntil(el.nextCheckAt),
+            status: el.status,
+            trend: el.response.map((res) => res.responseTime ?res.responseTime : null)
+        }
     })
 
 
-
-    // url_name: string;
-    // url: string;
-    // uptime: number;
-    // responseTime: number | null;
-    // statusCode: number | null;
-    // interval_seconds: number;
-    // next_check_at: string;
-    // status: MonitorState;
-    // trend: number[]
-
     return (
     <div className="px-6 py-4">
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={requiredData} />
     </div>
   );
 };

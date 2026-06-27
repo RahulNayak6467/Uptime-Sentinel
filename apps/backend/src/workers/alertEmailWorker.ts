@@ -36,7 +36,7 @@ const insertIntoNotificationsTable = async (
   id: string,
   resendId: string | null,
   status: "sent" | "failed",
-  type: "down" | "recovery",
+  type: "down" | "recovery" | "reminder",
 ) => {
   const insert_notifications_query =
     "INSERT INTO notification_logs (incident_id,resend_email_id,type,status) VALUES($1,$2,$3,$4)";
@@ -73,11 +73,10 @@ const processor = async (job: Job) => {
       startedAt,
     );
 
-    await updateLastAlertSentAt(incident_id);
-
     if (downAlertEmail === null) {
       await insertIntoNotificationsTable(id, null, "failed", "down");
     } else {
+      await updateLastAlertSentAt(incident_id);
       await insertIntoNotificationsTable(id, downAlertEmail.id, "sent", "down");
     }
   } else if (job.name === "recovery-email") {
@@ -118,14 +117,29 @@ const processor = async (job: Job) => {
     );
     const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
-      "SELECT started_at from incidents where monitor_id = $1 and id = $2",
+      "SELECT started_at,id from incidents where monitor_id = $1 and id = $2",
       [url_id, incident_id],
     );
-    const [{ started_at: startedAt }] = getStartedAt.rows;
+    const [{ started_at: startedAt, id }] = getStartedAt.rows;
 
-    await updateLastAlertSentAt(incident_id);
+    const reminderEmail = await sendStillDownAlertEmail(
+      email,
+      urlName,
+      url,
+      startedAt,
+    );
 
-    await sendStillDownAlertEmail(email, urlName, url, startedAt);
+    if (reminderEmail === null) {
+      await insertIntoNotificationsTable(id, null, "failed", "reminder");
+    } else {
+      await updateLastAlertSentAt(incident_id);
+      await insertIntoNotificationsTable(
+        id,
+        reminderEmail.id,
+        "sent",
+        "reminder",
+      );
+    }
   }
 };
 
