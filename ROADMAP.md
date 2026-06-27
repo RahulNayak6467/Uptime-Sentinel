@@ -17,6 +17,26 @@ every version to understand scope.
 - **Out of scope** in a version means deferred, not forgotten — see the
   [deferred-work register](#deferred-work-register) below.
 
+### Pulling deferred work forward
+
+A feature scheduled for a later version may be implemented earlier **only if it
+is genuinely required for the current version's user experience or correctness**,
+not merely convenient. The roadmap is a guide, not a cage.
+
+- Justify it against current-version *need*, not preference. If the later-version
+  feature's benefit only materializes under conditions a later version
+  introduces (e.g. high volume, retention churn), the deferral is intentional —
+  do not pull it forward.
+- Prefer the simpler current-version option when it satisfies today's UX, even if
+  a more advanced later-version option exists.
+- When you do pull something forward, note it in both this register and the
+  affected version file so the roadmap stays the source of truth.
+
+Worked example: cursor pagination is parked at V11. It is *not* pulled into V6,
+because its wins (large-offset speed, insert-stable pages) only matter at V11's
+volume/retention, and it would *remove* the numbered-page UI V6 already uses
+(cursors are next/prev only). Offset pagination is the correct V6 choice.
+
 ## Current development state
 
 - **Current active version: V6 — Analytics Dashboard and Real-Time Frontend.**

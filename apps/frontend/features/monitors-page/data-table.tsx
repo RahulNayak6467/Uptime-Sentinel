@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -31,7 +31,6 @@ import { MonitorPageData } from "./types";
 interface DataTableProps {
   columns: ColumnDef<MonitorPageData, unknown>[];
   data: MonitorPageData[];
-  stateFilter: string;
   rowSelection: RowSelectionState;
   onRowSelectionChange: (state: RowSelectionState) => void;
 }
@@ -39,25 +38,24 @@ interface DataTableProps {
 export function MonitorsDataTable({
   columns,
   data,
-  stateFilter,
   rowSelection,
   onRowSelectionChange,
 }: DataTableProps) {
-  const filtered = useMemo(
-    () => (stateFilter === "all" ? data : data.filter((d) => d.state === stateFilter)),
-    [data, stateFilter],
-  );
-
   const handleRowSelectionChange = useCallback(
-    (updater: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
-      const next = typeof updater === "function" ? updater(rowSelection) : updater;
+    (
+      updater:
+        | RowSelectionState
+        | ((old: RowSelectionState) => RowSelectionState),
+    ) => {
+      const next =
+        typeof updater === "function" ? updater(rowSelection) : updater;
       onRowSelectionChange(next);
     },
     [rowSelection, onRowSelectionChange],
   );
 
   const table = useReactTable({
-    data: filtered,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -83,7 +81,10 @@ export function MonitorsDataTable({
                   >
                     {header.isPlaceholder
                       ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -124,7 +125,10 @@ export function MonitorsDataTable({
                         key={cell.id}
                         className={`px-4 py-2.5 align-middle ${w} ${align}`}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </TableCell>
                     );
                   })}
@@ -145,13 +149,7 @@ export function MonitorsDataTable({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between mt-3 px-1">
-        <span className="text-[12px] text-sf-text-muted">
-          Showing{" "}
-          <span className="text-sf-text-sub">{filtered.length}</span> of{" "}
-          <span className="text-sf-text-sub">{data.length}</span> monitors
-        </span>
-
+      <div className="flex items-center justify-center mt-3 px-1">
         <Pagination className="w-auto mx-0">
           <PaginationContent>
             <PaginationItem>
@@ -207,11 +205,6 @@ export function MonitorsDataTable({
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-
-        <span className="text-[12px] text-sf-text-muted">
-          Checks run from{" "}
-          <span className="text-sf-text-sub">8 global regions</span>
-        </span>
       </div>
     </div>
   );

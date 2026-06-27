@@ -8,7 +8,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 import { removeUrlById } from "../controllers/deleteUrl.controllers";
 import { updateUrlById } from "../controllers/updateUrl.controllers";
 import { sendIncidentsById } from "../controllers/sendIncidents.controllers";
-import {getAllMonitorData} from "../controllers/allMonitorData.controllers";
+import { getAllMonitorData } from "../controllers/allMonitorData.controllers";
 
 const router: Router = express.Router();
 
@@ -24,6 +24,6 @@ router.patch("/:id/update", authMiddleware, updateUrlById);
 
 router.get("/:id/incidents", authMiddleware, sendIncidentsById);
 
-router.get("/data",authMiddleware, getAllMonitorData);
+router.get("/data", authMiddleware, getAllMonitorData);
 
 export default router;

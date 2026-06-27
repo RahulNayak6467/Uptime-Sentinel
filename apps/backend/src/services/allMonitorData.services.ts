@@ -1,9 +1,9 @@
-import {db} from "../db";
-import {QueryResult} from "pg";
-import {allMonitorsDataProps} from "../types/types";
+import { db } from "../db";
+import { QueryResult } from "pg";
+import { allMonitorsDataProps } from "../types/types";
 
-export const getAllMonitorInfo = async(user_id:string)=> {
-    const all_monitors_query = `
+export const getAllMonitorInfo = async (query: (string | null | boolean)[]) => {
+  const all_monitors_query = `
         SELECT
             m.url_name,
             m.url,
@@ -25,6 +25,8 @@ export const getAllMonitorInfo = async(user_id:string)=> {
         LEFT JOIN url_checks u
             ON m.id = u.monitor_id
         WHERE m.user_id = $1
+        AND ($2::text IS NULL OR m.status = $2::text)
+        AND ($3::boolean IS NULL OR m.is_active = $3::boolean)
         GROUP BY
             m.url_name,
             m.id,
@@ -33,32 +35,31 @@ export const getAllMonitorInfo = async(user_id:string)=> {
             m.next_check_at,
             m.status
         ORDER BY m.created_at
+    `;
 
-        
-    `
-    const all_monitors_value = [user_id]
+  console.log(query);
 
-    const all_monitors_data:QueryResult<allMonitorsDataProps> = await db.query(all_monitors_query,all_monitors_value)
+  const all_monitors_value = query;
 
-    const rows = all_monitors_data.rows
+  const all_monitors_data: QueryResult<allMonitorsDataProps> = await db.query(
+    all_monitors_query,
+    all_monitors_value,
+  );
 
+  const rows = all_monitors_data.rows;
 
-    const allMonitorsData = rows.map((data) => {
-        return {
-            url: data.url,
-            urlName: data.url_name,
-            intervalSeconds: data.interval_seconds,
-            nextCheckAt: data.next_check_at,
-            status: data.status,
-            avgResponseTime: data.avg_response_time,
-            response: data.response,
+  const allMonitorsData = rows.map((data) => {
+    return {
+      url: data.url,
+      urlName: data.url_name,
+      intervalSeconds: data.interval_seconds,
+      nextCheckAt: data.next_check_at,
+      status: data.status,
+      avgResponseTime: data.avg_response_time,
+      response: data.response,
+      uptimePercentage: data.uptime_percentage,
+    };
+  });
 
-            uptimePercentage: data.uptime_percentage
-        }
-    })
-
-    return allMonitorsData
-}
-
-
-
+  return allMonitorsData;
+};
