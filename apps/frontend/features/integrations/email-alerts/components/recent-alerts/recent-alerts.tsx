@@ -1,26 +1,47 @@
 "use client";
-import { ExternalLink, CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
+import {
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { eventBadgeClass } from "../../data";
 import { useRecentAlerts } from "@/features/integrations/email-alerts/hooks/useRecentAlerts";
 import { formatTimeAgo } from "@/utils/format-time-ago";
 import RecentAlertsSkeleton from "./recent-alerts-skeleton";
 import RecentAlertsError from "./recent-alerts-error";
 import RecentAlertsEmpty from "./recent-alerts-empty";
+import { EMAIL_ALERT_LIMIT } from "@/constants/constant";
 
 const RecentAlerts = () => {
-  const { data, isLoading, isError, refetch } = useRecentAlerts();
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    data: emailAlertsData,
+    isLoading,
+    isError,
+    refetch,
+  } = useRecentAlerts(currentPage, EMAIL_ALERT_LIMIT);
 
   if (isLoading) {
     return <RecentAlertsSkeleton />;
   }
 
-  if (isError || !data) {
+  if (isError || !emailAlertsData) {
     return <RecentAlertsError refetch={refetch} />;
   }
 
-  if (data.alerts.length === 0) {
+  if (emailAlertsData.data.length === 0) {
     return <RecentAlertsEmpty />;
   }
+
+  // Dummy pagination: hard-coded 10 pages until the backend supplies the real
+  // page/totalPages. Later, lift currentPage/totalPages to props driven by the
+  // API response and call onPageChange instead of local state.
+  const totalPages = emailAlertsData.pagination.totalPage;
+  const goToPage = (page: number) =>
+    setCurrentPage(Math.min(Math.max(page, 1), totalPages));
 
   const subject = {
     down: "is down",
@@ -28,7 +49,9 @@ const RecentAlerts = () => {
     reminder: "is still down",
   };
 
-  const requiredData = data.alerts.map((email) => {
+  console.log(currentPage);
+
+  const requiredData = emailAlertsData.data.map((email) => {
     return {
       id: email.id,
       event: email.type,
@@ -71,7 +94,7 @@ const RecentAlerts = () => {
           ))}
         </div>
 
-        <div className="divide-y divide-sf-border">
+        <div className="divide-y divide-sf-border max-h-[360px] overflow-y-auto">
           {requiredData.map((alert) => (
             <div
               key={alert.id}
@@ -124,6 +147,77 @@ const RecentAlerts = () => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Footer — dummy 10-page pagination; wire to backend page/totalPages later */}
+      <div className="flex items-center justify-between gap-4 border-t border-sf-border px-4 py-2.5">
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
+          Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
+          {totalPages}
+        </span>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label="Previous page"
+            className="flex h-7 w-7 items-center justify-center rounded-sf border border-sf-border text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text disabled:pointer-events-none disabled:opacity-40"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => {
+            const page = i + 1;
+            const showEllipsisBefore =
+              page === currentPage - 2 && currentPage > 4;
+            const showEllipsisAfter =
+              page === currentPage + 2 && currentPage < totalPages - 3;
+            const isVisible =
+              page === 1 ||
+              page === totalPages ||
+              Math.abs(page - currentPage) <= 1;
+
+            if (showEllipsisBefore || showEllipsisAfter) {
+              return (
+                <span
+                  key={`ellipsis-${page}`}
+                  className="px-0.5 text-[12px] text-sf-text-muted"
+                >
+                  …
+                </span>
+              );
+            }
+            if (!isVisible) return null;
+
+            const isActive = page === currentPage;
+            return (
+              <button
+                key={page}
+                type="button"
+                onClick={() => goToPage(page)}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex h-7 min-w-7 items-center justify-center rounded-sf border px-2 font-mono text-[12px] tabular-nums transition-colors ${
+                  isActive
+                    ? "border-sf-blue/40 bg-sf-blue-bg text-sf-blue"
+                    : "border-sf-border text-sf-text-sub hover:bg-sf-bg hover:text-sf-text"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label="Next page"
+            className="flex h-7 w-7 items-center justify-center rounded-sf border border-sf-border text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text disabled:pointer-events-none disabled:opacity-40"
+          >
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </div>

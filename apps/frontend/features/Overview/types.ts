@@ -1,9 +1,9 @@
 export type OverviewStatsProps = {
-  metric:string ;
+  metric: string;
   value: keyof DashboardOverviewResponse;
   context: string;
   color: string;
-  stats:number | null;
+  stats: number | null;
   format?: (value: number) => string;
 };
 
@@ -15,7 +15,7 @@ export type monitorDataProps = {
   statusCode: number | null;
   interval_seconds: number;
   next_check_at: string;
-  status:  "UP" | "DOWN" | "UNKNOWN";
+  status: "UP" | "DOWN" | "UNKNOWN";
   trend: number[];
 };
 
@@ -27,25 +27,34 @@ export type DashboardOverviewResponse = {
   total_monitors: number;
   paused_monitors: number;
   uptime_percentage: number | null;
-}
+};
 
 export type MonitorsDataProps = {
-  url:string
-  urlName: string,
-  intervalSeconds: number,
-  status: "UP" | "DOWN" | "UNKNOWN"
+  url: string;
+  urlName: string;
+  intervalSeconds: number;
+  status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: Date;
-}
+};
+
+export type allMonitorsDataDashboardView = {
+  url: string;
+  urlName: string;
+  intervalSeconds: number;
+  status: "UP" | "DOWN" | "UNKNOWN";
+  nextCheckAt: string;
+  response: {
+    responseTime: number | null;
+  }[];
+  avgResponseTime: number | null;
+  uptimePercentage: number | null;
+}[];
 
 export type allMonitorsDataDashboardViewProps = {
-  url: string,
-  urlName:string,
-  intervalSeconds: number,
-  status: "UP" | "DOWN" | "UNKNOWN",
-  nextCheckAt: string,
-  response: {
-    responseTime: number | null,
-  }[],
-  avgResponseTime: number | null,
-  uptimePercentage: number | null,
-}
+  data: allMonitorsDataDashboardView;
+  pagination: {
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
+};

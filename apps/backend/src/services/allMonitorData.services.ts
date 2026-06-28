@@ -2,7 +2,12 @@ import { db } from "../db";
 import { QueryResult } from "pg";
 import { allMonitorsDataProps } from "../types/types";
 
-export const getAllMonitorInfo = async (query: (string | null | boolean)[]) => {
+export const getAllMonitorInfo = async (
+  query: (string | null | boolean)[],
+  pageNumber: number,
+  limit: number,
+  offset: number,
+) => {
   const all_monitors_query = `
         SELECT
             m.url_name,
@@ -35,6 +40,8 @@ export const getAllMonitorInfo = async (query: (string | null | boolean)[]) => {
             m.next_check_at,
             m.status
         ORDER BY m.created_at
+        OFFSET $4
+        LIMIT $5
     `;
 
   console.log(query);
@@ -45,6 +52,20 @@ export const getAllMonitorInfo = async (query: (string | null | boolean)[]) => {
     all_monitors_query,
     all_monitors_value,
   );
+
+  const get_totalCount_query =
+    "SELECT COUNT(*) AS total_count FROM monitor where user_id = $1";
+
+  const get_totalCount_value = [query[0]];
+
+  const getTotalCountQuery = await db.query(
+    get_totalCount_query,
+    get_totalCount_value,
+  );
+
+  const totalMonitors = getTotalCountQuery.rows[0].total_count || 1;
+
+  const totalPage = Math.ceil(totalMonitors / limit);
 
   const rows = all_monitors_data.rows;
 
@@ -61,5 +82,16 @@ export const getAllMonitorInfo = async (query: (string | null | boolean)[]) => {
     };
   });
 
-  return allMonitorsData;
+  const paginatedMonitorsData = {
+    data: allMonitorsData,
+    pagination: {
+      page: pageNumber,
+      limit: limit,
+      totalPage,
+    },
+  };
+
+  console.log(paginatedMonitorsData);
+
+  return paginatedMonitorsData;
 };

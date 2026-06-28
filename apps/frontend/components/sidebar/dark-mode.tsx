@@ -1,26 +1,35 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { AnimatedThemeToggler } from "../ui/animated-theme-toggler";
+import { Moon, Sun } from "lucide-react";
 
 const DarkModeToggle = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
   return (
-    <div className="flex items-center gap-3 w-full px-2 py-1.5 rounded-sf hover:bg-sf-bg transition-colors">
-      <AnimatedThemeToggler
-        variant="circle"
-        duration={400}
-        fromCenter={true}
-        theme={isDark ? "dark" : "light"}
-        onThemeChange={setTheme}
-        className="text-sf-text-sub hover:text-sf-text cursor-pointer shrink-0 [&>svg]:w-4 [&>svg]:h-4"
-      />
-      <span className="text-[13.5px] font-sans text-sf-text-sub pointer-events-none">
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+      className="flex w-full cursor-pointer items-center gap-3 rounded-sf px-2 py-1.5 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text"
+    >
+      <span className="relative size-4 shrink-0" aria-hidden="true">
+        <Sun
+          className={`absolute inset-0 size-4 transition-opacity duration-150 ease-out motion-reduce:transition-none ${
+            isDark ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <Moon
+          className={`absolute inset-0 size-4 transition-opacity duration-150 ease-out motion-reduce:transition-none ${
+            isDark ? "opacity-0" : "opacity-100"
+          }`}
+        />
+      </span>
+      <span className="font-sans text-[13.5px]">
         {isDark ? "Light mode" : "Dark mode"}
       </span>
-    </div>
+    </button>
   );
 };
 

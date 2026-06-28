@@ -12,6 +12,7 @@ import { formatTimeUntil } from "@/utils/format-time-until";
 import { MonitorsLoading } from "@/components/loading/dashboard-skeletons";
 import PageError from "@/components/page-error";
 import { useFilter } from "./hooks/useFilter";
+import { LIMIT } from "@/constants/constant";
 
 type Tab = "all" | MonitorState;
 
@@ -25,21 +26,39 @@ const normalizeMonitorState = (
 
 const MonitorsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const selectedCount = Object.keys(rowSelection).length;
 
   const onChange = (tab: Tab) => {
     setActiveTab(() => tab);
+    setCurrentPage(1);
   };
 
-  const { data, isLoading, isError, refetch } = useFilter(activeTab);
+  const clearFilter = () => {
+    setActiveTab("all");
+    setCurrentPage(1);
+  };
+
+  const onChangePage = (page: number) => {
+    setCurrentPage(() => page);
+  };
+
+  console.log(currentPage);
+
+  const {
+    data: monitorTableData,
+    isLoading,
+    isError,
+    refetch,
+  } = useFilter(activeTab, currentPage, LIMIT);
 
   if (isLoading) {
     return <MonitorsLoading />;
   }
 
-  if (isError || !data) {
+  if (isError || !monitorTableData) {
     return (
       <PageError
         title="Couldn't load monitors"
@@ -49,7 +68,9 @@ const MonitorsPage = () => {
     );
   }
 
-  const requiredData: MonitorPageData[] = data.map((el) => {
+  const { totalPage } = monitorTableData.pagination;
+
+  const requiredData: MonitorPageData[] = monitorTableData.data.map((el) => {
     return {
       name: el.urlName,
       url: el.url,
@@ -79,10 +100,15 @@ const MonitorsPage = () => {
           />
         )}
         <MonitorsDataTable
+          onChangePage={onChangePage}
+          currentPage={currentPage}
+          totalPage={totalPage}
           columns={columns}
           data={requiredData}
           rowSelection={rowSelection}
           onRowSelectionChange={setRowSelection}
+          isFiltered={activeTab !== "all"}
+          onClearFilter={clearFilter}
         />
       </div>
     </section>

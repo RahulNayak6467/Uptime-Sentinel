@@ -64,5 +64,10 @@ export type RecentAlertItem = {
 };
 
 export type RecentAlerts = {
-  alerts: RecentAlertItem[];
+  data: RecentAlertItem[];
+  pagination: {
+    totalPage: number;
+    limit: number;
+    currentPage: number;
+  };
 };

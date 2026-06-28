@@ -4,7 +4,6 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/table";
 
 import { Search, SlidersHorizontal } from "lucide-react";
+import MonitorsEmpty from "@/components/empty-states/monitors-empty";
 
 import {
   Pagination,
@@ -32,25 +32,43 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  currentPage: number;
+  changeCurrentPage: (page: number) => void;
+  totalPage: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  currentPage,
+  changeCurrentPage,
+  totalPage,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
+
+  // Dummy pagination: hard-coded 10 pages until the backend supplies the real
+  // page/totalPages. Later, lift currentPage/totalPages to props driven by the
+  // API response and call onPageChange instead of local state.
+  const totalPages = totalPage;
+  const goToPage = (page: number) =>
+    changeCurrentPage(Math.min(Math.max(page, 1), totalPages));
+
+  if (data.length === 0) {
+    return <MonitorsEmpty />;
+  }
 
   return (
     <div className="overflow-hidden rounded-sf border border-sf-border bg-sf-surface">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-sf-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-[14px] font-semibold text-sf-text">Monitors</span>
+          <span className="text-[14px] font-semibold text-sf-text">
+            Monitors
+          </span>
           <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[11px] text-sf-text-sub">
             {data.length}
           </span>
@@ -96,52 +114,44 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70"
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const widthClass =
-                    cell.column.id === "url_name"
-                      ? "w-[190px] max-w-[190px]"
-                      : cell.column.id === "url"
-                        ? "w-[260px] max-w-[260px]"
-                        : "";
-                  const alignClass =
-                    cell.column.id === "uptime" ||
-                    cell.column.id === "trend" ||
-                    cell.column.id === "statusCode" ||
-                    cell.column.id === "interval_seconds" ||
-                    cell.column.id === "next_check_at" ||
-                    cell.column.id === "status"
-                      ? "text-center"
-                      : cell.column.id === "responseTime"
-                        ? "text-right"
+          {table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && "selected"}
+              className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70"
+            >
+              {row.getVisibleCells().map((cell) => {
+                const widthClass =
+                  cell.column.id === "url_name"
+                    ? "w-[190px] max-w-[190px]"
+                    : cell.column.id === "url"
+                      ? "w-[260px] max-w-[260px]"
                       : "";
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={`px-4 py-2.5 align-middle ${widthClass} ${alignClass}`}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-24 text-center text-sf-text-muted text-[13px]"
-              >
-                No results.
-              </TableCell>
+                const alignClass =
+                  cell.column.id === "uptime" ||
+                  cell.column.id === "trend" ||
+                  cell.column.id === "statusCode" ||
+                  cell.column.id === "interval_seconds" ||
+                  cell.column.id === "next_check_at" ||
+                  cell.column.id === "status"
+                    ? "text-center"
+                    : cell.column.id === "responseTime"
+                      ? "text-right"
+                      : "";
+                return (
+                  <TableCell
+                    key={cell.id}
+                    className={`px-4 py-2.5 align-middle ${widthClass} ${alignClass}`}
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </TableCell>
+                );
+              })}
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
 
@@ -150,26 +160,26 @@ export function DataTable<TData, TValue>({
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                onClick={() => table.previousPage()}
-                aria-disabled={!table.getCanPreviousPage()}
+                onClick={() => goToPage(currentPage - 1)}
+                aria-disabled={currentPage === 1}
                 className={
-                  !table.getCanPreviousPage()
+                  currentPage === 1
                     ? "pointer-events-none opacity-40"
                     : "cursor-pointer"
                 }
               />
             </PaginationItem>
 
-            {Array.from({ length: table.getPageCount() }, (_, i) => {
+            {Array.from({ length: totalPages }, (_, i) => {
               const page = i + 1;
-              const current = table.getState().pagination.pageIndex + 1;
-              const showEllipsisBefore = page === current - 2 && current > 4;
+              const showEllipsisBefore =
+                page === currentPage - 2 && currentPage > 4;
               const showEllipsisAfter =
-                page === current + 2 && current < table.getPageCount() - 3;
+                page === currentPage + 2 && currentPage < totalPages - 3;
               const isVisible =
                 page === 1 ||
-                page === table.getPageCount() ||
-                Math.abs(page - current) <= 1;
+                page === totalPages ||
+                Math.abs(page - currentPage) <= 1;
 
               if (showEllipsisBefore || showEllipsisAfter) {
                 return (
@@ -183,8 +193,8 @@ export function DataTable<TData, TValue>({
               return (
                 <PaginationItem key={page}>
                   <PaginationLink
-                    isActive={page === current}
-                    onClick={() => table.setPageIndex(i)}
+                    isActive={page === currentPage}
+                    onClick={() => goToPage(page)}
                     className="cursor-pointer"
                   >
                     {page}
@@ -195,10 +205,10 @@ export function DataTable<TData, TValue>({
 
             <PaginationItem>
               <PaginationNext
-                onClick={() => table.nextPage()}
-                aria-disabled={!table.getCanNextPage()}
+                onClick={() => goToPage(currentPage + 1)}
+                aria-disabled={currentPage === totalPages}
                 className={
-                  !table.getCanNextPage()
+                  currentPage === totalPages
                     ? "pointer-events-none opacity-40"
                     : "cursor-pointer"
                 }

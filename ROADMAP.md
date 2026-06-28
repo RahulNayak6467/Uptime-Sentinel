@@ -32,10 +32,13 @@ not merely convenient. The roadmap is a guide, not a cage.
 - When you do pull something forward, note it in both this register and the
   affected version file so the roadmap stays the source of truth.
 
-Worked example: cursor pagination is parked at V11. It is *not* pulled into V6,
-because its wins (large-offset speed, insert-stable pages) only matter at V11's
-volume/retention, and it would *remove* the numbered-page UI V6 already uses
-(cursors are next/prev only). Offset pagination is the correct V6 choice.
+Worked example: cursor pagination for the high-volume log lists (all-monitors
+email alerts and monitor check-logs) lands in V7; any remaining high-volume lists
+stay at V11. It is *not* pulled into V6's monitors table or 7-day alerts views,
+because those are bounded per-user sets where offset's large-offset cost never
+bites, and cursors are next/prev only — they would *remove* the numbered-page UI
+V6 needs. Offset is the correct choice for the V6 views; cursor pagination earns
+its place only on the unbounded, append-only log lists in V7.
 
 ## Current development state
 
@@ -133,7 +136,7 @@ any of these as missing during code review or planning, check this table first.
 | Database schema migrations (replace ad-hoc table creation) | V4 | |
 | Incident state machine + email alerts | V5 | |
 | Basic Sentry initialization | V5 | Full error tracking in V15 |
-| API pagination on list endpoints (limit/offset) | V6 | Cursor pagination later in V11 |
+| API pagination on list endpoints (limit/offset) | V6 | Cursor pagination for the all-alerts + monitor-logs lists in V7; remaining high-volume lists in V11 |
 | Credential-aware CORS for frontend origin | V6 | Strict CORS hardening in V10 |
 | Basic Pino logger (replace `console.log`) | V6 | Full structured logging in V15 |
 | Basic Docker Compose (Postgres + Redis, local dev) | V6 | Production Docker/CI-CD in V17 |
@@ -141,6 +144,7 @@ any of these as missing during code review or planning, check this table first.
 | Configurable health rules / thresholds | V7 | |
 | SSL certificate checks | V7 | |
 | DNS record checks + change detection | V7 | |
+| Cursor pagination for all-alerts + monitor-logs lists | V7 | Unbounded append-only time series; offset stays on V6's bounded numbered-page views |
 | Public status pages | V8 | |
 | S3 object storage, CSV exports, screenshots | V8 | |
 | Teams / workspaces / RBAC / multi-tenant roles | V9 | |
@@ -149,7 +153,7 @@ any of these as missing during code review or planning, check this table first.
 | Helmet, request/response size limits | V10 | |
 | API versioning (`/v1`), OpenAPI/Swagger, deprecation | V10 | |
 | **Database indexing / query optimization** | **V11** | **Performance is explicitly post-V6** |
-| Cursor pagination for high-volume lists | V11 | |
+| Cursor pagination for remaining high-volume lists | V11 | The all-alerts + monitor-logs lists move up to V7 |
 | Check retention + nightly cleanup | V11 | |
 | Pre-aggregated tables + cached dashboard summaries | V11 | |
 | N+1 elimination, `EXPLAIN ANALYZE`, query tuning | V11 | Optimize only with measured evidence |
