@@ -3,6 +3,9 @@ import { ResponseObject } from "../types/types";
 import { TIMEOUT } from "../constants/constants";
 import { Pool } from "pg";
 import { AppError } from "../errors/AppError";
+import { publishSSEEvent } from "../sse/publishSSEEvent";
+// import { CheckUrlPayload } from "../types/sse-types";
+// import { publishSSEEvent } from "../sse/publishSSEEvent";
 export const checkUrlHealth = async (
   TIMEOUT: number,
   user_id: string,
@@ -15,14 +18,18 @@ export const checkUrlHealth = async (
     errorMessage: null,
   };
 
+  let nextCheckAt: string = "";
+
   try {
     const start = Date.now();
 
-    const getUrl = await db.query("SELECT url FROM monitor where id = $1", [
-      url_id,
-    ]);
+    const getUrl = await db.query(
+      "SELECT url,next_check_at FROM monitor where id = $1",
+      [url_id],
+    );
     console.log(getUrl);
     const url: string = getUrl.rows[0].url;
+    nextCheckAt = getUrl.rows[0].next_check_at;
     console.log("url ", url);
 
     const getUrlData = await fetch(url, {
@@ -62,12 +69,9 @@ export const checkUrlHealth = async (
     }
   }
   const { status, responseTime, statusCode, errorMessage } = response;
-  //   const client = await db.connect();
 
   try {
-    // await client.query("BEGIN");
     const insert_checks_query =
-      //   "INSERT INTO url_checks (url,status,response_time,status_code,error_message,user_id) VALUES ($1, $2, $3, $4, $5, $6)";
       "INSERT INTO url_checks (monitor_id,status,response_time,status_code,error_message) VALUES ($1,$2,$3,$4,$5)";
     const values_checks_query = [
       url_id,
@@ -77,17 +81,28 @@ export const checkUrlHealth = async (
       errorMessage,
     ];
     await db.query(insert_checks_query, values_checks_query);
-    // console.log(response);
+
+    try {
+      const payload = {
+        monitorId: url_id,
+        responseTime,
+        statusCode,
+        status,
+        nextCheckAt,
+      };
+      await publishSSEEvent(user_id, "check_result", payload);
+    } catch (err) {
+      console.log("SSE publish failed (non-fatal):", err);
+    }
+
     return response;
   } catch (error) {
-    // await client.query("ROLLBACK");
     if (error instanceof AppError) {
       throw error;
     } else if (error instanceof Error) {
       if (error.code === "22P02") {
         throw new Error("Invalid uuid type");
       }
-      // console.log(error);
       throw new Error("Internal server error");
     }
     throw new Error("Internal server error");

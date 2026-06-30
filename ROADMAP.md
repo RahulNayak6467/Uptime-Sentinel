@@ -53,6 +53,26 @@ its place only on the unbounded, append-only log lists in V7.
   3. [ ] `GET /auth/me`
 - First polished milestone: V5 plus the basic analytics/dashboard portion of V6.
 
+### Adjusted post-V6 plan (decided 2026-06-30)
+
+To fit a ~3-4 month build window, the post-V6 path is rescoped as follows. This
+overrides the default ascending version order.
+
+- **V9 is descoped** — single-user by design (see version map / register). Its only
+  user-count-independent feature, the **audit/activity log**, moves to **V15**.
+- **V14 (billing) is deferred to the end.**
+- **Build order:**
+  V7 → V10 → V8 → V13 → *(deploy-readiness slices)* → **V17 deploy** → V11 → V15 →
+  V16 → V18 → V12 *(stretch; first to drop if time slips)*.
+  - V10 (security, incl. SSRF + API versioning) is pulled early — SSRF is a live
+    vulnerability once users can monitor arbitrary URLs, and must precede any public
+    deploy.
+  - V11 (performance) moves to post-deploy so optimization is driven by real traffic.
+- **Deploy-readiness slices — pull forward before V17, do not ship without them:**
+  1. SSRF protection (slice of V10).
+  2. Health endpoint + Sentry + basic structured logging (slice of V15).
+  3. Core incident state-machine tests (slice of V16).
+
 ## Planned refactor (post-V6)
 
 After V6 is complete, the project enters a dedicated refactoring phase **before
@@ -105,7 +125,7 @@ This is a structural milestone, not a version; it runs between V6 and V7.
 | **V6** | **Analytics Dashboard and Real-Time Frontend** | **Analytics APIs + Next.js dashboard + chosen live transport** | **In progress** | [v6](docs/roadmap/v6.md) |
 | V7 | Custom Rules and Extended Check Types | User-defined health rules + SSL/DNS checks | Not started | [v7](docs/roadmap/v7.md) |
 | V8 | Public Status Pages, Exports, and S3 | Public status pages + CSV/screenshot exports on S3 | Not started | [v8](docs/roadmap/v8.md) |
-| V9 | Teams and Workspaces | Tenant-isolated workspaces + RBAC | Not started | [v9](docs/roadmap/v9.md) |
+| ~~V9~~ | ~~Teams and Workspaces~~ | **Descoped — single-user by design** (audit log → V15) | Descoped | [v9](docs/roadmap/v9.md) |
 | V10 | Security Hardening and API Versioning | SSRF protection, rate limits, Helmet, `/v1` + OpenAPI | Not started | [v10](docs/roadmap/v10.md) |
 | V11 | Scaling and Performance | Indexes, cursor pagination, retention, caching, aggregates | Not started | [v11](docs/roadmap/v11.md) |
 | V12 | Multi-Region Monitoring | Regional workers + `UP`/`DOWN`/`DEGRADED` aggregation | Not started | [v12](docs/roadmap/v12.md) |
@@ -147,7 +167,7 @@ any of these as missing during code review or planning, check this table first.
 | Cursor pagination for all-alerts + monitor-logs lists | V7 | Unbounded append-only time series; offset stays on V6's bounded numbered-page views |
 | Public status pages | V8 | |
 | S3 object storage, CSV exports, screenshots | V8 | |
-| Teams / workspaces / RBAC / multi-tenant roles | V9 | |
+| Teams / workspaces / RBAC / multi-tenant roles | ~~V9~~ Descoped | Cut 2026-06-30 — single-user by design; see [v9](docs/roadmap/v9.md). Not a defect to omit. |
 | SSRF protection (private/link-local/metadata IPs) | V10 | |
 | Rate limiting (route-specific) | V10 | Public-route rate limiting noted in V8 |
 | Helmet, request/response size limits | V10 | |
@@ -213,8 +233,8 @@ and CI.
 
 ### Milestone 3 — Full product
 
-V9 and V13–V17: workspaces/RBAC, integrations, billing, observability,
-containerization, CI/CD, and production deployment.
+V13–V17: integrations, billing, observability, containerization, CI/CD, and
+production deployment. (V9 workspaces/RBAC descoped — single-user by design.)
 
 ### Milestone 4 — Long-term advanced work
 

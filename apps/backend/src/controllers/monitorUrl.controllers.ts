@@ -30,13 +30,6 @@ export const monitorUrlById = async (
       monitorId: url_id,
     });
   } catch (err) {
-    // if (err instanceof Error) {
-    //   return res.status(500).json({ message: err.message });
-    // }
-    // if (err instanceof AppError) {
-    //   return res.status(err.statusCode).json({ message: err.message });
-    // }
-    // return res.status(500).json({ message: "Internal server error" });
     next(err);
   }
 };

@@ -13,6 +13,7 @@ import monitorCheckUrl from "./monitorUrl.routes";
 import incidentsData from "./Incidents.routes";
 import dashboardoverviewRoutes from "./dashboardoverview.routes";
 import emailAlerts from "./alertEmails.routes";
+import sseEvents from "./sseEvents";
 import bullboardAuth from "../middleware/bullboardAuth.middleware";
 import { serverAdapter } from "../config/bullboard";
 import individualMonitorRoutes from "./individualMonitor.routes";
@@ -34,6 +35,7 @@ router.use("/incidents", incidentsData);
 router.use("/dashboard/overview/stats", dashboardoverviewRoutes);
 router.use("/monitors", individualMonitorRoutes);
 router.use("/alert-email", emailAlerts);
+router.use("/sse/events", sseEvents);
 router.use("/admin/queues", bullboardAuth, serverAdapter.getRouter());
 
 export default router;

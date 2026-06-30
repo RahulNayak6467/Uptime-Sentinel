@@ -26,14 +26,23 @@ const updateResolvedAt = async (incident_id: string) => {
 };
 
 const insertIntoIncidentsTable = async (url_id: string) => {
-  const insert_incidents_query =
-    "INSERT INTO incidents (monitor_id,is_active,last_alert_sent_at) VALUES($1, $2, NOW()) RETURNING id";
-  const insert_incidents_values = [url_id, true];
-  const result = await db.query(
-    insert_incidents_query,
-    insert_incidents_values,
-  );
-  return result.rows[0].id;
+  const client = await db.connect();
+  try {
+    client.query("BEGIN");
+    const insert_incidents_query =
+      "INSERT INTO incidents (monitor_id,is_active,last_alert_sent_at) VALUES($1, $2, NOW()) RETURNING id";
+    const insert_incidents_values = [url_id, true];
+
+    const result = await client.query(
+      insert_incidents_query,
+      insert_incidents_values,
+    );
+
+    return result.rows[0].id;
+  } catch (err) {
+    client.query("ROLLBACK");
+    return err;
+  }
 };
 
 const hasConsecutiveFailures = async (url_id: string) => {
