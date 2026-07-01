@@ -42,6 +42,8 @@ const insertIntoIncidentsTable = async (url_id: string) => {
   } catch (err) {
     client.query("ROLLBACK");
     return err;
+  } finally {
+    client.release();
   }
 };
 

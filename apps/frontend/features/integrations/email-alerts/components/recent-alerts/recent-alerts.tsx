@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ExternalLink,
   CheckCircle2,
   XCircle,
   ChevronLeft,
   ChevronRight,
+  LoaderCircle,
 } from "lucide-react";
 import { eventBadgeClass } from "../../data";
 import { useRecentAlerts } from "@/features/integrations/email-alerts/hooks/useRecentAlerts";
@@ -20,9 +21,22 @@ const RecentAlerts = () => {
   const {
     data: emailAlertsData,
     isLoading,
+    isFetching,
     isError,
     refetch,
   } = useRecentAlerts(currentPage, EMAIL_ALERT_LIMIT);
+  const isPageFetching = isFetching && !isLoading;
+  const [showFetchingIndicator, setShowFetchingIndicator] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setShowFetchingIndicator(isPageFetching);
+    }, isPageFetching ? 200 : 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isPageFetching]);
 
   if (isLoading) {
     return <RecentAlertsSkeleton />;
@@ -48,8 +62,6 @@ const RecentAlerts = () => {
     recovery: "is recovered",
     reminder: "is still down",
   };
-
-  console.log(currentPage);
 
   const requiredData = emailAlertsData.data.map((email) => {
     return {
@@ -94,68 +106,92 @@ const RecentAlerts = () => {
           ))}
         </div>
 
-        <div className="divide-y divide-sf-border max-h-[360px] overflow-y-auto">
-          {requiredData.map((alert) => (
+        <div className="relative">
+          {showFetchingIndicator && (
             <div
-              key={alert.id}
-              className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
+              className="absolute inset-x-0 top-0 z-10 h-0.5 overflow-hidden bg-sf-border-faint"
+              aria-hidden="true"
             >
-              <span
-                className={`w-fit text-[11px] font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}
+              <div className="h-full w-1/2 rounded-full bg-sf-blue animate-sf-progress-slide" />
+            </div>
+          )}
+          <div
+            aria-busy={showFetchingIndicator}
+            className="divide-y divide-sf-border max-h-[360px] overflow-y-auto"
+          >
+            {requiredData.map((alert) => (
+              <div
+                key={alert.id}
+                className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
               >
-                {alert.event}
-              </span>
+                <span
+                  className={`w-fit text-[11px] font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}
+                >
+                  {alert.event}
+                </span>
 
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${alert.dot}`}
-                  />
-                  <span className="text-[13px] font-sans font-medium text-sf-text truncate">
-                    {alert.subject}
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 ${alert.dot}`}
+                    />
+                    <span className="text-[13px] font-sans font-medium text-sf-text truncate">
+                      {alert.subject}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-sans text-sf-text-muted pl-3.5">
+                    {alert.monitor}
                   </span>
                 </div>
-                <span className="text-[11px] font-sans text-sf-text-muted pl-3.5">
-                  {alert.monitor}
+
+                <span className="text-[13px] font-sans text-sf-text-sub">
+                  {alert.recipients} recipients
                 </span>
+
+                <span className="text-[13px] font-sans text-sf-text-muted">
+                  {alert.sent}
+                </span>
+
+                <div className="flex items-center gap-1">
+                  {alert.delivery === "Delivered" ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-sf-green shrink-0" />
+                      <span className="text-[13px] font-sans font-semibold text-sf-green">
+                        Delivered
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="w-3.5 h-3.5 text-sf-red shrink-0" />
+                      <span className="text-[13px] font-sans font-semibold text-sf-red">
+                        Failed
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
-
-              <span className="text-[13px] font-sans text-sf-text-sub">
-                {alert.recipients} recipients
-              </span>
-
-              <span className="text-[13px] font-sans text-sf-text-muted">
-                {alert.sent}
-              </span>
-
-              <div className="flex items-center gap-1">
-                {alert.delivery === "Delivered" ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-sf-green shrink-0" />
-                    <span className="text-[13px] font-sans font-semibold text-sf-green">
-                      Delivered
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="w-3.5 h-3.5 text-sf-red shrink-0" />
-                    <span className="text-[13px] font-sans font-semibold text-sf-red">
-                      Failed
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Footer — dummy 10-page pagination; wire to backend page/totalPages later */}
       <div className="flex items-center justify-between gap-4 border-t border-sf-border px-4 py-2.5">
-        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
-          Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
-          {totalPages}
-        </span>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
+            Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
+            {totalPages}
+          </span>
+          <span
+            aria-live="polite"
+            className={`inline-flex w-[82px] items-center gap-1.5 rounded-sf border border-sf-border-faint bg-sf-bg px-2 py-1 text-[11px] font-medium text-sf-text-muted transition-opacity duration-200 ${
+              showFetchingIndicator ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <LoaderCircle className="h-3 w-3 animate-spin text-sf-blue" />
+            Updating
+          </span>
+        </div>
 
         <div className="flex items-center gap-1">
           <button
@@ -197,6 +233,7 @@ const RecentAlerts = () => {
                 key={page}
                 type="button"
                 onClick={() => goToPage(page)}
+                disabled={isActive}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex h-7 min-w-7 items-center justify-center rounded-sf border px-2 font-mono text-[12px] tabular-nums transition-colors ${
                   isActive

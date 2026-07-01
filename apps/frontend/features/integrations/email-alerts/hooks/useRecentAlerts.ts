@@ -3,11 +3,13 @@ import { apiFetch } from "@/lib/api";
 import { RecentAlerts } from "@/features/integrations/email-alerts/types";
 
 export const useRecentAlerts = (page: number, limit: number) => {
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["monitor recent alerts", page],
-    queryFn: () =>
-      apiFetch<RecentAlerts>(`/alert-email?page=${page}&limit=${limit}`),
-  });
+  const { data, isLoading, isFetching, isPlaceholderData, isError, refetch } =
+    useQuery({
+      queryKey: ["monitor recent alerts", page],
+      queryFn: () =>
+        apiFetch<RecentAlerts>(`/alert-email?page=${page}&limit=${limit}`),
+      placeholderData: (prev) => prev,
+    });
 
-  return { data, isLoading, isError, refetch };
+  return { data, isLoading, isFetching, isPlaceholderData, isError, refetch };
 };

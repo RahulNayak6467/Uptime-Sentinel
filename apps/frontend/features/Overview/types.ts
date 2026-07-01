@@ -37,7 +37,8 @@ export type MonitorsDataProps = {
   next_check_at: Date;
 };
 
-export type allMonitorsDataDashboardView = {
+export type monitorDataDashboardOverview = {
+  id: string;
   url: string;
   urlName: string;
   intervalSeconds: number;
@@ -48,6 +49,21 @@ export type allMonitorsDataDashboardView = {
   }[];
   avgResponseTime: number | null;
   uptimePercentage: number | null;
+};
+
+export type allMonitorsDataDashboardView = {
+  id: string;
+  url: string;
+  urlName: string;
+  intervalSeconds: number;
+  status: "UP" | "DOWN" | "UNKNOWN";
+  nextCheckAt: string;
+  response: {
+    responseTime: number | null;
+  }[];
+  avgResponseTime: number | null;
+  uptimePercentage: number | null;
+  statusCode?: number | null;
 }[];
 
 export type allMonitorsDataDashboardViewProps = {
@@ -57,4 +73,12 @@ export type allMonitorsDataDashboardViewProps = {
     limit: number;
     totalPage: number;
   };
+};
+
+export type MessageProps = {
+  monitorId: string;
+  responseTime: number | string;
+  statusCode: number | string | null;
+  status: "UP" | "DOWN";
+  nextCheckAt: Date | string;
 };

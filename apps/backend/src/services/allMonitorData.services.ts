@@ -15,6 +15,7 @@ export const getAllMonitorInfo = async (
             m.interval_seconds,
             m.next_check_at,
             m.status,
+            m.id,
             ROUND(AVG(u.response_time), 0) AS avg_response_time,
             ROUND(COUNT(u.id) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(u.id),0),2)
                 AS uptime_percentage,
@@ -71,6 +72,7 @@ export const getAllMonitorInfo = async (
 
   const allMonitorsData = rows.map((data) => {
     return {
+      id: data.id,
       url: data.url,
       urlName: data.url_name,
       intervalSeconds: data.interval_seconds,

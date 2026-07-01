@@ -13,6 +13,9 @@ import { MonitorsLoading } from "@/components/loading/dashboard-skeletons";
 import PageError from "@/components/page-error";
 import { useFilter } from "./hooks/useFilter";
 import { LIMIT } from "@/constants/constant";
+import { useSSEMonitorsData } from "./hooks/useSSEMonitorsData";
+import { useIsFetching } from "@tanstack/react-query";
+import { FetchingIndicator } from "@/components/ui/fetching-indicator";
 
 type Tab = "all" | MonitorState;
 
@@ -28,6 +31,8 @@ const MonitorsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const isFetchingMonitors =
+    useIsFetching({ queryKey: ["all monitors data by status"] }) > 0;
 
   const selectedCount = Object.keys(rowSelection).length;
 
@@ -53,6 +58,8 @@ const MonitorsPage = () => {
     isError,
     refetch,
   } = useFilter(activeTab, currentPage, LIMIT);
+
+  useSSEMonitorsData(currentPage, activeTab);
 
   if (isLoading) {
     return <MonitorsLoading />;
@@ -92,7 +99,11 @@ const MonitorsPage = () => {
     <section>
       <MonitorsHeader />
       <MonitorsFilterTabs active={activeTab} onChange={onChange} />
-      <div className="px-6 py-4 flex flex-col gap-3">
+      <div className="relative px-6 py-4 flex flex-col gap-3">
+        <FetchingIndicator
+          active={isFetchingMonitors && !isLoading}
+          label="Updating monitors"
+        />
         {selectedCount > 0 && (
           <BulkActionBar
             count={selectedCount}

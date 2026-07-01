@@ -51,6 +51,7 @@ export interface monitorDataProps {
 }
 
 export interface allMonitorsDataProps {
+  id: string;
   url: string;
   url_name: string;
   interval_seconds: number;

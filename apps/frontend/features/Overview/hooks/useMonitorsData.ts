@@ -10,6 +10,7 @@ export const useAllMonitorsData = (page: number, limit: number) => {
       apiFetch<allMonitorsDataDashboardViewProps>(
         `/monitor/data?limit=${limit}&page=${page}`,
       ),
+    placeholderData: (prev) => prev,
   });
   return { data, isLoading, isError, refetch };
 };

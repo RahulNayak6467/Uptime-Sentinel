@@ -15,6 +15,7 @@ export const useFilter = (
         `/monitor/data?monitorstatus=${monitorStatus}&page=${page}&limit=${limit}`,
       ),
     staleTime: 60,
+    placeholderData: (prev) => prev,
   });
   return { data, isLoading, isError, refetch };
 };

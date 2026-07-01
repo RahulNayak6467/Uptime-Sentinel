@@ -9,21 +9,31 @@ import {
   responseTimeHours,
   responseTimeP95,
 } from "./data";
-import Error from "../../Overview/components/error"
-import {ChartSkeleton, MetricCardsSkeleton} from "@/components/loading/dashboard-skeletons";
-import {IndividualStatsCardProps, RegionMonitorProps, TimeRangeProps,} from "./types";
-import Chart from "@/utils/chart";
-import {useIndividualStats} from "@/features/monitors-page/individual-monitor/hooks/useIndividualStats";
-import {useParams} from "next/navigation";
-import {useTimeRange} from "@/features/monitors-page/individual-monitor/hooks/useTimeRange";
-import {ChartTimeRange, formatChartDate} from "@/utils/format-chart-date";
-import {IndividualOverviewStatsProps} from "./types";
+import Error from "../../Overview/components/error";
 import {
-  useIndividualMonitorOverview
-} from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
-import {OperationalSkeleton, OperationalError} from "./monitor-overview-states";
-import {formatTimeUntil} from "@/utils/format-time-until";
-
+  ChartSkeleton,
+  MetricCardsSkeleton,
+} from "@/components/loading/dashboard-skeletons";
+import {
+  IndividualStatsCardProps,
+  RegionMonitorProps,
+  TimeRangeProps,
+} from "./types";
+import Chart from "@/utils/chart";
+import { useIndividualStats } from "@/features/monitors-page/individual-monitor/hooks/useIndividualStats";
+import { useParams } from "next/navigation";
+import { useTimeRange } from "@/features/monitors-page/individual-monitor/hooks/useTimeRange";
+import { useIsFetching } from "@tanstack/react-query";
+import { FetchingIndicator } from "@/components/ui/fetching-indicator";
+import { ChartTimeRange, formatChartDate } from "@/utils/format-chart-date";
+import { IndividualOverviewStatsProps } from "./types";
+import { useIndividualMonitorOverview } from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
+import {
+  OperationalSkeleton,
+  OperationalError,
+} from "./monitor-overview-states";
+import { formatTimeUntil } from "@/utils/format-time-until";
+import { useSSEIndividualMonitorData } from "./hooks/useSSEIndividualMonitorData";
 
 const StripStat = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col justify-center items-center">
@@ -62,11 +72,23 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
   );
 };
 
-const IndividualMonitorInfoStats = ({monitorOverviewData,monitorOverviewLoading,monitorOverviewError}:{monitorOverviewData: NoInfer<IndividualOverviewStatsProps> | undefined,monitorOverviewLoading:boolean,monitorOverviewError:boolean}) => {
-
-   const params = useParams<{id:string }>()
-   const id = params.id;
-   const {data:individualMonitorStats,isLoading:individualMonitorStatsLoading,isError:individualMonitorStatsError,refetch} = useIndividualStats(id)
+const IndividualMonitorInfoStats = ({
+  monitorOverviewData,
+  monitorOverviewLoading,
+  monitorOverviewError,
+}: {
+  monitorOverviewData: NoInfer<IndividualOverviewStatsProps> | undefined;
+  monitorOverviewLoading: boolean;
+  monitorOverviewError: boolean;
+}) => {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
+  const {
+    data: individualMonitorStats,
+    isLoading: individualMonitorStatsLoading,
+    isError: individualMonitorStatsError,
+    refetch,
+  } = useIndividualStats(id);
 
   return (
     <div>
@@ -85,7 +107,13 @@ const IndividualMonitorInfoStats = ({monitorOverviewData,monitorOverviewLoading,
       ) : (
         <div className="flex gap-2">
           {IndividualStatsCardData.map((data) => (
-            <StatsCard key={data.title} title={data.title} unit={data.unit} value={data.value} context={individualMonitorStats[data.value]} />
+            <StatsCard
+              key={data.title}
+              title={data.title}
+              unit={data.unit}
+              value={data.value}
+              context={individualMonitorStats[data.value]}
+            />
           ))}
         </div>
       )}
@@ -93,7 +121,12 @@ const IndividualMonitorInfoStats = ({monitorOverviewData,monitorOverviewLoading,
   );
 };
 
-const StatsCard = ({ title, value, unit , context}: IndividualStatsCardProps) => {
+const StatsCard = ({
+  title,
+  value,
+  unit,
+  context,
+}: IndividualStatsCardProps) => {
   return (
     <div className="w-full bg-sf-surface mt-6 flex flex-col gap-1 p-4  rounded-sf border border-sf-border hover:border-sf-text-muted transition-colors">
       <p className="text-[14px] text-sf-text-sub font-sans font-medium">
@@ -131,39 +164,44 @@ const useDarkMode = () => {
   return isDark;
 };
 
-export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) => {
-
+export const ResponseTimeTrend = ({
+  currentRange,
+}: {
+  currentRange: TimeRangeProps;
+}) => {
   const isDark = useDarkMode();
 
-
-  const params = useParams<{id:string }>()
+  const params = useParams<{ id: string }>();
   const id = params.id;
+  const isFetchingChart =
+    useIsFetching({
+      queryKey: ["monitor", id, "charts", currentRange],
+      exact: true,
+    }) > 0;
 
-  const {data,isLoading,isError,refetch} = useTimeRange(id,currentRange)
+  const { data, isLoading, isError, refetch } = useTimeRange(id, currentRange);
 
+  useSSEIndividualMonitorData(id, currentRange);
 
-  if(isLoading){
-    return <ChartSkeleton />
+  if (isLoading) {
+    return <ChartSkeleton />;
   }
 
-  if(isError || !data){
-    return <Error refetch={refetch} />
+  if (isError || !data) {
+    return <Error refetch={refetch} />;
   }
 
-  const bucketData = data.series.map((item) =>{
-      return {
-         bucket: formatChartDate(item.bucket, data.range as ChartTimeRange),
-         p50Data: item.p50 === null ? null : Math.round(item.p50),
-         p95Data: item.p95 === null ? null : Math.round(item.p95)
-      }
-  }
-  );
+  const bucketData = data.series.map((item) => {
+    return {
+      bucket: formatChartDate(item.bucket, data.range as ChartTimeRange),
+      p50Data: item.p50 === null ? null : Math.round(item.p50),
+      p95Data: item.p95 === null ? null : Math.round(item.p95),
+    };
+  });
 
-  const bucket = bucketData.map((el) => el.bucket)
-  const p50Data = bucketData.map((el) => el.p50Data)
-  const p95Data = bucketData.map((el) => el.p95Data)
-
-
+  const bucket = bucketData.map((el) => el.bucket);
+  const p50Data = bucketData.map((el) => el.p50Data);
+  const p95Data = bucketData.map((el) => el.p95Data);
 
   const green = isDark ? "#4ade80" : "#16a34a";
   const amber = isDark ? "#fbbf24" : "#d97706";
@@ -196,10 +234,16 @@ export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) 
         type: "line",
         lineStyle: { color: axisLine, type: "dashed", width: 1 },
       },
-      formatter: (params: { seriesName: string; value: number | null; axisValue: string }[]) => {
+      formatter: (
+        params: {
+          seriesName: string;
+          value: number | null;
+          axisValue: string;
+        }[],
+      ) => {
         const time = params[0]?.axisValue ?? "";
         const hasData = params.some(
-          (p) => typeof p.value === "number" && Number.isFinite(p.value)
+          (p) => typeof p.value === "number" && Number.isFinite(p.value),
         );
 
         if (!hasData) {
@@ -217,7 +261,7 @@ export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) 
           })
           .join("<br/>");
         const breach = params.some(
-          (p) => typeof p.value === "number" && p.value >= threshold
+          (p) => typeof p.value === "number" && p.value >= threshold,
         )
           ? `<br/><span style="color:${red}">▲ above ${threshold}ms threshold</span>`
           : "";
@@ -261,7 +305,10 @@ export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) 
         areaStyle: {
           color: {
             type: "linear",
-            x: 0, y: 0, x2: 0, y2: 1,
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
             colorStops: [
               { offset: 0, color: green + "28" },
               { offset: 1, color: green + "00" },
@@ -308,7 +355,11 @@ export const ResponseTimeTrend = ({currentRange}:{currentRange:TimeRangeProps}) 
   };
 
   return (
-    <div>
+    <div className="relative overflow-hidden" aria-busy={isFetchingChart}>
+      <FetchingIndicator
+        active={isFetchingChart && !isLoading}
+        label="Updating response time chart"
+      />
       <Chart option={option} height={300} />
     </div>
   );

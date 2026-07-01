@@ -208,3 +208,21 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  @keyframes sf-progress-slide {
+    0% {
+      transform: translateX(-120%);
+    }
+    55% {
+      transform: translateX(70%);
+    }
+    100% {
+      transform: translateX(220%);
+    }
+  }
+
+  .animate-sf-progress-slide {
+    animation: sf-progress-slide 1.15s ease-in-out infinite;
+  }
+}
