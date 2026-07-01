@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import MaintenanceWindowModal from "./components/maintenance-window-modal";
+import IncidentUpdateModal from "./components/incident-update-modal";
 
 const IncidentHeader = () => {
   const [open, setOpen] = useState(false);
@@ -21,12 +21,17 @@ const IncidentHeader = () => {
             className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
           >
             <span>+</span>
-            <span>New maintenance window</span>
+            <span>Log incident update</span>
           </button>
         </div>
       </header>
 
-      <MaintenanceWindowModal open={open} onClose={() => setOpen(false)} />
+      <IncidentUpdateModal
+        open={open}
+        onClose={() => setOpen(false)}
+        service="API Gateway"
+        overallStatus="active"
+      />
     </>
   );
 };
