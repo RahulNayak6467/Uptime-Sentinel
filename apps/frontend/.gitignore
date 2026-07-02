@@ -13,6 +13,10 @@
 # testing
 /coverage
 
+# temporary landing-page prototypes and generated image assets
+/app/test/
+/public/test/
+
 # next.js
 /.next/
 /out/

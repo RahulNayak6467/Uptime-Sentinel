@@ -27,6 +27,8 @@ const OverviewStats = () => {
   // events.addEventListener("check_result", (event) => {;
   // });
 
+  console.log(overViewStatsData);
+
   return (
     <div className="flex ">
       {OverviewData.map((data) => (

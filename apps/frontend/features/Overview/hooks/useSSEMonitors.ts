@@ -43,6 +43,8 @@ export const useSSEMonitors = (page: number) => {
             }
           });
 
+          queryClient.invalidateQueries({ queryKey: ["dashboardOverview"] });
+
           return { data: updatedData, pagination: oldData.pagination };
         },
       );

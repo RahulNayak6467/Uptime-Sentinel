@@ -48,8 +48,6 @@ export const HeaderError = ({ onRetry }: { onRetry?: () => void }) => (
   </header>
 );
 
-// ----- Operational strip -----
-
 export const OperationalSkeleton = () => (
   <div
     role="status"

@@ -22,3 +22,7 @@ build/
 # personal learning notes — not part of the project
 docs/learning/v6-mistakes-review.md
 docs/learning/backend-review-checklist.md
+
+# temporary landing-page prototypes and generated image assets
+/apps/frontend/app/test/
+/apps/frontend/public/test/

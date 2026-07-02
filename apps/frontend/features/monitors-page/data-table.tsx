@@ -54,8 +54,7 @@ export function MonitorsDataTable({
   const handleRowSelectionChange = useCallback(
     (
       updater:
-        | RowSelectionState
-        | ((old: RowSelectionState) => RowSelectionState),
+        RowSelectionState | ((old: RowSelectionState) => RowSelectionState),
     ) => {
       const next =
         typeof updater === "function" ? updater(rowSelection) : updater;
@@ -72,19 +71,13 @@ export function MonitorsDataTable({
     state: { rowSelection },
   });
 
-  // Dummy pagination: hard-coded 10 pages until the backend supplies the real
-  // page/totalPages. Later, lift currentPage/totalPages to props driven by the
-  // API response and call onPageChange instead of local state.
   const totalPages = totalPage;
   const goToPage = (page: number) =>
     onChangePage(Math.min(Math.max(page, 1), totalPages));
 
   if (data.length === 0) {
     return (
-      <MonitorsEmpty
-        isFiltered={isFiltered}
-        onClearFilter={onClearFilter}
-      />
+      <MonitorsEmpty isFiltered={isFiltered} onClearFilter={onClearFilter} />
     );
   }
 
@@ -161,7 +154,6 @@ export function MonitorsDataTable({
         </Table>
       </div>
 
-      {/* Footer — dummy 10-page pagination; wire to backend page/totalPages later */}
       <div className="flex items-center justify-center mt-3 px-1">
         <Pagination className="w-auto mx-0">
           <PaginationContent>

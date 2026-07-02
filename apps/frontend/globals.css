@@ -9,13 +9,13 @@
 @theme {
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-sf-bg: #f9fafb;
+  --color-sf-bg: #f5f6f8;
   --color-sf-surface: #ffffff;
-  --color-sf-border: #e5e7eb;
-  --color-sf-border-faint: #f3f4f6;
+  --color-sf-border: #dce1e7;
+  --color-sf-border-faint: #eef1f4;
   --color-sf-text: #111827;
-  --color-sf-text-sub: #6b7280;
-  --color-sf-text-muted: #9ca3af;
+  --color-sf-text-sub: #5f6875;
+  --color-sf-text-muted: #7c8594;
   --color-sf-green: #16a34a;
   --color-sf-green-bg: #f0fdf4;
   --color-sf-green-border: #bbf7d0;
@@ -98,7 +98,7 @@
 
 /* ── shadcn base variables — light mode ── */
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.976 0.003 264);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -106,15 +106,15 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(0.96 0.003 264);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --muted: oklch(0.96 0.003 264);
+  --muted-foreground: oklch(0.48 0.012 264);
+  --accent: oklch(0.96 0.003 264);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.89 0.006 264);
+  --input: oklch(0.89 0.006 264);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -122,13 +122,13 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.976 0.003 264);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.96 0.003 264);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.89 0.006 264);
   --sidebar-ring: oklch(0.708 0 0);
 }
 

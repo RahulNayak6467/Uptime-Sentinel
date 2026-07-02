@@ -117,7 +117,7 @@ const RecentAlerts = () => {
           )}
           <div
             aria-busy={showFetchingIndicator}
-            className="divide-y divide-sf-border max-h-[360px] overflow-y-auto"
+            className="divide-y divide-sf-border"
           >
             {requiredData.map((alert) => (
               <div
