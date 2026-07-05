@@ -4,24 +4,23 @@ import { channels } from "../data";
 
 const IntegrationChannels = () => {
   return (
-    <div className="mx-auto flex max-w-7xl items-center gap-2 px-6 pt-5">
+    <div className="mx-auto flex max-w-7xl px-6 pt-5">
+      <div className="flex items-center gap-1 rounded-lg border border-sf-border bg-sf-border-faint p-1 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       {channels.map(({ icon: Icon, label, active, soon }) => (
         <div
           key={label}
-          className={`flex select-none items-center gap-2.5 rounded-sf-sm border px-4 py-2 text-[13px] font-medium ${
+          className={`flex select-none items-center gap-2 rounded-sf-sm border px-3.5 py-1.5 text-[12px] font-medium ${
             active
-              ? "cursor-pointer border-sf-blue/30 bg-sf-blue-bg text-sf-blue"
+              ? "cursor-pointer border-sf-border bg-sf-surface text-sf-text shadow-sm"
               : "cursor-default border-transparent text-sf-text-muted"
           }`}
         >
           <Icon className="w-4 h-4 shrink-0" />
-          <span className={active ? "text-sf-blue" : "text-sf-text-sub"}>
+          <span className={active ? "text-sf-text" : "text-sf-text-sub"}>
             {label}
           </span>
           {active && (
-            <span className="rounded bg-sf-blue/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-sf-blue">
-              ACTIVE
-            </span>
+            <span className="size-1.5 rounded-full bg-sf-green" />
           )}
           {soon && (
             <span className="text-[12px] text-sf-text-muted font-normal">
@@ -30,6 +29,7 @@ const IntegrationChannels = () => {
           )}
         </div>
       ))}
+      </div>
     </div>
   );
 };

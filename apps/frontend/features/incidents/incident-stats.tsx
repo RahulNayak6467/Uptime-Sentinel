@@ -7,15 +7,15 @@ import IncidentStatsError from "./incident-stats-error";
 
 const IncidentStatsSkeleton = () => (
   <div
-    className="mt-6 w-full px-6"
+    className="w-full"
     role="status"
     aria-label="Loading incident statistics"
   >
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="flex min-h-24 w-full flex-col justify-center gap-2 rounded-lg border border-sf-border bg-sf-surface p-5"
+          className="flex min-h-[106px] w-full flex-col justify-center gap-2 rounded-lg border border-sf-border bg-sf-surface p-5"
         >
           <Skeleton className="h-3.5 w-24" />
           <Skeleton className="h-7 w-16" />
@@ -64,8 +64,14 @@ const IncidentStats = () => {
   ];
 
   return (
-    <div className="mt-6 w-full px-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="w-full">
+      <div className="mb-3">
+        <h2 className="text-sm font-semibold text-sf-text">Incident summary</h2>
+        <p className="mt-1 text-[11px] text-sf-text-muted">
+          Reliability and recovery metrics for the last 30 days
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {incidentStats.map((incident) => (
           <IncidentStatCard
             key={incident.id}
@@ -75,7 +81,7 @@ const IncidentStats = () => {
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

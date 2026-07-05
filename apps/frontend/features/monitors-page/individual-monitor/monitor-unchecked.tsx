@@ -14,9 +14,9 @@ const MonitorUnchecked = ({
   return (
     <div
       role="status"
-      className={`flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-sf border border-dashed border-sf-border bg-sf-surface px-4 py-8 text-center ${className}`}
+      className={`flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-sf-border bg-sf-surface px-4 py-8 text-center ${className}`}
     >
-      <div className="flex size-11 items-center justify-center rounded-full border border-sf-border bg-sf-bg">
+      <div className="flex size-10 items-center justify-center rounded-lg border border-sf-border bg-sf-bg">
         <Clock className="size-5 text-sf-text-muted" aria-hidden="true" />
       </div>
 

@@ -11,9 +11,9 @@ const MonitorsEmpty = ({
   onClearFilter,
 }: MonitorsEmptyProps) => {
   return (
-    <div className="w-full rounded-lg border border-sf-border bg-sf-surface">
+    <div className="w-full rounded-xl border border-sf-border bg-sf-surface shadow-sm">
       <div className="flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="mb-4 flex size-12 items-center justify-center rounded-full border border-sf-blue/20 bg-sf-blue-bg">
+        <div className="mb-4 flex size-11 items-center justify-center rounded-lg border border-sf-border bg-sf-bg">
           <Activity className="size-5 text-sf-blue" aria-hidden="true" />
         </div>
 

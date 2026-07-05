@@ -1,7 +1,7 @@
 const sfDark = {
   color: [
     "#4ade80", // sf-green
-    "#60a5fa", // sf-blue
+    "#8b8cf8", // sf-blue
     "#fbbf24", // sf-amber
     "#f87171", // sf-red
     "#a78bfa", // purple
@@ -11,11 +11,11 @@ const sfDark = {
   backgroundColor: "transparent",
   textStyle: {
     fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
-    color: "#888888",
+    color: "#a1a1aa",
   },
   title: {
-    textStyle: { color: "#f0f0f0", fontSize: 14, fontWeight: 600 },
-    subtextStyle: { color: "#737373", fontSize: 12 },
+    textStyle: { color: "#f2f2f3", fontSize: 14, fontWeight: 600 },
+    subtextStyle: { color: "#73737d", fontSize: 12 },
   },
   line: {
     itemStyle: { borderWidth: 0 },
@@ -29,20 +29,20 @@ const sfDark = {
   categoryAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: "#737373", fontSize: 11 },
+    axisLabel: { color: "#73737d", fontSize: 11 },
     splitLine: { show: false },
   },
   valueAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: "#737373", fontSize: 11 },
-    splitLine: { lineStyle: { color: "#222222", type: "dashed" } },
+    axisLabel: { color: "#73737d", fontSize: 11 },
+    splitLine: { lineStyle: { color: "#29292c", type: "dashed" } },
   },
   tooltip: {
-    backgroundColor: "#111111",
-    borderColor: "#222222",
+    backgroundColor: "#151516",
+    borderColor: "#29292c",
     borderWidth: 1,
-    textStyle: { color: "#f0f0f0", fontSize: 12 },
+    textStyle: { color: "#f2f2f3", fontSize: 12 },
     extraCssText: "box-shadow: 0 4px 16px rgba(0,0,0,0.4); border-radius: 6px;",
   },
   legend: {
@@ -67,7 +67,7 @@ const sfDark = {
 const sfLight = {
   color: [
     "#16a34a", // sf-green
-    "#2563eb", // sf-blue
+    "#5e6ad2", // sf-blue
     "#d97706", // sf-amber
     "#dc2626", // sf-red
     "#7c3aed", // purple
@@ -77,11 +77,11 @@ const sfLight = {
   backgroundColor: "transparent",
   textStyle: {
     fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
-    color: "#6b7280",
+    color: "#5f5f69",
   },
   title: {
-    textStyle: { color: "#111827", fontSize: 14, fontWeight: 600 },
-    subtextStyle: { color: "#9ca3af", fontSize: 12 },
+    textStyle: { color: "#1b1b1f", fontSize: 14, fontWeight: 600 },
+    subtextStyle: { color: "#8a8a94", fontSize: 12 },
   },
   line: {
     itemStyle: { borderWidth: 0 },
@@ -95,14 +95,14 @@ const sfLight = {
   categoryAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: "#9ca3af", fontSize: 11 },
+    axisLabel: { color: "#8a8a94", fontSize: 11 },
     splitLine: { show: false },
   },
   valueAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: "#9ca3af", fontSize: 11 },
-    splitLine: { lineStyle: { color: "#e5e7eb", type: "dashed" } },
+    axisLabel: { color: "#8a8a94", fontSize: 11 },
+    splitLine: { lineStyle: { color: "#e4e4e7", type: "dashed" } },
   },
   tooltip: {
     backgroundColor: "#ffffff",

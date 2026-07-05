@@ -1,5 +1,5 @@
 "use client";
-import { ChevronDown, ExternalLink } from "lucide-react";
+import { CheckCircle2, ChevronDown, ExternalLink } from "lucide-react";
 import {
   IncidentListItemProps,
   IncidentUpdate,
@@ -55,7 +55,11 @@ const IncidentDetailsCard = ({
     getAvailableIncidentUpdateStatuses(incident.status, updates).length > 0;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-[border-color,box-shadow] hover:border-sf-text-muted/50 hover:shadow-sf-card">
+    <div
+      className={`overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-colors hover:border-sf-text-muted/50 ${
+        isActive ? "border-l-2 border-l-sf-red" : ""
+      }`}
+    >
       <div
         role="button"
         tabIndex={0}
@@ -68,7 +72,7 @@ const IncidentDetailsCard = ({
             setIsOpen((open) => !open);
           }
         }}
-        className="flex cursor-pointer items-start gap-3 px-5 py-4"
+        className="flex cursor-pointer items-start gap-3 px-5 py-4 transition-colors hover:bg-sf-bg/45"
       >
         <span
           className={`mt-1.5 size-2 shrink-0 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`}
@@ -77,14 +81,14 @@ const IncidentDetailsCard = ({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2
-              className={`text-sm font-semibold ${
+              className={`text-[15px] font-semibold tracking-sf-tight ${
                 incident.title ? "text-sf-text" : "italic text-sf-text-sub"
               }`}
             >
               {incident.title ?? "Untitled incident"}
             </h2>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+              className={`rounded-sf border px-2 py-0.5 text-[10px] font-semibold ${
                 isActive
                   ? "border-sf-red/30 bg-sf-red-bg text-sf-red"
                   : "border-sf-green/30 bg-sf-green-bg text-sf-green"
@@ -98,7 +102,7 @@ const IncidentDetailsCard = ({
             <span className="font-medium text-sf-text-sub">
               {incident.service}
             </span>{" "}
-            · {incident.date} · {incident.time} · {incident.duration}
+            · {incident.date} · {incident.time}
           </p>
 
           {incident.status === "active" &&
@@ -120,6 +124,11 @@ const IncidentDetailsCard = ({
           ) : null}
         </div>
 
+        <div className="ml-4 text-right">
+          <p className="font-mono text-xs font-medium text-sf-text-sub">{incident.duration}</p>
+          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-sf-text-muted">Duration</p>
+        </div>
+
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
@@ -139,24 +148,34 @@ const IncidentDetailsCard = ({
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
             className="overflow-hidden"
           >
-      <div className="border-t border-sf-border px-8 py-6">
-        <div className="overflow-hidden rounded-md border border-sf-border bg-sf-bg/60">
-          <div className="border-b border-sf-border px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">
+      <div className="border-t border-sf-border bg-sf-bg/35 p-5">
+        <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
+        <aside className="self-start overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
+          <div className="flex items-center justify-between border-b border-sf-border px-5 py-3.5">
+            <div className="flex items-center gap-2">
+              <span className={`size-2 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`} />
+              <h3 className="text-sm font-semibold text-sf-text">Incident context</h3>
+            </div>
+            <span className={`rounded-sf border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${isActive ? "border-sf-red-border bg-sf-red-bg text-sf-red" : "border-sf-green-border bg-sf-green-bg text-sf-green"}`}>
+              {isActive ? "Active" : "Resolved"}
+            </span>
+          </div>
+          <div className="border-b border-sf-border px-5 py-4">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
               Affected endpoint
             </p>
             <a
               href={incident.endpoint}
               target="_blank"
               rel="noreferrer"
-              className="mt-1 flex items-center gap-1 font-mono text-xs text-sf-text-sub hover:text-sf-text"
+              className="mt-2 flex items-center gap-1.5 font-mono text-[12px] font-medium text-sf-text hover:text-sf-blue"
             >
               <span className="truncate">{incident.endpoint}</span>
               <ExternalLink className="size-3 shrink-0" />
             </a>
           </div>
 
-          <div className="grid sm:grid-cols-3">
+          <div>
             <IncidentField label="Started" value={incident.startedAtDisplay} />
             <IncidentField
               label="Resolved"
@@ -169,9 +188,10 @@ const IncidentDetailsCard = ({
               bordered
             />
           </div>
-        </div>
+        </aside>
 
-        <div className="mt-6 flex items-center justify-between gap-4">
+        <div className="min-w-0 rounded-lg border border-sf-border bg-sf-surface p-5">
+        <div className="flex items-center justify-between gap-4">
           <p className="text-sm font-semibold text-sf-text">
             Incident timeline
           </p>
@@ -244,6 +264,8 @@ const IncidentDetailsCard = ({
             })}
           </ol>
         )}
+        </div>
+        </div>
       </div>
           </motion.div>
         )}
@@ -262,12 +284,12 @@ const IncidentField = ({
   bordered?: boolean;
 }) => (
   <div
-    className={`px-4 py-3 ${bordered ? "border-t border-sf-border sm:border-l sm:border-t-0" : ""}`}
+    className={`px-5 py-4 ${bordered ? "border-t border-sf-border" : ""}`}
   >
-    <p className="text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">
+    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
       {label}
     </p>
-    <p className="mt-1 text-xs font-medium text-sf-text">{value}</p>
+    <p className="mt-1.5 text-[12px] font-semibold text-sf-text">{value}</p>
   </div>
 );
 
@@ -349,14 +371,39 @@ const IncidentList = () => {
   );
 
   // console.log(requiredData);
+  const activeCount = requiredData.filter((incident) => incident.status === "active").length;
+
   return (
-    <section className="relative mt-8 px-6" aria-busy={isPageFetching}>
+    <section className="relative" aria-busy={isPageFetching}>
       <FetchingIndicator
         active={isPageFetching}
         label="Loading incident page"
       />
-      <div className="flex flex-col gap-4">
-        {requiredData.map((data, index) => (
+      <div className="mb-3 flex items-end justify-between gap-4">
+        <div>
+          <h2 className="text-base font-semibold tracking-sf-tight text-sf-text">Incident history</h2>
+          <p className="mt-1 text-xs text-sf-text-muted">Detection, investigation, monitoring, and recovery events</p>
+        </div>
+        <div className="flex items-center gap-3 text-[11px] text-sf-text-muted">
+          <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-red" />{activeCount} active</span>
+          <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-green" />{requiredData.length - activeCount} resolved</span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        {requiredData.length === 0 ? (
+          <div className="flex min-h-64 flex-col items-center justify-center rounded-lg border border-sf-border bg-sf-surface px-6 py-12 text-center shadow-sm">
+            <span className="flex size-10 items-center justify-center rounded-lg border border-sf-border bg-sf-bg text-sf-green">
+              <CheckCircle2 className="size-[18px]" />
+            </span>
+            <h3 className="mt-4 text-sm font-semibold text-sf-text">
+              No incidents recorded
+            </h3>
+            <p className="mt-1.5 max-w-sm text-xs leading-5 text-sf-text-muted">
+              Outages and recovery events will appear here when a monitor changes state.
+            </p>
+          </div>
+        ) : (
+          requiredData.map((data, index) => (
           <motion.div
             key={data.id}
             initial={reduceMotion ? false : { opacity: 0, y: 6 }}
@@ -375,13 +422,16 @@ const IncidentList = () => {
               }
             />
           </motion.div>
-        ))}
+          ))
+        )}
       </div>
-      <IncidentsPagination
-        totalPage={totalPage}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
+      {totalPage > 1 ? (
+        <IncidentsPagination
+          totalPage={totalPage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      ) : null}
       {modalTarget && (
         <IncidentUpdateModal
           open

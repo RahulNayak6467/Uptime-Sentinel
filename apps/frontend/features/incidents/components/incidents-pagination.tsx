@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const pageButtonClass = (isActive: boolean) =>
   `flex h-7 min-w-7 items-center justify-center rounded-sf border px-2 font-mono text-[12px] tabular-nums transition-colors ${
     isActive
-      ? "border-sf-blue/40 bg-sf-blue-bg text-sf-blue"
+      ? "border-sf-text bg-sf-text text-sf-btn-text"
       : "border-sf-border text-sf-text-sub hover:bg-sf-bg hover:text-sf-text"
   }`;
 
@@ -20,7 +20,7 @@ const IncidentsPagination = ({
     setCurrentPage(Math.min(Math.max(page, 1), totalPage));
 
   return (
-    <div className="mt-6 flex items-center justify-between gap-4 border-t border-sf-border px-1 py-3">
+    <div className="mt-5 flex items-center justify-between gap-4 border-t border-sf-border px-1 py-3">
       <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
         Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
         {totalPage}

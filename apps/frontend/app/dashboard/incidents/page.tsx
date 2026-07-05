@@ -4,9 +4,9 @@ import IncidentList from "@/features/incidents/incident-list";
 
 const Incidents = () => {
   return (
-    <section className="pb-8">
+    <section className="min-h-full pb-12">
       <IncidentHeader />
-      <div className="mx-auto max-w-7xl pb-2">
+      <div className="sf-page-content space-y-7">
         <IncidentStats />
         <IncidentList />
       </div>

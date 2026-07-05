@@ -28,7 +28,11 @@ interface Props {
 
 const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-sf-border bg-sf-surface p-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+    <div
+      role="tablist"
+      aria-label="Filter monitors by status"
+      className="flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-1"
+    >
       {TABS.map(({ key, label }) => {
         const isActive = active === key;
         const count = counts?.[key];
@@ -37,10 +41,12 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
           <button
             key={key}
             type="button"
+            role="tab"
+            aria-selected={isActive}
             onClick={() => onChange?.(key)}
-            className={`flex cursor-pointer items-center gap-1.5 rounded-sf-sm border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-[12px] font-medium transition-colors ${
               isActive
-                ? "border-sf-blue/30 bg-sf-blue-bg text-sf-blue"
+                ? "border-sf-border bg-sf-surface text-sf-text shadow-sm"
                 : "border-transparent text-sf-text-sub hover:bg-sf-bg hover:text-sf-text"
             }`}
           >

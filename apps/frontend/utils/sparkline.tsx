@@ -7,11 +7,13 @@ const Sparkline = ({
   color,
   h = 30,
   w = 96,
+  fluid = false,
 }: {
   data: number[];
   color: string;
   h?: number;
   w?: number;
+  fluid?: boolean;
 }) => {
   const uid = useId();
 
@@ -42,29 +44,55 @@ const Sparkline = ({
   const gradId = `sg-grad-${uid}`;
 
   return (
-    <svg width={w} height={h}>
+    <svg
+      width={fluid ? "100%" : w}
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      className="block overflow-visible"
+    >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.08 }} />
+          <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.2 }} />
           <stop offset="100%" style={{ stopColor: color, stopOpacity: 0 }} />
         </linearGradient>
       </defs>
 
-      {/* Subtle gradient fill area */}
+      {fluid ? (
+        <line
+          x1={pad}
+          y1={h - pad}
+          x2={w - pad}
+          y2={h - pad}
+          stroke="currentColor"
+          strokeOpacity="0.08"
+          strokeDasharray="3 4"
+          vectorEffect="non-scaling-stroke"
+        />
+      ) : null}
+
       <path d={fillPath} style={{ fill: `url(#${gradId})` }} />
 
-      {/* Crisp line */}
       <path
         d={linePath}
         fill="none"
-        strokeWidth="1.5"
+        strokeWidth={fluid ? "2" : "1.5"}
         strokeLinecap="round"
         strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
         style={{ stroke: color }}
       />
 
-      {/* End dot */}
-      <circle cx={last[0]} cy={last[1]} r="2" style={{ fill: color }} />
+      <circle
+        cx={last[0]}
+        cy={last[1]}
+        r={fluid ? "3" : "2"}
+        className="fill-sf-surface"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+        style={{ stroke: color }}
+      />
     </svg>
   );
 };

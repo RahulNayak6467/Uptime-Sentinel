@@ -5,6 +5,7 @@ import { httpMethods } from "../../data";
 import RequestBody from "./request-body";
 import { newMonitorProps } from "../../types";
 import ErrorMessage from "@/features/auth/error";
+import SectionHeader from "../section-header";
 
 const BODY_METHODS = ["post", "put", "patch", "delete"];
 
@@ -25,22 +26,15 @@ const RequestType = ({
   const [followRedirects, setFollowRedirects] = useState(true);
 
   return (
-    <div className="mt-4 w-full bg-sf-surface">
-      <div className="h-full w-full rounded-lg border border-sf-border">
-        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
-          <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-            Request Settings
-          </h1>
-          <p className="text-[12px] font-sans text-sf-text-sub">
-            Configure how the request is sent to your endpoint
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 px-4 py-3">
+    <div className="mt-4 w-full">
+      <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+        <SectionHeader step="03" title="Request settings" description="Configure how the request is sent" />
+        <div className="flex flex-col gap-5 p-5">
           <div className="flex flex-col gap-1">
             <h3 className="text-sf-label font-semibold font-sans text-sf-text">
               HTTP method
             </h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {httpMethods.map((method) => (
                 <button
                   key={method}
@@ -48,7 +42,7 @@ const RequestType = ({
                   onClick={() => onMethodChange(method)}
                   className={`cursor-pointer rounded-sf-sm border px-2 py-1 font-sans text-[12px] font-medium uppercase transition-colors duration-150 ${
                     selectedMethod === method
-                      ? "bg-sf-text text-sf-btn-text border-sf-text"
+                      ? "border-sf-text bg-sf-text text-sf-btn-text"
                       : "bg-sf-surface text-sf-text-sub border-sf-border hover:border-sf-text-sub hover:text-sf-text"
                   }`}
                 >
@@ -62,8 +56,8 @@ const RequestType = ({
             <RequestBody method={selectedMethod} />
           )}
 
-          <div className="flex gap-4">
-            <div className="flex flex-col gap-1 w-40">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1">
               <label
                 htmlFor="timeout"
                 className="flex items-baseline gap-1.5 font-sans text-sf-label font-semibold text-sf-text"
@@ -81,11 +75,11 @@ const RequestType = ({
                 min={1}
                 max={60}
                 defaultValue={30}
-                className="rounded-sf-sm border border-sf-border px-3 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
+                className="rounded-md border border-sf-border bg-sf-bg/35 px-3 py-2.5 font-sans text-[13px] text-sf-text outline-none transition-colors focus:border-sf-text-sub focus:bg-sf-surface focus:shadow-sf-focus"
               />
               {errors && <ErrorMessage error={errors.errorsTimeout} />}
             </div>
-            <div className="flex flex-col gap-1 w-40">
+            <div className="flex flex-col gap-1">
               <label
                 htmlFor="expected-status"
                 className="flex items-baseline gap-1.5 font-sans text-sf-label font-semibold text-sf-text"
@@ -103,7 +97,7 @@ const RequestType = ({
                 min={100}
                 max={599}
                 defaultValue={200}
-                className="rounded-sf-sm border border-sf-border px-3 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
+                className="rounded-md border border-sf-border bg-sf-bg/35 px-3 py-2.5 font-sans text-[13px] text-sf-text outline-none transition-colors focus:border-sf-text-sub focus:bg-sf-surface focus:shadow-sf-focus"
               />
             </div>
             {errors && <ErrorMessage error={errors.errorsStatusCode} />}

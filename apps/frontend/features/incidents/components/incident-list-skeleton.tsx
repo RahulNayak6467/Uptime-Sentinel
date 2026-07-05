@@ -6,11 +6,15 @@ const IncidentListSkeleton = ({ rows = 3 }: { rows?: number }) => {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="mt-8 px-6"
+      className="w-full"
     >
       <span className="sr-only">Loading incidents</span>
 
-      <div className="flex flex-col gap-4">
+      <div className="mb-3">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="mt-2 h-3 w-72" />
+      </div>
+      <div className="flex flex-col gap-3">
         {Array.from({ length: rows }, (_, index) => (
           <div
             key={index}
@@ -33,7 +37,7 @@ const IncidentListSkeleton = ({ rows = 3 }: { rows?: number }) => {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-4 border-t border-sf-border px-1 py-3">
+      <div className="mt-5 flex items-center justify-between gap-4 border-t border-sf-border px-1 py-3">
         <Skeleton className="h-3 w-24" />
         <div className="flex items-center gap-1">
           {Array.from({ length: 4 }, (_, index) => (

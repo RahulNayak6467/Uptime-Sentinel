@@ -22,6 +22,8 @@
   --color-sf-red-bg: #fef2f2;
   --color-sf-red-border: #fecaca;
   --color-sf-amber: #d97706;
+  --color-sf-amber-bg: #fffbeb;
+  --color-sf-amber-border: #fde68a;
   --color-sf-orange: #ea580c;
   --color-sf-blue: #5e6ad2;
   --color-sf-blue-bg: #f0f0ff;
@@ -154,20 +156,21 @@
 
 /* ── Dark mode — shadcn vars + StatusForge token overrides ── */
 .dark {
-  /* shadcn dark vars */
-  --background: oklch(0.145 0 0);
+  /* shadcn dark vars — cooled to match the Linear-inspired sf-* neutrals so
+     overlays (dropdowns, dialogs, inputs) sit on the same cool base. */
+  --background: oklch(0.14 0.006 264);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.185 0.006 264);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.185 0.006 264);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --secondary: oklch(0.248 0.006 264);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --muted: oklch(0.248 0.006 264);
+  --muted-foreground: oklch(0.712 0.008 264);
+  --accent: oklch(0.248 0.006 264);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -187,14 +190,16 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 
-  /* StatusForge dark token overrides */
-  --color-sf-bg: #0f0f10;
-  --color-sf-surface: #151516;
-  --color-sf-border: #29292c;
-  --color-sf-border-faint: #1d1d20;
-  --color-sf-text: #f2f2f3;
-  --color-sf-text-sub: #a1a1aa;
-  --color-sf-text-muted: #73737d;
+  /* StatusForge dark token overrides — Linear-inspired cool near-black scale.
+     Neutrals carry a subtle blue undertone (blue channel a few points above
+     red) instead of pure gray, and the base is deepened for the layered feel. */
+  --color-sf-bg: #0a0b0e;
+  --color-sf-surface: #121317;
+  --color-sf-border: #24262e;
+  --color-sf-border-faint: #191a1f;
+  --color-sf-text: #f1f2f4;
+  --color-sf-text-sub: #a2a3ad;
+  --color-sf-text-muted: #72747f;
   --color-sf-green: #4ade80;
   --color-sf-green-bg: #052e16;
   --color-sf-green-border: #166534;
@@ -202,9 +207,11 @@
   --color-sf-red-bg: #2d0a0a;
   --color-sf-red-border: #7f1d1d;
   --color-sf-amber: #fbbf24;
+  --color-sf-amber-bg: #2a1e05;
+  --color-sf-amber-border: #854d0e;
   --color-sf-orange: #fb923c;
-  --color-sf-blue: #8b8cf8;
-  --color-sf-blue-bg: #22223b;
+  --color-sf-blue: #8285f0;
+  --color-sf-blue-bg: #1c1d31;
   --color-sf-btn-hover: #dbe3ee;
   --color-sf-btn-active: #cbd5e1;
   --color-sf-btn-disabled: #2a2d38;
@@ -212,7 +219,7 @@
   --color-sf-toggle-on: #4b5563;
   --color-sf-toggle-off: #2a2f3e;
   --shadow-sf-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-  --shadow-sf-focus: 0 0 0 3px rgba(139, 140, 248, 0.16);
+  --shadow-sf-focus: 0 0 0 3px rgba(130, 133, 240, 0.16);
   --color-sf-logo-bg: #e2e8f0;
   --color-sf-logo-stroke: #111827;
 }

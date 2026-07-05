@@ -77,17 +77,17 @@ const RecentAlerts = () => {
   });
 
   return (
-    <div className="w-full bg-sf-surface border border-sf-border rounded-lg mt-6">
+    <div className="mt-7 w-full rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       <div className="py-3 px-4 border-b border-sf-border flex items-start justify-between">
         <div>
-          <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-            Recent alert emails
+          <h1 className="text-[14px] font-semibold tracking-normal text-sf-text">
+            Delivery activity
           </h1>
-          <p className="text-[12px] font-sans text-sf-text-sub">Last 7 days</p>
+          <p className="text-[12px] text-sf-text-sub">Recent alert emails · last 7 days</p>
         </div>
         <button
           type="button"
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-sf-border rounded-lg text-[13px] font-sans font-medium text-sf-text hover:bg-sf-bg transition-colors cursor-pointer shrink-0"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-3 py-1.5 text-[12px] font-medium text-sf-text transition-colors hover:border-sf-text-muted hover:bg-sf-bg"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           View all

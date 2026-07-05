@@ -5,9 +5,8 @@ import { useAllMonitorsData } from "@/features/Overview/hooks/useMonitorsData";
 import { formatTimeUntil } from "@/utils/format-time-until";
 import { MonitorTableSkeleton } from "@/components/loading/dashboard-skeletons";
 import PageError from "@/components/page-error";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LIMIT } from "@/constants/constant";
-import { MessageProps } from "@/features/Overview/types";
 import { useSSEMonitors } from "@/features/Overview/hooks/useSSEMonitors";
 
 const MonitorStatsTable = () => {
@@ -62,7 +61,15 @@ const MonitorStatsTable = () => {
   });
 
   return (
-    <div>
+    <section>
+      <div className="mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
+          Endpoint inventory
+        </p>
+        <h2 className="mt-1 text-base font-semibold tracking-sf-tight text-sf-text">
+          Monitor health
+        </h2>
+      </div>
       <DataTable
         columns={columns}
         currentPage={currentPage}
@@ -70,7 +77,7 @@ const MonitorStatsTable = () => {
         totalPage={totalPage}
         data={requiredData}
       />
-    </div>
+    </section>
   );
 };
 

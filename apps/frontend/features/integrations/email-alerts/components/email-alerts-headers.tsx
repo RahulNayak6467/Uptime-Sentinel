@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import AddRecipientModal from "./add-recipient-modal";
 
 const EmailAlertsHeaders = () => {
@@ -20,10 +20,7 @@ const EmailAlertsHeaders = () => {
             onClick={() => setOpen(true)}
             className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
           >
-            <div className="flex">
-              <User className="h-5 w-5" />
-              <span>+</span>
-            </div>
+            <UserPlus className="size-3.5" />
             <span>Add recipient</span>
           </button>
         </div>

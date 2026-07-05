@@ -5,15 +5,19 @@ import { useRouter } from "next/navigation";
 const MonitorsHeader = () => {
   const router = useRouter();
   return (
-    <header className="sf-page-header">
-      <div>
-        <h1 className="sf-page-title">Monitors</h1>
-        <p className="sf-page-subtitle">Manage endpoints and review their current health</p>
+    <header className="flex min-h-[88px] items-center justify-between gap-6 border-b border-sf-border bg-sf-surface px-6">
+      <div className="min-w-0">
+        <h1 className="text-xl font-semibold tracking-sf-tight text-sf-text">
+          Monitors
+        </h1>
+        <p className="mt-1 truncate text-xs text-sf-text-muted">
+          Manage endpoints and review their current health
+        </p>
       </div>
       <div className="flex items-center gap-2">
-        <button className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
-          <RefreshCw className="w-3 h-3" />
-          Refresh
+        <button className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-sf-border bg-sf-surface text-sf-text-sub shadow-sm transition-all hover:border-sf-text-muted/50 hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
+          <RefreshCw className="size-3.5" />
+          <span className="sr-only">Refresh monitors</span>
         </button>
         <button
           onClick={() =>
@@ -21,9 +25,9 @@ const MonitorsHeader = () => {
               `${process.env.NEXT_PUBLIC_API_URL}/dashboard/newmonitor`,
             )
           }
-          className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 text-[13px] font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
+          className="flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-sf-text px-4 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="size-3.5" strokeWidth={2.5} />
           New Monitor
         </button>
       </div>

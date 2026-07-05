@@ -10,9 +10,9 @@ import {toast} from "sonner";
 
 const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoading,monitorOverviewError}:{id:string,monitorOverviewData: NoInfer<IndividualOverviewStatsProps> | undefined,monitorOverviewLoading:boolean,monitorOverviewError:boolean}) => {
 
-  const {mutate:pauseUrlMutate,isPending:pauseUrlIsPending} = usePause()
+  const {mutate:pauseUrlMutate} = usePause()
 
-  const {mutate:resumeUrlMutate,isPending:resumeUrlIsPending} = useResume()
+  const {mutate:resumeUrlMutate} = useResume()
 
   const onPauseUpdate = () => {
 
@@ -53,37 +53,64 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
     return <HeaderError />
   }
 
+  const statusMeta = !monitorOverviewData.isActive
+    ? {
+        label: "Paused",
+        dot: "bg-sf-text-muted",
+        badge: "border-sf-border bg-sf-bg text-sf-text-muted",
+      }
+    : monitorOverviewData.status === "UP"
+      ? {
+          label: "Operational",
+          dot: "bg-sf-green",
+          badge: "border-sf-green-border bg-sf-green-bg text-sf-green",
+        }
+      : monitorOverviewData.status === "DOWN"
+        ? {
+            label: "Down",
+            dot: "bg-sf-red",
+            badge: "border-sf-red-border bg-sf-red-bg text-sf-red",
+          }
+        : {
+            label: "Pending first check",
+            dot: "bg-sf-amber",
+            badge: "border-sf-amber-border bg-sf-amber-bg text-sf-amber",
+          };
+
   return (
-    <header className="sf-page-header">
-      <div className="flex flex-col gap-1.5 min-w-0">
+    <header className="flex min-h-[88px] items-center justify-between gap-6 border-b border-sf-border bg-sf-surface px-6">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <Link
           href="/dashboard/monitors"
-          className="flex w-fit items-center gap-1 rounded-sf-sm px-1 py-0.5 font-sans text-[12px] font-medium text-sf-text-muted transition-colors hover:bg-sf-blue-bg hover:text-sf-blue"
+          className="flex w-fit items-center gap-1 font-sans text-[11px] font-medium text-sf-text-muted transition-colors hover:text-sf-text"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           Monitors
         </Link>
         <div className="flex items-center gap-2.5 min-w-0">
-          <span style={{backgroundColor: monitorOverviewData.isActive ? "#16a34a" : "#dc2626"}} className="w-2 h-2 rounded-full shrink-0" />
-          <h1 className="sf-page-title truncate">
+          <span className={`size-2 shrink-0 rounded-full ${statusMeta.dot}`} />
+          <h1 className="truncate text-xl font-semibold tracking-sf-tight text-sf-text">
             {monitorOverviewData.urlName}
           </h1>
-          <span style={{color:monitorOverviewData.isActive ? "#16a34a" : "#dc2626",borderColor: monitorOverviewData.isActive?"#bbf7d04D":"#fecaca4D"}} className="text-[11px] font-semibold font-sans border  rounded-md px-2 py-0.5 shrink-0">
-            {monitorOverviewData.isActive ? "Operational" : "Not operational"}
+          <span className={`shrink-0 rounded-sf border px-2.5 py-0.5 text-[10px] font-semibold ${statusMeta.badge}`}>
+            {statusMeta.label}
           </span>
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <button onClick={() => onResumeUpdate()} className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-green hover:bg-sf-green-bg hover:text-sf-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-green/25">
-      <Play className="w-3.5 h-3.5" />
-          Resume
-        </button>
-        <button onClick={() => onPauseUpdate()} className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-amber hover:bg-sf-amber-bg hover:text-sf-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-amber/25">
-          <Pause className="w-3.5 h-3.5" />
-          Pause
-        </button>
-        <button className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
-        <Edit className="w-3.5 h-3.5" />
+        {monitorOverviewData.isActive ? (
+          <button onClick={() => onPauseUpdate()} className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:border-sf-amber hover:bg-sf-amber-bg hover:text-sf-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-amber/25">
+            <Pause className="size-3.5" />
+            Pause monitor
+          </button>
+        ) : (
+          <button onClick={() => onResumeUpdate()} className="flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-sf-text px-4 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-green hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-green/25">
+            <Play className="size-3.5" />
+            Resume monitor
+          </button>
+        )}
+        <button className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
+          <Edit className="size-3.5" />
           Edit
         </button>
       </div>

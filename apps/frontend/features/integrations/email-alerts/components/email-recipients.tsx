@@ -20,9 +20,9 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
       : "text-sf-text border-sf-border bg-sf-surface";
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 hover:bg-sf-border-faint/60 transition-colors">
-      <div className="w-9 h-9 rounded-full bg-sf-border flex items-center justify-center shrink-0">
-        <span className="text-[11px] font-semibold font-sans text-sf-text-sub">
+    <div className="flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-sf-border-faint/70">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sf-blue/20 bg-sf-blue-bg">
+        <span className="text-[11px] font-semibold text-sf-blue">
           {recipient.initials}
         </span>
       </div>
@@ -45,7 +45,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
 
       <div className="flex items-center gap-3 shrink-0">
         <span
-          className={`text-[12px] font-sans font-medium border rounded-lg px-3 py-1 leading-none ${scopeClass}`}
+          className={`rounded-sf-sm border px-2.5 py-1 text-[11px] font-medium leading-none ${scopeClass}`}
         >
           {recipient.scope}
         </span>
@@ -94,8 +94,8 @@ const EmailRecipients = () => {
       <div className="h-full w-full rounded-lg border border-sf-border shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
         <div className="w-full border-b border-sf-border py-3 px-4 flex items-start justify-between rounded-t-lg">
           <div>
-            <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-              Email recipients
+            <h1 className="text-[14px] font-semibold tracking-normal text-sf-text">
+              Recipient list
             </h1>
             <p className="text-[12px] font-sans text-sf-text-sub">
               {activeCount} active · alert emails are sent to everyone enabled
@@ -105,7 +105,7 @@ const EmailRecipients = () => {
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="flex items-center gap-1 px-3 py-1.5 border border-sf-border rounded-lg text-[13px] font-sans font-medium text-sf-text hover:bg-sf-bg transition-colors cursor-pointer shrink-0"
+            className="flex shrink-0 cursor-pointer items-center gap-1 rounded-sf-sm border border-sf-border px-3 py-1.5 text-[12px] font-medium text-sf-text transition-colors hover:border-sf-text-muted hover:bg-sf-bg"
           >
             <span className="text-[15px] leading-none font-light">+</span>
             Add

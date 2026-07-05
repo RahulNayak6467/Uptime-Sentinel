@@ -2,6 +2,7 @@
 
 import { monitorTypesData } from "../../data";
 import MonitorType from "./monitor-type";
+import SectionHeader from "../section-header";
 
 const MonitorTypeInfo = ({
   selected,
@@ -11,17 +12,10 @@ const MonitorTypeInfo = ({
   onSelect: (type: string) => void;
 }) => {
   return (
-    <div className="w-full bg-sf-surface">
-      <div className="h-full w-full rounded-lg border border-sf-border">
-        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
-          <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-            Monitor Type
-          </h1>
-          <p className="text-[12px] font-sans text-sf-text-sub">
-            What kind of check should we run?
-          </p>
-        </div>
-        <div className="grid w-full grid-cols-3 gap-3 p-4">
+    <div className="w-full">
+      <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+        <SectionHeader step="01" title="Monitor type" description="Choose the kind of health check to run" />
+        <div className="grid w-full grid-cols-1 gap-2.5 p-5 sm:grid-cols-2 xl:grid-cols-3">
           {monitorTypesData.map((monitor) => (
             <MonitorType
               key={monitor.id}

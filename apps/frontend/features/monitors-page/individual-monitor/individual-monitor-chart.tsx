@@ -10,18 +10,18 @@ const IndividualMonitorCharts = () => {
   const [range, setRange] = useState<(typeof RANGES)[number]>("1h");
 
   return (
-    <div className="sf-panel mt-5 px-5 pb-6 pt-5">
-      <div className="flex justify-between items-start">
+    <section id="response-time" className="scroll-mt-16 overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-sf-border px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[14px] font-semibold font-sans text-sf-text">
-            Response Time
+          <p className="text-[14px] font-semibold text-sf-text">
+            Response time
           </p>
-          <p className="text-[12px] font-semibold font-sans text-sf-text-muted">
+          <p className="mt-1 font-sans text-[11px] text-sf-text-muted">
             p50 (solid) vs p95 (dashed) · last {range}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="flex bg-sf-surface border border-sf-border rounded-sf overflow-hidden">
+          <div className="flex overflow-hidden rounded-sf-sm border border-sf-border bg-sf-border-faint p-0.5">
             {RANGES.map((r) => (
               <button
                 key={r}
@@ -29,10 +29,10 @@ const IndividualMonitorCharts = () => {
                 onClick={() =>
                   setRange(r)
                 }
-                className={`px-4 py-1 text-[12px] font-sans font-semibold border-r border-sf-border last:border-r-0 transition-colors cursor-pointer ${
+                className={`cursor-pointer rounded-[4px] px-3 py-1 text-[11px] font-semibold transition-colors ${
                   range === r
-                    ? "bg-sf-text text-sf-btn-text"
-                    : "text-sf-text-muted hover:text-sf-text hover:bg-sf-bg"
+                    ? "bg-sf-surface text-sf-text shadow-sm"
+                    : "text-sf-text-muted hover:text-sf-text"
                 }`}
               >
                 {r}
@@ -40,14 +40,14 @@ const IndividualMonitorCharts = () => {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold font-sans px-1.5 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
+            <span className="rounded-sf bg-sf-bg px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-sf-text-muted">
               Soon
             </span>
-            <div className="flex bg-sf-surface border border-sf-border rounded-sf overflow-hidden opacity-50 cursor-not-allowed">
+            <div className="flex cursor-not-allowed overflow-hidden rounded-sf border border-sf-border bg-sf-surface opacity-50">
               {REGIONS.map((region) => (
                 <span
                   key={region}
-                  className="px-3 py-1 text-[12px] font-sans font-semibold border-r border-sf-border last:border-r-0 text-sf-text-muted select-none"
+                  className="select-none border-r border-sf-border px-3 py-1 text-[11px] font-semibold text-sf-text-muted last:border-r-0"
                 >
                   {region}
                 </span>
@@ -56,14 +56,14 @@ const IndividualMonitorCharts = () => {
           </div>
         </div>
       </div>
-      <div>
+      <div className="px-5 pt-4">
         <ResponseTimeTrend  currentRange={range}/>
       </div>
-      <div className="flex gap-2 items-center mt-4">
+      <div className="flex items-center gap-5 border-t border-sf-border bg-sf-bg/25 px-5 py-3">
         <div className="flex gap-1 items-center">
           <span
             style={{ backgroundColor: "var(--color-sf-green)" }}
-            className="w-8 h-1 rounded-xs"
+            className="h-0.5 w-6 rounded-xs"
           ></span>
           <p className="text-[12px] text-sf-text-muted font-sans font-semibold">
             p50
@@ -72,14 +72,14 @@ const IndividualMonitorCharts = () => {
         <div className="flex gap-1 items-center">
           <span
             style={{ backgroundColor: "var(--color-sf-amber)" }}
-            className="w-8 h-1 rounded-xs"
+            className="h-0.5 w-6 rounded-xs"
           ></span>
           <p className="text-[12px] text-sf-text-muted font-sans font-semibold">
             p95
           </p>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -7,6 +7,7 @@ import { configureItems, monitorItems, workspaceItems } from "./data";
 import MonitorStats from "./monitor-stats";
 import DarkModeToggle from "./dark-mode";
 import Spinner from "../ui/spinner";
+import ConnectionStatus from "../sse/connection-status";
 
 const Sidebar = () => {
   const pathname = usePathname();
@@ -93,6 +94,12 @@ const Sidebar = () => {
         </div>
 
         <div className="mt-auto">
+          <div className="mb-1 flex items-center justify-between pb-1">
+            <span className="px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
+              Real-time
+            </span>
+            <ConnectionStatus variant="compact" />
+          </div>
           <div className="flex flex-col gap-0.5 border-t border-sf-border pt-2.5">
             <DarkModeToggle />
             <button className="flex min-h-9 w-full cursor-pointer items-center gap-3 rounded-sf-sm px-2.5 py-2 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text">

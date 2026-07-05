@@ -1,5 +1,5 @@
 const backendSSEUrl =
-  process.env.NEXT_BACKEND_SSE_ENDPOINT ?? "http://localhost:5000/sse/events";
+  process.env.NEXT_PUBLIC_SSE_ENDPOINT ?? "http://localhost:5000/sse/events";
 
 const events: EventSource = new EventSource(backendSSEUrl, {
   withCredentials: true,

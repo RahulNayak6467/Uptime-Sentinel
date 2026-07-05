@@ -4,9 +4,9 @@ import { apiFetch } from "@/lib/api";
 import {DashboardOverviewResponse} from "@/features/Overview/types";
 
 export const useDashboardOverview = () => {
-    const {data, isLoading,isError, refetch} = useQuery({
+    const {data, isLoading,isError, isFetching, refetch, dataUpdatedAt} = useQuery({
         queryKey: ["dashboardOverview"],
         queryFn: () => apiFetch<DashboardOverviewResponse>("/dashboard/overview/stats")
     })
-    return {data,isLoading,isError,refetch}
+    return {data,isLoading,isError,isFetching,refetch,dataUpdatedAt}
 }

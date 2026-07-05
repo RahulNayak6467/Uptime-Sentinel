@@ -6,7 +6,7 @@ type IncidentStatsErrorProps = {
 
 const IncidentStatsError = ({ onRetry }: IncidentStatsErrorProps) => {
   return (
-    <div className="mt-6 w-full px-6">
+    <div className="w-full">
       <div
         role="alert"
         className="flex min-h-24 items-center justify-between gap-4 rounded-lg border border-sf-border bg-sf-surface px-5 py-4"

@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import Sparkline from "@/utils/sparkline";
 import { MonitorPageData, MonitorState, MonitorType } from "./types";
+import { Globe2 } from "lucide-react";
 
 const stateColor: Record<MonitorState, string> = {
   up: "var(--color-sf-green)",
@@ -19,6 +20,14 @@ const stateLabel: Record<MonitorState, string> = {
   degraded: "Degraded",
   paused: "Paused",
   unknown: "Unknown",
+};
+
+const stateBadge: Record<MonitorState, string> = {
+  up: "border-sf-green-border bg-sf-green-bg text-sf-green",
+  down: "border-sf-red-border bg-sf-red-bg text-sf-red",
+  degraded: "border-sf-amber-border bg-sf-amber-bg text-sf-amber",
+  paused: "border-sf-border bg-sf-bg text-sf-text-muted",
+  unknown: "border-sf-border bg-sf-bg text-sf-text-muted",
 };
 
 const typeBadge: Record<MonitorType, string> = {
@@ -63,34 +72,31 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const state = row.original.state;
       const color = stateColor[state];
       return (
-        <div className="flex items-center gap-2.5">
-          <span
-            className="h-2 w-2 shrink-0 rounded-full"
-            style={{
-              backgroundColor: color,
-            }}
-          />
-          <span
-            className="line-clamp-1 text-[13px] font-semibold text-sf-text"
-            title={row.getValue<string>("name")}
-          >
-            {row.getValue<string>("name")}
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-lg bg-sf-bg text-sf-text-muted ring-1 ring-inset ring-sf-border">
+            <Globe2 className="size-3.5" />
+            <span
+              className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-sf-surface"
+              style={{ backgroundColor: color }}
+            />
+          </span>
+          <span className="min-w-0">
+            <span
+              className="block truncate text-[13px] font-semibold text-sf-text"
+              title={row.getValue<string>("name")}
+            >
+              {row.getValue<string>("name")}
+            </span>
+            <span
+              className="mt-0.5 block truncate font-mono text-[10.5px] text-sf-text-muted"
+              title={row.original.url}
+            >
+              {row.original.url}
+            </span>
           </span>
         </div>
       );
     },
-  },
-  {
-    accessorKey: "url",
-    header: "URL",
-    cell: ({ row }) => (
-      <span
-        className="block truncate font-mono text-[12px] text-sf-text-sub"
-        title={row.getValue<string>("url")}
-      >
-        {row.getValue<string>("url")}
-      </span>
-    ),
   },
   {
     accessorKey: "type",
@@ -202,13 +208,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const color = stateColor[state];
       return (
         <span
-          className="mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border border-sf-border bg-sf-surface px-2 py-0.5 text-[12px] font-medium text-sf-text-sub"
-          style={{
-            color:
-              state === "paused" || state === "unknown"
-                ? "var(--color-sf-text-muted)"
-                : color,
-          }}
+          className={`mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border px-2.5 py-1 text-[11px] font-semibold ${stateBadge[state]}`}
         >
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"

@@ -9,23 +9,23 @@ interface Props {
 
 const BulkActionBar = ({ count, onClear }: Props) => {
   return (
-    <div className="mx-6 mb-3 flex items-center justify-between px-4 py-2.5 rounded-sf border border-sf-border bg-sf-surface shadow-sf-card">
+    <div className="mb-1 flex items-center justify-between gap-4 rounded-lg border border-sf-border bg-sf-surface px-4 py-2.5 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="text-[13px] font-semibold text-sf-text">
+        <span className="rounded-full bg-sf-text px-2.5 py-1 text-[11px] font-semibold text-sf-btn-text">
           {count} selected
         </span>
-        <span className="w-px h-4 bg-sf-border" />
+        <span className="h-4 w-px bg-sf-border" />
         <div className="flex items-center gap-1.5">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-sf text-[12px] font-medium text-sf-text-sub border border-sf-border hover:border-sf-text-sub hover:text-sf-text transition-colors cursor-pointer">
-            <Pause className="w-3.5 h-3.5" />
+          <button className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text">
+            <Pause className="size-3.5" />
             Pause
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-sf text-[12px] font-medium text-sf-text-sub border border-sf-border hover:border-sf-green hover:text-sf-green transition-colors cursor-pointer">
-            <Play className="w-3.5 h-3.5" />
+          <button className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-sf-text-sub transition-colors hover:bg-sf-green-bg hover:text-sf-green">
+            <Play className="size-3.5" />
             Resume
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-sf text-[12px] font-medium text-sf-text-sub border border-sf-border hover:border-sf-red hover:text-sf-red transition-colors cursor-pointer">
-            <Trash2 className="w-3.5 h-3.5" />
+          <button className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-sf-text-sub transition-colors hover:bg-sf-red-bg hover:text-sf-red">
+            <Trash2 className="size-3.5" />
             Delete
           </button>
         </div>
@@ -33,9 +33,9 @@ const BulkActionBar = ({ count, onClear }: Props) => {
 
       <button
         onClick={onClear}
-        className="flex items-center gap-1 text-[12px] text-sf-text-muted hover:text-sf-text transition-colors cursor-pointer"
+        className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text"
       >
-        <X className="w-3.5 h-3.5" />
+        <X className="size-3.5" />
         Clear
       </button>
     </div>

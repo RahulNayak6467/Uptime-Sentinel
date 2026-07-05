@@ -16,8 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Search, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, RadioTower } from "lucide-react";
 import MonitorsEmpty from "@/components/empty-states/monitors-empty";
+import Link from "next/link";
 
 import {
   Pagination,
@@ -62,34 +63,36 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-sf-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[14px] font-semibold text-sf-text">
-            Monitors
+    <div className="overflow-hidden rounded-xl border border-sf-border bg-sf-surface shadow-sm">
+      <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sf-blue-bg text-sf-blue">
+            <RadioTower className="size-4" />
           </span>
-          <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[11px] text-sf-text-sub">
-            {data.length}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 rounded-sf border border-sf-border bg-sf-bg px-3 py-1.5 text-sf-text-muted">
-            <Search className="w-3.5 h-3.5 shrink-0" />
-            <input
-              type="text"
-              placeholder="Filter monitors"
-              className="text-[13px] bg-transparent outline-none placeholder:text-sf-text-muted text-sf-text w-44"
-              disabled
-            />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-sf-text">
+                All monitors
+              </span>
+              <span className="rounded-full bg-sf-bg px-2 py-0.5 font-mono text-[10px] text-sf-text-muted ring-1 ring-inset ring-sf-border">
+                {data.length} shown
+              </span>
+            </div>
+            <p className="mt-0.5 truncate text-[11px] text-sf-text-muted">
+              Live status and recent response performance
+            </p>
           </div>
-          <button className="flex cursor-pointer items-center gap-1.5 rounded-sf border border-sf-border px-3 py-1.5 text-[13px] font-medium text-sf-text transition-colors hover:bg-sf-bg">
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Filter</span>
-          </button>
         </div>
+        <Link
+          href="/dashboard/monitors"
+          className="group flex shrink-0 items-center gap-1.5 rounded-lg border border-sf-border bg-sf-surface px-3 py-2 text-[11px] font-semibold text-sf-text-sub shadow-sm transition-all hover:border-sf-text-muted/50 hover:text-sf-text"
+        >
+          View all
+          <ArrowUpRight className="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </Link>
       </div>
 
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -154,9 +157,13 @@ export function DataTable<TData, TValue>({
           ))}
         </TableBody>
       </Table>
+      </div>
 
-      <div className="border-t border-sf-border px-4 py-3">
-        <Pagination>
+      <div className="flex items-center justify-between border-t border-sf-border px-5 py-3">
+        <p className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
+          Page <span className="text-sf-text-sub">{currentPage}</span> of {totalPages}
+        </p>
+        <Pagination className="mx-0 w-auto">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious

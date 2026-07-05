@@ -1,7 +1,6 @@
 import ErrorMessage from "@/features/auth/error";
 import { newMonitorProps } from "../../types";
-import { Dispatch, SetStateAction } from "react";
-import { toast } from "sonner";
+import SectionHeader from "../section-header";
 
 const MonitorInfo = ({
   register,
@@ -14,17 +13,10 @@ const MonitorInfo = ({
   };
 }) => {
   return (
-    <div className="mt-4 w-full bg-sf-surface">
-      <div className="h-full w-full rounded-lg border border-sf-border">
-        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
-          <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-            Basic Info
-          </h1>
-          <p className="text-[12px] font-sans text-sf-text-sub">
-            Name your monitor and point it to a URL
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 px-4 py-3">
+    <div className="mt-4 w-full">
+      <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+        <SectionHeader step="02" title="Basic information" description="Name the monitor and provide its endpoint" />
+        <div className="grid gap-4 p-5 md:grid-cols-2">
           <div className="flex flex-col gap-1">
             <label
               className="text-sf-text font-sans text-sf-label font-semibold"
@@ -35,7 +27,7 @@ const MonitorInfo = ({
             <input
               {...register("monitorName")}
               id="monitor-name"
-              className="rounded-sf-sm border border-sf-border px-4 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus"
+              className="rounded-md border border-sf-border bg-sf-bg/35 px-3 py-2.5 font-sans text-[13px] text-sf-text outline-none transition-colors placeholder:text-sf-text-muted focus:border-sf-text-sub focus:bg-sf-surface focus:shadow-sf-focus"
               type="text"
               required
               autoComplete="off"
@@ -53,7 +45,7 @@ const MonitorInfo = ({
             <input
               {...register("url")}
               id="monitor-url"
-              className="rounded-sf-sm border border-sf-border px-4 py-2 font-mono text-[14px] text-sf-text outline-none transition-colors duration-150 placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus"
+              className="rounded-md border border-sf-border bg-sf-bg/35 px-3 py-2.5 font-mono text-[13px] text-sf-text outline-none transition-colors placeholder:text-sf-text-muted focus:border-sf-text-sub focus:bg-sf-surface focus:shadow-sf-focus"
               type="url"
               required
               autoComplete="off"

@@ -15,25 +15,26 @@ const IncidentAlert = () => {
   const started = formatIncidentTimestamp(incident.startedAt);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-sf-red-border bg-sf-surface shadow-[0_1px_2px_rgba(220,38,38,0.05)]">
-      <div className="flex items-center justify-between border-b border-sf-red-border bg-sf-red-bg px-5 py-2.5">
-        <div className="flex items-center gap-2 text-xs font-semibold text-sf-red">
+    <section className="relative overflow-hidden rounded-xl border border-sf-red-border bg-sf-surface shadow-[0_10px_30px_rgba(220,38,38,0.07)]">
+      <span className="absolute inset-y-0 left-0 w-1 bg-sf-red" />
+      <div className="flex items-center justify-between border-b border-sf-red-border/70 bg-sf-red-bg/70 px-5 py-2.5 pl-6">
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-sf-red">
           <span className="relative flex size-2.5">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-sf-red opacity-30" />
             <span className="relative inline-flex size-2.5 rounded-full bg-sf-red" />
           </span>
           Active incident
         </div>
-        <span className="flex items-center gap-1.5 font-mono text-xs text-sf-red">
+        <span className="flex items-center gap-1.5 font-mono text-[11px] font-medium text-sf-red">
           <Clock className="size-3.5" />
           {formatIncidentDuration(incident.startedAt, incident.resolvedAt)}
         </span>
       </div>
 
-      <div className="flex items-center justify-between gap-8 px-5 py-4">
+      <div className="flex flex-col items-start justify-between gap-4 px-6 py-4 sm:flex-row sm:items-center sm:gap-8">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-sf-red-border bg-sf-red-bg">
-            <TriangleAlert className="size-4 text-sf-red" />
+          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-sf-red-border bg-sf-red-bg text-sf-red shadow-sm">
+            <TriangleAlert className="size-4" />
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
@@ -52,7 +53,7 @@ const IncidentAlert = () => {
 
         <Link
           href="/dashboard/incidents"
-          className="shrink-0 rounded-sf-sm border border-sf-red px-3 py-1.5 text-xs font-semibold text-sf-red transition-colors hover:bg-sf-red hover:text-white"
+          className="shrink-0 rounded-lg border border-sf-red-border bg-sf-red-bg px-3.5 py-2 text-[11px] font-semibold text-sf-red transition-all hover:border-sf-red hover:bg-sf-red hover:text-white"
         >
           Open incident
         </Link>

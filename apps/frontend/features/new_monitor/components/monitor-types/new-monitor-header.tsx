@@ -15,15 +15,15 @@ const NewMonitorHeader = ({
   isPending,
 }: NewMonitorHeaderProps) => {
   return (
-    <header className="sf-page-header">
+    <header className="flex min-h-[88px] items-center justify-between gap-6 border-b border-sf-border bg-sf-surface px-6">
       <div className="flex items-center gap-3">
-        <button className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm px-2 py-1 text-sf-text-muted transition-colors hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sf-label font-sans">Monitors</span>
+        <button className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-sf-border text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
+          <ArrowLeft className="size-4" />
+          <span className="sr-only">Back to monitors</span>
         </button>
         <div>
-          <h1 className="sf-page-title">New monitor</h1>
-          <p className="sf-page-subtitle">Configure an endpoint health check</p>
+          <h1 className="text-xl font-semibold tracking-sf-tight text-sf-text">New monitor</h1>
+          <p className="mt-1 text-xs text-sf-text-muted">Configure an endpoint health check</p>
         </div>
       </div>
 
@@ -31,13 +31,13 @@ const NewMonitorHeader = ({
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center gap-2"
       >
-        <button className="cursor-pointer rounded-sf-sm border border-sf-border px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
+        <button className="h-9 cursor-pointer rounded-lg border border-sf-border px-4 font-sans text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-sf-text disabled:hover:text-sf-btn-text"
+          className="flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-sf-text px-4 font-sans text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-sf-text disabled:hover:text-sf-btn-text"
         >
           {isPending ? (
             <>
@@ -46,7 +46,7 @@ const NewMonitorHeader = ({
             </>
           ) : (
             <>
-              <span>+</span>
+              <span className="text-base leading-none">+</span>
               <span>Create monitor</span>
             </>
           )}

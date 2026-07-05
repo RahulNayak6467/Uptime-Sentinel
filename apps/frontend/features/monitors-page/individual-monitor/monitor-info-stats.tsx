@@ -1,24 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapPin, Shield, Wifi } from "lucide-react";
-import {
-  IndividualStatsCardData,
-  RegionalLatencyStats,
-  responseTimeAvg,
-  responseTimeHours,
-  responseTimeP95,
-} from "./data";
+import { useState } from "react";
+import { Activity, Check, Copy, ExternalLink } from "lucide-react";
+import { IndividualStatsCardData } from "./data";
 import Error from "../../Overview/components/error";
 import {
   ChartSkeleton,
   MetricCardsSkeleton,
 } from "@/components/loading/dashboard-skeletons";
-import {
-  IndividualStatsCardProps,
-  RegionMonitorProps,
-  TimeRangeProps,
-} from "./types";
+import { IndividualStatsCardProps, TimeRangeProps } from "./types";
 import Chart from "@/utils/chart";
 import { useIndividualStats } from "@/features/monitors-page/individual-monitor/hooks/useIndividualStats";
 import { useParams } from "next/navigation";
@@ -27,22 +17,23 @@ import { useIsFetching } from "@tanstack/react-query";
 import { FetchingIndicator } from "@/components/ui/fetching-indicator";
 import { ChartTimeRange, formatChartDate } from "@/utils/format-chart-date";
 import { IndividualOverviewStatsProps } from "./types";
-import { useIndividualMonitorOverview } from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
 import {
   OperationalSkeleton,
   OperationalError,
 } from "./monitor-overview-states";
 import { formatTimeUntil } from "@/utils/format-time-until";
 import { useSSEIndividualMonitorData } from "./hooks/useSSEIndividualMonitorData";
+import { useTheme } from "next-themes";
 
 const StripStat = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex flex-col justify-center items-center">
-    <p className="text-[14px] text-sf-text-muted font-sans">{label}</p>
-    <p className="text-[14px] text-sf-text font-sans">{value}</p>
+  <div className="min-w-28 border-l border-sf-border px-5 first:border-l-0">
+    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">{label}</p>
+    <p className="mt-1 text-[13px] font-semibold text-sf-text">{value}</p>
   </div>
 );
 
 const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
+  const [copied, setCopied] = useState(false);
   const nextCheck = !data.isActive
     ? "Paused"
     : data.status === "UNKNOWN"
@@ -51,20 +42,88 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
         ? "Due now"
         : formatTimeUntil(data.nextCheckAt);
 
+  const statusMeta = !data.isActive
+    ? {
+        headline: "Monitoring paused",
+        icon: "border-sf-border bg-sf-bg text-sf-text-muted",
+        dot: "bg-sf-text-muted",
+      }
+    : data.status === "UP"
+      ? {
+          headline: "Endpoint operational",
+          icon: "border-sf-green-border bg-sf-green-bg text-sf-green",
+          dot: "bg-sf-green",
+        }
+      : data.status === "DOWN"
+        ? {
+            headline: "Endpoint unavailable",
+            icon: "border-sf-red-border bg-sf-red-bg text-sf-red",
+            dot: "bg-sf-red",
+          }
+        : {
+            headline: "Awaiting first check",
+            icon: "border-sf-amber-border bg-sf-amber-bg text-sf-amber",
+            dot: "bg-sf-amber",
+          };
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(data.url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
-    <div className="sf-panel">
-      <div className="flex items-center justify-between px-5 py-3.5">
-        <div className="flex gap-2 items-center">
-          <p className="text-[16px] font-sans font-medium text-sf-text">
-            {data.isActive ? "Operational" : "Not operational"}
-          </p>
-          <a className="cursor-pointer text-sf-blue text-[14px] hover:underline">
-            {data.url}
-          </a>
+    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+      <div className="flex flex-col gap-5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className={`flex size-10 shrink-0 items-center justify-center rounded-lg border ${statusMeta.icon}`}>
+            <Activity className="size-4.5" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-[15px] font-semibold text-sf-text">
+                {statusMeta.headline}
+              </p>
+              <span className={`size-1.5 rounded-full ${statusMeta.dot}`} />
+            </div>
+            <div className="mt-1 flex min-w-0 items-center gap-1.5">
+              <a
+                href={data.url}
+                target="_blank"
+                rel="noreferrer"
+                className="block max-w-xl truncate font-mono text-[11px] text-sf-text-muted hover:text-sf-blue"
+              >
+                {data.url}
+              </a>
+              <button
+                type="button"
+                onClick={copyUrl}
+                aria-label={copied ? "Endpoint URL copied" : "Copy endpoint URL"}
+                title={copied ? "Copied" : "Copy URL"}
+                className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text"
+              >
+                {copied ? <Check className="size-3 text-sf-green" /> : <Copy className="size-3" />}
+              </button>
+              <a
+                href={data.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open endpoint in a new tab"
+                title="Open endpoint"
+                className="flex size-6 shrink-0 items-center justify-center rounded text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text"
+              >
+                <ExternalLink className="size-3" />
+              </a>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-10">
+        <div className="flex items-center">
           <StripStat label="Next check" value={nextCheck} />
-          <StripStat label="Intervals" value={`${data.intervalSeconds}s`} />
+          <StripStat label="Interval" value={`${data.intervalSeconds}s`} />
           <StripStat label="Regions" value="5" />
         </div>
       </div>
@@ -91,7 +150,7 @@ const IndividualMonitorInfoStats = ({
   } = useIndividualStats(id);
 
   return (
-    <div>
+    <section id="overview" className="scroll-mt-16">
       {monitorOverviewLoading ? (
         <OperationalSkeleton />
       ) : monitorOverviewError || !monitorOverviewData ? (
@@ -105,7 +164,14 @@ const IndividualMonitorInfoStats = ({
       ) : individualMonitorStatsError || !individualMonitorStats ? (
         <Error refetch={refetch} />
       ) : (
-        <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <div className="mt-5">
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold text-sf-text">Performance summary</h2>
+            <p className="mt-1 text-[11px] text-sf-text-muted">
+              Uptime and response metrics across current reporting windows
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {IndividualStatsCardData.map((data) => (
             <StatsCard
               key={data.title}
@@ -115,24 +181,24 @@ const IndividualMonitorInfoStats = ({
               context={individualMonitorStats[data.value]}
             />
           ))}
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
 const StatsCard = ({
   title,
-  value,
   unit,
   context,
 }: IndividualStatsCardProps) => {
   return (
-    <div className="sf-panel flex w-full flex-col gap-1 p-4 transition-[border-color,box-shadow] hover:border-sf-text-muted/60 hover:shadow-sf-card">
-      <p className="text-[14px] text-sf-text-sub font-sans font-medium">
+    <div className="sf-panel flex min-h-[104px] w-full flex-col justify-center gap-1 p-5 transition-colors hover:border-sf-text-muted/50">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
         {title}
       </p>
-      <p className="text-[20px] text-sf-text font-sans font-medium">
+      <p className="mt-1 text-[22px] font-semibold tracking-sf-tight text-sf-text">
         {context === null ? (
           <span className="text-[14px] text-sf-text-muted">No data</span>
         ) : (
@@ -146,30 +212,13 @@ const StatsCard = ({
   );
 };
 
-const useDarkMode = () => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
-};
-
 export const ResponseTimeTrend = ({
   currentRange,
 }: {
   currentRange: TimeRangeProps;
 }) => {
-  const isDark = useDarkMode();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const params = useParams<{ id: string }>();
   const id = params.id;

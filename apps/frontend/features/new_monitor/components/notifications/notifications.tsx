@@ -3,22 +3,16 @@
 import { useState } from "react";
 import { Info } from "lucide-react";
 import { notificationChannels } from "../../data";
+import SectionHeader from "../section-header";
 
 const Notifications = () => {
   const [selected, setSelected] = useState("Email");
 
   return (
-    <div className="mt-4 w-full bg-sf-surface">
-      <div className="h-full w-full rounded-lg border border-sf-border">
-        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
-          <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
-            Notifications
-          </h1>
-          <p className="text-[12px] font-sans text-sf-text-sub">
-            Choose where alerts are sent when this monitor triggers
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 px-4 py-3">
+    <div className="mt-4 w-full">
+      <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+        <SectionHeader step="06" title="Notifications" description="Choose where incident alerts are delivered" />
+        <div className="flex flex-col gap-4 p-5">
           <div className="flex gap-2 flex-wrap">
             {notificationChannels.map(({ id, label, icon: Icon, comingSoon }) => (
               <button
@@ -29,7 +23,7 @@ const Notifications = () => {
                   comingSoon
                     ? "border-sf-border text-sf-text-muted cursor-not-allowed opacity-50"
                     : selected === label
-                      ? "bg-sf-text text-sf-btn-text border-sf-text cursor-pointer"
+                      ? "cursor-pointer border-sf-text bg-sf-text text-sf-btn-text"
                       : "bg-sf-surface text-sf-text border-sf-border hover:border-sf-text-sub cursor-pointer"
                 }`}
               >
@@ -44,9 +38,9 @@ const Notifications = () => {
             ))}
           </div>
 
-          <div className="flex items-start gap-2 rounded-lg border border-sf-blue bg-sf-blue-bg px-3 py-2.5">
-            <Info className="w-4 h-4 text-sf-blue shrink-0 mt-0.5" />
-            <p className="text-[12.5px] font-sans text-sf-blue leading-snug">
+          <div className="flex items-start gap-2 rounded-md border border-sf-border bg-sf-bg px-3 py-2.5">
+            <Info className="mt-0.5 size-4 shrink-0 text-sf-text-muted" />
+            <p className="font-sans text-[12px] leading-snug text-sf-text-sub">
               Configure channel details (webhooks, Slack workspace, etc.) in{" "}
               <a href="/settings/alerts" className="font-bold underline">
                 Alert settings

@@ -6,7 +6,7 @@ export const useSSEMonitorsData = (page: number, monitorStatus: string) => {
   const queryClient = useQueryClient();
   useEffect(() => {
     const backendSSEUrl =
-      process.env.NEXT_BACKEND_SSE_ENDPOINT ??
+      process.env.NEXT_PUBLIC_SSE_ENDPOINT ??
       "http://localhost:5000/sse/events";
 
     const sources = new EventSource(backendSSEUrl, {

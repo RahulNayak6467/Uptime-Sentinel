@@ -6,12 +6,12 @@ type IncidentListErrorProps = {
 
 const IncidentListError = ({ onRetry }: IncidentListErrorProps) => {
   return (
-    <section className="mt-8 px-6">
+    <section className="w-full">
       <div
         role="alert"
-        className="flex flex-col items-center justify-center gap-2 rounded-lg border border-sf-border bg-sf-surface px-5 py-12 text-center"
+        className="flex flex-col items-center justify-center gap-2 rounded-xl border border-sf-border bg-sf-surface px-5 py-12 text-center shadow-sm"
       >
-        <div className="flex size-9 items-center justify-center rounded-full bg-sf-red-bg">
+        <div className="flex size-9 items-center justify-center rounded-lg border border-sf-border bg-sf-bg">
           <AlertTriangle className="size-4 text-sf-red" aria-hidden="true" />
         </div>
         <p className="text-[14px] font-semibold text-sf-text">

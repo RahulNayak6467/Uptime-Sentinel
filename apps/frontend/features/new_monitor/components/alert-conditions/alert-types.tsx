@@ -10,7 +10,7 @@ const AlertTypes = ({
 }: alertConditionsProps) => {
   const [values, setValues] = useState(2);
   return (
-    <div className="flex items-center justify-between border-b border-b-sf-border py-3">
+    <div className="flex flex-col justify-between gap-3 border-b border-b-sf-border py-3 sm:flex-row sm:items-center">
       <div>
         <p className="text-sf-text font-semibold text-[14px] font-sans">
           {alertType}

@@ -7,7 +7,7 @@ export const HeaderSkeleton = () => (
   <header
     role="status"
     aria-busy="true"
-    className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface"
+    className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6"
   >
     <div className="flex flex-col gap-1.5">
       <Skeleton className="h-3 w-20" />
@@ -19,7 +19,7 @@ export const HeaderSkeleton = () => (
     </div>
     <div className="flex items-center gap-2">
       {Array.from({ length: 3 }, (_, index) => (
-        <Skeleton key={index} className="h-8 w-24 rounded-sf" />
+        <Skeleton key={index} className="h-9 w-28 rounded-lg" />
       ))}
     </div>
   </header>
@@ -28,7 +28,7 @@ export const HeaderSkeleton = () => (
 export const HeaderError = ({ onRetry }: { onRetry?: () => void }) => (
   <header
     role="alert"
-    className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface"
+    className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6"
   >
     <div className="flex items-center gap-2">
       <AlertTriangle className="w-4 h-4 text-sf-red" aria-hidden="true" />
@@ -52,7 +52,7 @@ export const OperationalSkeleton = () => (
   <div
     role="status"
     aria-busy="true"
-    className="border border-sf-border bg-sf-surface mt-6 rounded-sf"
+    className="rounded-lg border border-sf-border bg-sf-surface"
   >
     <div className="px-4 py-2 flex items-center justify-between">
       <div className="flex gap-2 items-center">
@@ -74,7 +74,7 @@ export const OperationalSkeleton = () => (
 export const OperationalError = ({ onRetry }: { onRetry?: () => void }) => (
   <div
     role="alert"
-    className="border border-sf-border bg-sf-surface mt-6 rounded-sf px-4 py-3 flex items-center justify-between"
+    className="flex items-center justify-between rounded-lg border border-sf-border bg-sf-surface px-4 py-3"
   >
     <div className="flex items-center gap-2">
       <AlertTriangle className="w-4 h-4 text-sf-red" aria-hidden="true" />

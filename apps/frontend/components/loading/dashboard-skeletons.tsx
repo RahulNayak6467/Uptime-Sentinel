@@ -115,53 +115,114 @@ export const ChartSkeleton = () => (
 
 export const OverviewLoading = () => (
   <LoadingRegion label="Loading dashboard overview">
-    <PageHeaderSkeleton />
-    <MetricCardsSkeleton />
-    <div className="mx-6 rounded-sf border border-sf-border bg-sf-surface p-4">
-      <div className="flex items-center gap-3">
-        <Skeleton className="size-2.5 rounded-full" />
-        <Skeleton className="h-4 w-52" />
+    <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
+      <div className="flex items-center gap-3.5">
+        <Skeleton className="size-10 rounded-xl" />
+        <div>
+          <Skeleton className="h-5 w-52" />
+          <Skeleton className="mt-2 h-3 w-64" />
+        </div>
       </div>
-      <Skeleton className="mt-3 h-3 w-80 max-w-full" />
+      <div className="flex gap-2">
+        <Skeleton className="size-9 rounded-lg" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
+      </div>
     </div>
-    <MonitorTableSkeleton rows={5} />
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-6 py-6 pb-12">
+      <div className="rounded-2xl border border-sf-border bg-sf-surface p-7">
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-12 rounded-2xl" />
+          <div className="flex-1">
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="mt-3 h-7 w-64" />
+            <Skeleton className="mt-3 h-3 w-52" />
+          </div>
+          <div className="hidden grid-cols-3 gap-2 sm:grid">
+            {Array.from({ length: 3 }, (_, index) => (
+              <Skeleton key={index} className="h-[74px] w-28 rounded-xl" />
+            ))}
+          </div>
+        </div>
+        <Skeleton className="mt-8 h-2 w-full rounded-full" />
+      </div>
+      <div className="-mx-6">
+        <MetricCardsSkeleton />
+      </div>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(390px,0.9fr)]">
+        <ChartSkeleton />
+        <div className="rounded-xl border border-sf-border bg-sf-surface p-5">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="mt-2 h-3 w-64" />
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="mt-5 h-[18px] w-full" />
+          ))}
+        </div>
+      </div>
+      <div className="-mx-6">
+        <MonitorTableSkeleton rows={5} />
+      </div>
+    </div>
   </LoadingRegion>
 );
 
 export const MonitorsLoading = () => (
   <LoadingRegion label="Loading monitors">
-    <PageHeaderSkeleton />
-    <div className="flex gap-2 border-b border-sf-border bg-sf-surface px-6 py-3">
-      {Array.from({ length: 4 }, (_, index) => (
-        <Skeleton key={index} className="h-8 w-20 rounded-full" />
-      ))}
+    <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
+      <div>
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="mt-2 h-3 w-72" />
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="size-9 rounded-lg" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
+      </div>
     </div>
-    <MonitorTableSkeleton />
+    <div className="mx-auto w-full max-w-7xl px-6 py-6">
+      <div className="flex w-fit gap-1 rounded-sf-sm border border-sf-border bg-sf-border-faint p-1">
+        {Array.from({ length: 5 }, (_, index) => (
+          <Skeleton key={index} className="h-7 w-16 rounded-[4px]" />
+        ))}
+      </div>
+      <div className="-mx-6 mt-5">
+        <MonitorTableSkeleton />
+      </div>
+    </div>
   </LoadingRegion>
 );
 
 export const MonitorDetailsLoading = () => (
   <LoadingRegion label="Loading monitor details">
-    <PageHeaderSkeleton actions={3} />
-    <div className="px-4">
-      <MetricCardsSkeleton />
-      <ChartSkeleton />
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        {Array.from({ length: 2 }, (_, index) => (
-          <div
-            key={index}
-            className="rounded-sf border border-sf-border bg-sf-surface p-4"
-          >
-            <Skeleton className="h-4 w-36" />
-            {Array.from({ length: 3 }, (_, row) => (
-              <div key={row} className="mt-4 flex items-center gap-3">
-                <Skeleton className="size-2.5 rounded-full" />
-                <Skeleton className="h-3 flex-1" />
-                <Skeleton className="h-3 w-20" />
-              </div>
-            ))}
+    <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
+      <div>
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="mt-2 h-5 w-52" />
+      </div>
+      <Skeleton className="h-9 w-32 rounded-lg" />
+    </div>
+    <div className="mx-auto w-full max-w-7xl space-y-6 px-6 py-6 pb-12">
+      <div className="rounded-lg border border-sf-border bg-sf-surface p-5">
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-10 rounded-lg" />
+          <div className="flex-1">
+            <Skeleton className="h-4 w-44" />
+            <Skeleton className="mt-2 h-3 w-72" />
+          </div>
+          <Skeleton className="h-10 w-60" />
+        </div>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div key={index} className="rounded-lg border border-sf-border bg-sf-surface p-5">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="mt-3 h-7 w-20" />
           </div>
         ))}
+      </div>
+      <ChartSkeleton />
+      <div className="rounded-lg border border-sf-border bg-sf-surface p-5">
+        <Skeleton className="h-4 w-36" />
+        <Skeleton className="mt-2 h-3 w-64" />
+        <Skeleton className="mt-5 h-9 w-full" />
       </div>
     </div>
   </LoadingRegion>
@@ -169,13 +230,33 @@ export const MonitorDetailsLoading = () => (
 
 export const IncidentsLoading = () => (
   <LoadingRegion label="Loading incidents">
-    <PageHeaderSkeleton />
-    <MetricCardsSkeleton count={3} />
-    <div className="mx-4 overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
+    <div className="flex min-h-[88px] items-center border-b border-sf-border bg-sf-surface px-6">
+      <div>
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="mt-2 h-3 w-72" />
+      </div>
+    </div>
+    <div className="mx-auto w-full max-w-7xl space-y-7 px-6 py-6 pb-12">
+      <div>
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="mt-2 h-3 w-72" />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index} className="rounded-lg border border-sf-border bg-sf-surface p-5">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="mt-3 h-7 w-16" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="mt-2 h-3 w-80" />
+        <div className="mt-3 flex flex-col gap-3">
       {Array.from({ length: 5 }, (_, index) => (
         <div
           key={index}
-          className="flex gap-3 border-b border-sf-border px-4 py-4 last:border-b-0"
+          className="flex gap-3 rounded-lg border border-sf-border bg-sf-surface px-5 py-4"
         >
           <Skeleton className="mt-1 size-2.5 rounded-full" />
           <div className="flex-1">
@@ -188,6 +269,8 @@ export const IncidentsLoading = () => (
           </div>
         </div>
       ))}
+        </div>
+      </div>
     </div>
   </LoadingRegion>
 );
@@ -223,13 +306,26 @@ export const EmailAlertsLoading = () => (
 
 export const NewMonitorLoading = () => (
   <LoadingRegion label="Loading new monitor form">
-    <PageHeaderSkeleton />
-    <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-9 rounded-lg" />
+        <div>
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="mt-2 h-3 w-56" />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-20 rounded-lg" />
+        <Skeleton className="h-9 w-32 rounded-lg" />
+      </div>
+    </div>
+    <div className="mx-auto grid w-full max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div className="space-y-4">
+        <Skeleton className="h-4 w-44" />
         {Array.from({ length: 5 }, (_, index) => (
           <div
             key={index}
-            className="rounded-sf border border-sf-border bg-sf-surface p-5"
+            className="rounded-lg border border-sf-border bg-sf-surface p-5"
           >
             <Skeleton className="h-4 w-36" />
             <Skeleton className="mt-2 h-3 w-64 max-w-full" />
@@ -240,7 +336,7 @@ export const NewMonitorLoading = () => (
           </div>
         ))}
       </div>
-      <div className="h-fit rounded-sf border border-sf-border bg-sf-surface p-5">
+      <div className="h-fit rounded-lg border border-sf-border bg-sf-surface p-5">
         <Skeleton className="h-4 w-28" />
         <Skeleton className="mt-6 h-5 w-40" />
         <Skeleton className="mt-3 h-3 w-full" />

@@ -1,9 +1,12 @@
+import type { LucideIcon } from "lucide-react";
+
 export type OverviewStatsProps = {
   metric: string;
   value: keyof DashboardOverviewResponse;
   context: string;
-  color: string;
+  color: string | ((value: number | null) => string);
   stats: number | null;
+  icon: LucideIcon;
   format?: (value: number) => string;
 };
 

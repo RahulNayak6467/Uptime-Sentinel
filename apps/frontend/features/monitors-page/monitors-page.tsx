@@ -96,11 +96,11 @@ const MonitorsPage = () => {
   });
 
   return (
-    <section>
+    <section className="min-h-full">
       <MonitorsHeader />
-      <div className="sf-page-content">
+      <div className="sf-page-content pb-12">
       <MonitorsFilterTabs active={activeTab} onChange={onChange} />
-      <div className="relative mt-4 flex flex-col gap-3">
+      <div className="relative mt-5 flex flex-col gap-3">
         <FetchingIndicator
           active={isFetchingMonitors && !isLoading}
           label="Updating monitors"
