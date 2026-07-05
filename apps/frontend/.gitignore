@@ -16,6 +16,14 @@
 # temporary landing-page prototypes and generated image assets
 /app/test/
 /public/test/
+/app/landing-page*/
+/features/landing-page*/
+/public/landing-page*/
+/components/Aurora.tsx
+/components/ShinyText.tsx
+/components/ui/border-beam.tsx
+/components/ui/glowing-effect.tsx
+/components/ui/shimmer-button.tsx
 
 # next.js
 /.next/

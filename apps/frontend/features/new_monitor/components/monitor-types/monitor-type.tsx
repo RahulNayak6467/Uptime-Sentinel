@@ -12,7 +12,7 @@ const MonitorType = ({
   return (
     <div
       onClick={comingSoon ? undefined : onClick}
-      className={`relative border rounded-lg transition-[border-color,background-color] duration-150 ease-in-out ${
+      className={`relative rounded-lg border transition-[border-color,background-color] duration-150 ease-in-out ${
         comingSoon
           ? "border-[1.5px] border-sf-border opacity-50 cursor-not-allowed"
           : isActive
@@ -25,9 +25,9 @@ const MonitorType = ({
           Soon
         </span>
       )}
-      <div className="flex flex-col p-4">
+      <div className="flex flex-col p-3">
         <div
-          className={`w-fit p-1.5 rounded-[6px] transition-colors duration-150 ease-in-out ${
+          className={`w-fit rounded-sf-sm p-1.5 transition-colors duration-150 ease-in-out ${
             isActive && !comingSoon ? "bg-sf-text" : "bg-sf-bg"
           }`}
         >

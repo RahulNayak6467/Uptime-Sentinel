@@ -37,7 +37,7 @@ const MonitorPreview = ({
   const perDay = checksPerDay(interval);
 
   return (
-    <div className=" border border-sf-border rounded-lg bg-sf-surface overflow-hidden">
+    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sf-card">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-sf-border">
         <span className="w-2 h-2 rounded-full bg-sf-border shrink-0" />
         <span className="text-[11px] font-semibold font-sans text-sf-text-muted tracking-widest uppercase">
@@ -57,12 +57,12 @@ const MonitorPreview = ({
               {hasName ? monitorName : "Unnamed monitor"}
             </span>
           </div>
-          <span className="text-[11px] font-semibold font-sans text-sf-text border border-sf-border rounded-md px-2 py-0.5 shrink-0">
+          <span className="shrink-0 rounded-sf-sm border border-sf-border px-2 py-0.5 font-sans text-[11px] font-semibold text-sf-text">
             {type}
           </span>
         </div>
 
-        <div className="px-3 py-2 border border-sf-border rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg border border-sf-border px-3 py-2">
           <span
             className={`font-mono text-[12.5px] truncate block ${
               hasUrl ? "text-sf-text" : "text-sf-text-muted"
@@ -82,7 +82,7 @@ const MonitorPreview = ({
           ].map(({ label, value, available, fullWidth }) => (
             <div
               key={label}
-              className={`flex flex-col gap-0.5 border rounded-lg px-3 py-2 ${
+              className={`flex flex-col gap-0.5 rounded-lg border px-3 py-2 ${
                 fullWidth ? "col-span-2" : ""
               } ${
                 available
@@ -104,7 +104,7 @@ const MonitorPreview = ({
           ))}
         </div>
 
-        <div className="flex items-center gap-2 border border-sf-border rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 rounded-lg border border-sf-border px-3 py-2">
           <Bell className="w-3.5 h-3.5 text-sf-amber shrink-0" />
           <p className="text-[12px] font-sans text-sf-text-sub leading-snug">
             Alerts if response exceeds{" "}
@@ -114,7 +114,7 @@ const MonitorPreview = ({
           </p>
         </div>
 
-        <div className="flex items-start gap-2 bg-sf-bg border border-sf-border-faint rounded-lg px-3 py-2.5 opacity-50">
+        <div className="flex items-start gap-2 rounded-lg border border-sf-border-faint bg-sf-bg px-3 py-2.5 opacity-50">
           <Info className="w-3.5 h-3.5 text-sf-text-muted shrink-0 mt-0.5" />
           <p className="text-[12px] font-sans text-sf-text-muted leading-snug">
             Checks run every <strong>{interval}</strong> (~
@@ -127,7 +127,7 @@ const MonitorPreview = ({
           {["US East", "EU West"].map((region) => (
             <span
               key={region}
-              className="text-[12px] font-sans font-medium text-sf-text-muted border border-sf-border-faint rounded-lg px-2.5 py-1 bg-sf-bg"
+              className="rounded-sf-sm border border-sf-border-faint bg-sf-bg px-2.5 py-1 font-sans text-[12px] font-medium text-sf-text-muted"
             >
               {region}
             </span>

@@ -5,7 +5,7 @@ import PasswordInput from "@/components/ui/password-input";
 import UptimeSentinelImage from "@/components/ui/uptime-sentinel";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaProps } from "../schemas/login-schema";
-import { zodResolver } from "@/lib/zod-resolver";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "../hooks/useLogin";
 import { useRouter } from "next/navigation";
 import { ApiError } from "@/lib/api-error";
@@ -46,14 +46,14 @@ function LoginForm() {
   };
 
   return (
-    <section className=" w-100 bg-sf-surface px-8 py-8 border border-sf-border rounded-[12px] shadow-sf-card">
+    <section className="w-full max-w-[420px] rounded-lg border border-sf-border bg-sf-surface px-9 py-9 shadow-sf-card">
       <div className="flex justify-center items-center gap-2">
         <UptimeSentinelImage />
         <div>
           <p className="text-md text-sf-text font-bold font-sans">
             UptimeSentinel
           </p>
-          <p className="text-[9.5px] text-sf-text-muted">UPTIME</p>
+          <p className="text-[9.5px] font-medium uppercase tracking-[0.14em] text-sf-text-muted">Monitoring</p>
         </div>
       </div>
       <div className="mt-6 w-full text-center">
@@ -66,7 +66,7 @@ function LoginForm() {
       </div>
 
       <div className="mt-6 w-full">
-        <button className="w-full flex items-center justify-center gap-3 px-4 py-1.5 border border-sf-border rounded-sf bg-sf-surface hover:bg-sf-bg transition-colors cursor-pointer">
+        <button className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-sf-sm border border-sf-border bg-sf-surface px-4 py-2.5 transition-colors hover:border-sf-text-muted hover:bg-sf-bg">
           <GoogleIcon />
           <span className="text-[14px] font-semibold text-sf-text font-sans">
             Continue with Google

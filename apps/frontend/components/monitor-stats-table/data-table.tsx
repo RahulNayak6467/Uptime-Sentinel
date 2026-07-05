@@ -62,7 +62,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="overflow-hidden rounded-sf border border-sf-border bg-sf-surface">
+    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-sf-border px-4 py-3">
         <div className="flex items-center gap-2">

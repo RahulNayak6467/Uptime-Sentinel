@@ -1,5 +1,4 @@
 import { Info } from "lucide-react";
-import EmailAlertsHeaders from "./email-alerts-headers";
 import EmailRecipients from "./email-recipients";
 import EmailTypes from "./email-types";
 import DeliveryPreferences from "./delivery-preferences/delivery-preferences";
@@ -11,7 +10,7 @@ const InfoBanner = () => (
     <Info className="w-4 h-4 text-sf-blue shrink-0 mt-0.5" />
     <p className="text-[13px] font-sans text-sf-blue leading-snug">
       Alert emails are sent from{" "}
-      <span className="font-semibold">alerts@statusforge.io</span>. Add this
+      <span className="font-semibold">alerts@uptimesentinel.io</span>. Add this
       address to your contacts so incident notifications never land in spam.{" "}
       SMS, Slack, webhook and Discord channels are coming soon.
     </p>
@@ -23,7 +22,7 @@ const EmailAlertsInfo = () => {
     <div>
       <div className="px-6 py-6">
         <EmailRecipients />
-        <div className="grid grid-cols-2 gap-6 mt-6">
+        <div className="mt-5 grid grid-cols-2 gap-5">
           <EmailTypes />
           <DeliveryPreferences />
         </div>

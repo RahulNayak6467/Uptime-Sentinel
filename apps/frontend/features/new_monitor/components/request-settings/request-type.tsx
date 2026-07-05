@@ -25,9 +25,9 @@ const RequestType = ({
   const [followRedirects, setFollowRedirects] = useState(true);
 
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Request Settings
           </h1>
@@ -35,7 +35,7 @@ const RequestType = ({
             Configure how the request is sent to your endpoint
           </p>
         </div>
-        <div className="px-4 py-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-3 px-4 py-3">
           <div className="flex flex-col gap-1">
             <h3 className="text-sf-label font-semibold font-sans text-sf-text">
               HTTP method
@@ -46,7 +46,7 @@ const RequestType = ({
                   key={method}
                   type="button"
                   onClick={() => onMethodChange(method)}
-                  className={`uppercase px-2 py-1 font-sans font-medium text-[12px] rounded-lg border cursor-pointer transition-colors duration-150 ${
+                  className={`cursor-pointer rounded-sf-sm border px-2 py-1 font-sans text-[12px] font-medium uppercase transition-colors duration-150 ${
                     selectedMethod === method
                       ? "bg-sf-text text-sf-btn-text border-sf-text"
                       : "bg-sf-surface text-sf-text-sub border-sf-border hover:border-sf-text-sub hover:text-sf-text"
@@ -81,7 +81,7 @@ const RequestType = ({
                 min={1}
                 max={60}
                 defaultValue={30}
-                className="px-3 py-2 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+                className="rounded-sf-sm border border-sf-border px-3 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
               />
               {errors && <ErrorMessage error={errors.errorsTimeout} />}
             </div>
@@ -103,7 +103,7 @@ const RequestType = ({
                 min={100}
                 max={599}
                 defaultValue={200}
-                className="px-3 py-2 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+                className="rounded-sf-sm border border-sf-border px-3 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
               />
             </div>
             {errors && <ErrorMessage error={errors.errorsStatusCode} />}

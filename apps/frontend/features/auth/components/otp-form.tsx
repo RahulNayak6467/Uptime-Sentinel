@@ -1,6 +1,6 @@
 "use client";
 import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@/lib/zod-resolver";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { otpSchema, OtpSchemaProps } from "../schemas/otp-schema";
 import {
   InputOTP,
@@ -55,14 +55,14 @@ function OtpForm() {
   };
 
   return (
-    <section className="w-100 bg-sf-surface px-8 py-8 border border-sf-border rounded-[12px] shadow-sf-card">
+    <section className="w-full max-w-[420px] rounded-lg border border-sf-border bg-sf-surface px-9 py-9 shadow-sf-card">
       <div className="flex justify-center items-center gap-2">
         <UptimeSentinelImage />
         <div>
           <p className="text-md text-sf-text font-bold font-sans">
             UptimeSentinel
           </p>
-          <p className="text-[9.5px] text-sf-text-muted">UPTIME</p>
+          <p className="text-[9.5px] font-medium uppercase tracking-[0.14em] text-sf-text-muted">Monitoring</p>
         </div>
       </div>
 

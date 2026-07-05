@@ -28,7 +28,7 @@ interface Props {
 
 const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
   return (
-    <div className="flex items-center gap-1 px-6 py-3 border-b border-sf-border">
+    <div className="flex items-center gap-1 rounded-lg border border-sf-border bg-sf-surface p-1.5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       {TABS.map(({ key, label }) => {
         const isActive = active === key;
         const count = counts?.[key];
@@ -38,10 +38,10 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
             key={key}
             type="button"
             onClick={() => onChange?.(key)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sf border text-[12px] font-medium transition-colors cursor-pointer ${
+            className={`flex cursor-pointer items-center gap-1.5 rounded-sf-sm border px-3 py-1.5 text-[12px] font-medium transition-colors ${
               isActive
-                ? "border-sf-text-sub bg-sf-border text-sf-text"
-                : "border-sf-border text-sf-text-sub hover:text-sf-text hover:border-sf-text-muted hover:bg-sf-border-faint"
+                ? "border-sf-blue/30 bg-sf-blue-bg text-sf-blue"
+                : "border-transparent text-sf-text-sub hover:bg-sf-bg hover:text-sf-text"
             }`}
           >
             {key !== "all" && (

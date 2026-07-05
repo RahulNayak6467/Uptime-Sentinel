@@ -54,18 +54,18 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
   }
 
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
+    <header className="sf-page-header">
       <div className="flex flex-col gap-1.5 min-w-0">
         <Link
           href="/dashboard/monitors"
-          className="flex items-center gap-1 w-fit text-[12px] font-sans font-medium text-sf-text-muted hover:text-sf-text transition-colors"
+          className="flex w-fit items-center gap-1 rounded-sf-sm px-1 py-0.5 font-sans text-[12px] font-medium text-sf-text-muted transition-colors hover:bg-sf-blue-bg hover:text-sf-blue"
         >
           <ChevronLeft className="w-3.5 h-3.5" />
           Monitors
         </Link>
         <div className="flex items-center gap-2.5 min-w-0">
           <span style={{backgroundColor: monitorOverviewData.isActive ? "#16a34a" : "#dc2626"}} className="w-2 h-2 rounded-full shrink-0" />
-          <h1 className="text-[16px] font-bold text-sf-text truncate">
+          <h1 className="sf-page-title truncate">
             {monitorOverviewData.urlName}
           </h1>
           <span style={{color:monitorOverviewData.isActive ? "#16a34a" : "#dc2626",borderColor: monitorOverviewData.isActive?"#bbf7d04D":"#fecaca4D"}} className="text-[11px] font-semibold font-sans border  rounded-md px-2 py-0.5 shrink-0">
@@ -74,18 +74,15 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <button onClick={() => onResumeUpdate()} className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold text-sf-text border border-sf-border rounded-sf hover:border-sf-text-muted hover:b
-        g-sf-bg hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-pointer">
+        <button onClick={() => onResumeUpdate()} className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-green hover:bg-sf-green-bg hover:text-sf-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-green/25">
       <Play className="w-3.5 h-3.5" />
           Resume
         </button>
-        <button onClick={() => onPauseUpdate()} className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold text-sf-text border border-sf-border rounded-sf hover:border-sf-text-muted hover:b
-          g-sf-bg hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-pointer">
+        <button onClick={() => onPauseUpdate()} className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-amber hover:bg-sf-amber-bg hover:text-sf-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-amber/25">
           <Pause className="w-3.5 h-3.5" />
           Pause
         </button>
-        <button className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold text-sf-text border border-sf-border rounded-sf hover:border-sf-text-muted hover:b
-        g-sf-bg hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200 cursor-pointer">
+        <button className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm border border-sf-border px-4 py-1.5 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
         <Edit className="w-3.5 h-3.5" />
           Edit
         </button>

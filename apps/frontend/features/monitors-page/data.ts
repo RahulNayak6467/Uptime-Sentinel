@@ -3,7 +3,7 @@ import { MonitorPageData } from "./types";
 export const monitorsData: MonitorPageData[] = [
   {
     name: "Marketing Site",
-    url: "https://statusforge.io",
+    url: "https://uptimesentinel.io",
     type: "http",
     uptime: 99.99,
     responseTime: 112,
@@ -14,7 +14,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "App Dashboard",
-    url: "https://app.statusforge.io",
+    url: "https://app.uptimesentinel.io",
     type: "http",
     uptime: 99.97,
     responseTime: 168,
@@ -25,7 +25,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "API Gateway",
-    url: "https://api.statusforge.io/health",
+    url: "https://api.uptimesentinel.io/health",
     type: "http",
     uptime: 99.95,
     responseTime: 88,
@@ -36,7 +36,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Auth Service",
-    url: "https://auth.statusforge.io",
+    url: "https://auth.uptimesentinel.io",
     type: "http",
     uptime: 99.92,
     responseTime: 134,
@@ -47,7 +47,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Checkout Service",
-    url: "https://checkout.statusforge.io",
+    url: "https://checkout.uptimesentinel.io",
     type: "http",
     uptime: 98.41,
     responseTime: 503,
@@ -58,7 +58,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Payments Webhook",
-    url: "https://api.statusforge.io/webhooks/payments",
+    url: "https://api.uptimesentinel.io/webhooks/payments",
     type: "http",
     uptime: 99.88,
     responseTime: 224,
@@ -69,7 +69,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Search API",
-    url: "https://search.statusforge.io",
+    url: "https://search.uptimesentinel.io",
     type: "http",
     uptime: 99.62,
     responseTime: 412,
@@ -80,7 +80,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "CDN Images",
-    url: "https://cdn.statusforge.io/images",
+    url: "https://cdn.uptimesentinel.io/images",
     type: "http",
     uptime: 99.99,
     responseTime: 54,
@@ -91,7 +91,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Postgres Primary",
-    url: "tcp://db-primary.statusforge.io:5432",
+    url: "tcp://db-primary.uptimesentinel.io:5432",
     type: "tcp",
     uptime: 99.98,
     responseTime: 38,
@@ -102,7 +102,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Redis Cache",
-    url: "tcp://redis.statusforge.io:6379",
+    url: "tcp://redis.uptimesentinel.io:6379",
     type: "tcp",
     uptime: 99.99,
     responseTime: 16,
@@ -113,7 +113,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Webhooks Dispatcher",
-    url: "https://api.statusforge.io/dispatch",
+    url: "https://api.uptimesentinel.io/dispatch",
     type: "http",
     uptime: 99.84,
     responseTime: 252,
@@ -124,7 +124,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Email Service",
-    url: "https://mail.statusforge.io",
+    url: "https://mail.uptimesentinel.io",
     type: "http",
     uptime: 99.76,
     responseTime: 268,
@@ -135,7 +135,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Billing API",
-    url: "https://billing.statusforge.io/api",
+    url: "https://billing.uptimesentinel.io/api",
     type: "http",
     uptime: 99.94,
     responseTime: 146,
@@ -146,7 +146,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Status Page DNS",
-    url: "status.statusforge.io",
+    url: "status.uptimesentinel.io",
     type: "dns",
     uptime: 100.0,
     responseTime: 22,
@@ -157,7 +157,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Staging Cluster",
-    url: "https://staging.statusforge.io",
+    url: "https://staging.uptimesentinel.io",
     type: "http",
     uptime: 99.1,
     responseTime: null,
@@ -168,7 +168,7 @@ export const monitorsData: MonitorPageData[] = [
   },
   {
     name: "Legacy Reports",
-    url: "https://reports-old.statusforge.io",
+    url: "https://reports-old.uptimesentinel.io",
     type: "http",
     uptime: 97.8,
     responseTime: null,

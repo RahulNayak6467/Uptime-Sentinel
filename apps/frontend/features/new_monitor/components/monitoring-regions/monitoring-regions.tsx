@@ -2,9 +2,9 @@ import { monitoringRegions } from "../../data";
 
 const MonitoringRegions = () => {
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg relative overflow-hidden">
-        <div className="w-full border-b border-sf-border py-2 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="relative h-full w-full overflow-hidden rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <div className="flex items-center gap-2">
             <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
               Monitoring regions
@@ -22,7 +22,7 @@ const MonitoringRegions = () => {
             <button
               key={region}
               type="button"
-              className="px-3 py-1 rounded-lg border font-sans text-[12px] font-medium border-sf-border text-sf-text bg-sf-surface"
+              className="rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-1 font-sans text-[12px] font-medium text-sf-text"
             >
               {region}
             </button>

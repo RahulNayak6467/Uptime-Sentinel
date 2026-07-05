@@ -9,15 +9,16 @@ const EmailAlertsHeaders = () => {
 
   return (
     <>
-      <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[16px] font-bold text-sf-text font-sans">Alerts</h1>
+      <header className="sf-page-header">
+        <div>
+          <h1 className="sf-page-title">Alerting</h1>
+          <p className="sf-page-subtitle">Choose who gets notified and when</p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => setOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+            className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
           >
             <div className="flex">
               <User className="h-5 w-5" />

@@ -18,7 +18,7 @@ export const sendEmailVerification = async (email: string, otp: string) => {
   const { data, error } = await resend.emails.send({
     from: "onboarding@resend.dev",
     to: email,
-    subject: "Verify your email — StatusForge",
+    subject: "Verify your email — UptimeSentinel",
     html: `<p>Your verification code is: <strong>${otp}</strong></p>
            <p>This code expires in 10 minutes.</p>`,
   });

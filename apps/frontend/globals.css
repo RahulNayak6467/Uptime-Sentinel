@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -7,15 +6,15 @@
 
 /* ── StatusForge design tokens ── */
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --color-sf-bg: #f5f6f8;
+  --color-sf-bg: #f7f7f8;
   --color-sf-surface: #ffffff;
-  --color-sf-border: #dce1e7;
-  --color-sf-border-faint: #eef1f4;
-  --color-sf-text: #111827;
-  --color-sf-text-sub: #5f6875;
-  --color-sf-text-muted: #7c8594;
+  --color-sf-border: #e4e4e7;
+  --color-sf-border-faint: #f0f0f2;
+  --color-sf-text: #1b1b1f;
+  --color-sf-text-sub: #5f5f69;
+  --color-sf-text-muted: #8a8a94;
   --color-sf-green: #16a34a;
   --color-sf-green-bg: #f0fdf4;
   --color-sf-green-border: #bbf7d0;
@@ -24,8 +23,8 @@
   --color-sf-red-border: #fecaca;
   --color-sf-amber: #d97706;
   --color-sf-orange: #ea580c;
-  --color-sf-blue: #2563eb;
-  --color-sf-blue-bg: #eff6ff;
+  --color-sf-blue: #5e6ad2;
+  --color-sf-blue-bg: #f0f0ff;
   --color-sf-btn-hover: #1f2937;
   --color-sf-btn-active: #374151;
   --color-sf-btn-disabled: #d1d5db;
@@ -94,6 +93,27 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  @keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+    }
+  15%, 35% {
+    transform: translateZ(0) rotate(90deg);
+    }
+  65%, 85% {
+    transform: translateZ(0) rotate(270deg);
+    }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+    }
+  }
 }
 
 /* ── shadcn base variables — light mode ── */
@@ -168,13 +188,13 @@
   --sidebar-ring: oklch(0.556 0 0);
 
   /* StatusForge dark token overrides */
-  --color-sf-bg: #0d0d0d;
-  --color-sf-surface: #111111;
-  --color-sf-border: #222222;
-  --color-sf-border-faint: #1a1a1a;
-  --color-sf-text: #f0f0f0;
-  --color-sf-text-sub: #888888;
-  --color-sf-text-muted: #737373;
+  --color-sf-bg: #0f0f10;
+  --color-sf-surface: #151516;
+  --color-sf-border: #29292c;
+  --color-sf-border-faint: #1d1d20;
+  --color-sf-text: #f2f2f3;
+  --color-sf-text-sub: #a1a1aa;
+  --color-sf-text-muted: #73737d;
   --color-sf-green: #4ade80;
   --color-sf-green-bg: #052e16;
   --color-sf-green-border: #166534;
@@ -183,16 +203,16 @@
   --color-sf-red-border: #7f1d1d;
   --color-sf-amber: #fbbf24;
   --color-sf-orange: #fb923c;
-  --color-sf-blue: #60a5fa;
-  --color-sf-blue-bg: #0c1a2e;
-  --color-sf-btn-hover: #1f2330;
-  --color-sf-btn-active: #2a3040;
+  --color-sf-blue: #8b8cf8;
+  --color-sf-blue-bg: #22223b;
+  --color-sf-btn-hover: #dbe3ee;
+  --color-sf-btn-active: #cbd5e1;
   --color-sf-btn-disabled: #2a2d38;
   --color-sf-btn-text: #0c0e13;
   --color-sf-toggle-on: #4b5563;
   --color-sf-toggle-off: #2a2f3e;
   --shadow-sf-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-  --shadow-sf-focus: 0 0 0 3px rgba(96, 165, 250, 0.15);
+  --shadow-sf-focus: 0 0 0 3px rgba(139, 140, 248, 0.16);
   --color-sf-logo-bg: #e2e8f0;
   --color-sf-logo-stroke: #111827;
 }
@@ -203,9 +223,32 @@
   }
   body {
     @apply bg-sf-bg text-sf-text;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  .sf-page-header {
+    @apply flex min-h-16 items-center justify-between border-b border-sf-border bg-sf-surface px-6;
+  }
+
+  .sf-page-title {
+    @apply text-lg font-semibold tracking-sf-tight text-sf-text;
+  }
+
+  .sf-page-subtitle {
+    @apply mt-0.5 text-xs text-sf-text-muted;
+  }
+
+  .sf-page-content {
+    @apply mx-auto w-full max-w-7xl px-6 py-6;
+  }
+
+  .sf-panel {
+    @apply rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)];
   }
 }
 

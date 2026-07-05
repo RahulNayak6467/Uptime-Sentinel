@@ -36,7 +36,7 @@ const DeliveryPreferences = () => {
   const [includeChart, setIncludeChart] = useState(true);
 
   return (
-    <div className="w-full bg-sf-surface border border-sf-border rounded-lg">
+    <div className="w-full rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
       <div className="py-3 px-4 border-b border-sf-border">
         <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
           Delivery preferences

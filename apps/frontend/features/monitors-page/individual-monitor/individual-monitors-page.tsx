@@ -17,7 +17,7 @@ const IndividualMonitorsPage = () => {
     const {data:monitorOverviewData,isLoading:monitorOverviewLoading,isError:monitorOverviewError} = useIndividualMonitorOverview(id);
     return(<div>
     <IndividualMonitorsHeaders id={id} monitorOverviewData={monitorOverviewData} monitorOverviewLoading={monitorOverviewLoading} monitorOverviewError={monitorOverviewError} />
-    <div className="px-4">
+    <div className="sf-page-content">
         <IndividualMonitorInfoStats monitorOverviewData={monitorOverviewData} monitorOverviewLoading={monitorOverviewLoading} monitorOverviewError={monitorOverviewError} />
         <IndividualMonitorCharts />
         <CertificatesMonitor />

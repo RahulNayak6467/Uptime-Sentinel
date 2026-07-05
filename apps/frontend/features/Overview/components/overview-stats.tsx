@@ -30,7 +30,7 @@ const OverviewStats = () => {
   console.log(overViewStatsData);
 
   return (
-    <div className="flex ">
+    <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
       {OverviewData.map((data) => (
         <OverviewStatsCard
           key={data.id}

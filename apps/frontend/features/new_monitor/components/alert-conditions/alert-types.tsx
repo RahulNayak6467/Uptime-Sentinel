@@ -10,7 +10,7 @@ const AlertTypes = ({
 }: alertConditionsProps) => {
   const [values, setValues] = useState(2);
   return (
-    <div className="flex justify-between items-center border-b border-b-sf-border pb-4 pt-4">
+    <div className="flex items-center justify-between border-b border-b-sf-border py-3">
       <div>
         <p className="text-sf-text font-semibold text-[14px] font-sans">
           {alertType}
@@ -18,7 +18,7 @@ const AlertTypes = ({
         <p className="text-[12px] text-sf-text-muted font-sans">{alertText}</p>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <div className="flex items-center border border-sf-border rounded-lg overflow-hidden">
+        <div className="flex items-center overflow-hidden rounded-sf-sm border border-sf-border">
           <button
             type="button"
             onClick={() => setValues((n) => Math.max(1, n - 1))}

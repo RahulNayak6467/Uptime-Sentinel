@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 const OverviewHeaders = () => {
   const router = useRouter();
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
-      <h1 className="text-[16px] font-bold text-sf-text font-sans">
-        Dashboard Overview
-      </h1>
+    <header className="sf-page-header">
+      <div>
+        <h1 className="sf-page-title">Overview</h1>
+        <p className="sf-page-subtitle">Monitor health and recent activity at a glance</p>
+      </div>
 
       <div className="flex items-center gap-2">
-        <button className="flex items-center gap-1 px-4 py-1.5 text-[13px] font-semibold font-sans text-sf-text border border-sf-border rounded-lg hover:bg-sf-bg transition-colors cursor-pointer">
+        <button className="flex cursor-pointer items-center gap-1 rounded-sf-sm border border-sf-border px-4 py-1.5 font-sans text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
           <RefreshCw className="w-3 h-3" />
           <span>Refresh</span>
         </button>
@@ -21,7 +22,7 @@ const OverviewHeaders = () => {
               `${process.env.NEXT_PUBLIC_API_URL}/dashboard/newmonitor`,
             )
           }
-          className="flex items-center gap-1.5 px-4 py-1.5 text-[13px] font-semibold font-sans text-sf-btn-text bg-sf-text rounded-lg hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+          className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-[13px] font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
         >
           <span>+</span>
           <span>New Monitor</span>

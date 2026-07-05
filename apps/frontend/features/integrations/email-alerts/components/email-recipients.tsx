@@ -90,8 +90,8 @@ const EmailRecipients = () => {
   };
 
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
+    <div className="w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
         <div className="w-full border-b border-sf-border py-3 px-4 flex items-start justify-between rounded-t-lg">
           <div>
             <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">

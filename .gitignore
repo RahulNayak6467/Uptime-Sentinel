@@ -26,3 +26,11 @@ docs/learning/backend-review-checklist.md
 # temporary landing-page prototypes and generated image assets
 /apps/frontend/app/test/
 /apps/frontend/public/test/
+/apps/frontend/app/landing-page*/
+/apps/frontend/features/landing-page*/
+/apps/frontend/public/landing-page*/
+/apps/frontend/components/Aurora.tsx
+/apps/frontend/components/ShinyText.tsx
+/apps/frontend/components/ui/border-beam.tsx
+/apps/frontend/components/ui/glowing-effect.tsx
+/apps/frontend/components/ui/shimmer-button.tsx

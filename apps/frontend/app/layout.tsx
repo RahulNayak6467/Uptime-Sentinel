@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StatusForge",
+  title: "UptimeSentinel",
   description: "API uptime monitoring platform",
 };
 

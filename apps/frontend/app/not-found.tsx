@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * Creative 404 — intentionally ignores the StatusForge design system.
+ * Creative 404 — intentionally ignores the UptimeSentinel design system.
  * Concept: the page you asked for is a monitored endpoint that just went DOWN.
  * A live uptime trace beats a few times, then flatlines into the 404.
  */

@@ -15,23 +15,23 @@ const MonitorStats = ({
 
   const content = (
     <div
-      className={`flex justify-between items-center w-full rounded-sm transition-colors ${
+      className={`relative flex min-h-9 w-full items-center justify-between overflow-hidden rounded-sf-sm transition-colors ${
         comingSoon
           ? "cursor-default opacity-50"
           : isActive
-            ? "bg-sf-border cursor-pointer"
+            ? "bg-sf-blue-bg text-sf-blue cursor-pointer before:absolute before:inset-y-1.5 before:left-0 before:w-0.5 before:rounded-full before:bg-sf-blue"
             : "hover:bg-sf-bg cursor-pointer"
       }`}
     >
-      <div className="flex gap-2 items-center px-2 py-1">
+      <div className="flex items-center gap-2.5 px-2.5 py-2">
         <Icon
           className={`h-4 w-4 transition-colors ${
-            isActive && !comingSoon ? "text-sf-text" : "text-sf-text-muted"
+            isActive && !comingSoon ? "text-sf-blue" : "text-sf-text-muted"
           }`}
         />
         <p
           className={`text-sf-label font-medium tracking-wide transition-colors ${
-            isActive && !comingSoon ? "text-sf-text" : "text-sf-text-sub"
+            isActive && !comingSoon ? "font-semibold text-sf-blue" : "text-sf-text-sub"
           }`}
         >
           {label}

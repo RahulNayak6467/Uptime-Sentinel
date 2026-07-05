@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 
 type ModalProps = {
   open: boolean;
@@ -20,6 +21,8 @@ const Modal = ({
   children,
   width = "max-w-md",
 }: ModalProps) => {
+  const reduceMotion = useReducedMotion();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -35,11 +38,19 @@ const Modal = ({
       aria-modal="true"
       role="dialog"
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.16 }}
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
         onClick={onClose}
       />
-      <div
+      <motion.div
+        initial={
+          reduceMotion ? { opacity: 1 } : { opacity: 0, y: 8, scale: 0.985 }
+        }
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.18, ease: "easeOut" }}
         className={`relative z-10 w-full ${width} mx-4 bg-sf-surface border border-sf-border rounded-sf-card shadow-sf-card`}
       >
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-sf-border">
@@ -61,7 +72,7 @@ const Modal = ({
           </button>
         </div>
         {children}
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ const IndividualMonitorCharts = () => {
   const [range, setRange] = useState<(typeof RANGES)[number]>("1h");
 
   return (
-    <div className="bg-sf-surface border border-sf-border mt-6 px-4 pt-4 pb-8 rounded-sf">
+    <div className="sf-panel mt-5 px-5 pb-6 pt-5">
       <div className="flex justify-between items-start">
         <div>
           <p className="text-[14px] font-semibold font-sans text-sf-text">

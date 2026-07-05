@@ -12,8 +12,8 @@ const MonitorTypeInfo = ({
 }) => {
   return (
     <div className="w-full bg-sf-surface">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Monitor Type
           </h1>
@@ -21,7 +21,7 @@ const MonitorTypeInfo = ({
             What kind of check should we run?
           </p>
         </div>
-        <div className="w-full grid grid-cols-3 gap-x-4 gap-y-4 px-4 py-6">
+        <div className="grid w-full grid-cols-3 gap-3 p-4">
           {monitorTypesData.map((monitor) => (
             <MonitorType
               key={monitor.id}

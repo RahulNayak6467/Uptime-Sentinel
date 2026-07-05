@@ -83,7 +83,7 @@ export function MonitorsDataTable({
 
   return (
     <div className="flex flex-col">
-      <div className="overflow-hidden rounded-sf border border-sf-border bg-sf-surface">
+      <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

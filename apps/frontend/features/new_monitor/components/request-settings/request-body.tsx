@@ -19,7 +19,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
   const displayMethod = method.toUpperCase();
 
   return (
-    <div className="flex flex-col gap-4 p-4 rounded-lg bg-sf-bg border border-sf-border">
+    <div className="flex flex-col gap-4 rounded-lg border border-sf-border bg-sf-bg p-4">
       <div className="flex flex-col gap-2">
         <div className="flex items-baseline gap-2">
           <h3 className="text-sf-label font-semibold font-sans text-sf-text">
@@ -35,7 +35,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               key={type.id}
               type="button"
               onClick={() => handleBodyTypeSelect(type.id, type.contentType)}
-              className={`px-3 py-1 text-[12px] font-sans font-medium rounded-lg border cursor-pointer transition-colors duration-150 ${
+              className={`cursor-pointer rounded-sf-sm border px-3 py-1 font-sans text-[12px] font-medium transition-colors duration-150 ${
                 selectedBodyType === type.id
                   ? "bg-sf-text text-sf-btn-text border-sf-text"
                   : "bg-sf-surface text-sf-text-sub border-sf-border hover:border-sf-text-sub hover:text-sf-text"
@@ -67,7 +67,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               type="text"
               value={contentType}
               onChange={(e) => setContentType(e.target.value)}
-              className="w-full px-3 py-2 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-sf-surface outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+              className="w-full rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2 font-mono text-[13px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
             />
           </div>
 
@@ -79,7 +79,7 @@ const RequestBody = ({ method }: RequestBodyProps) => {
               name="requestBody"
               placeholder="Raw request body…"
               rows={7}
-              className="w-full px-3 py-2.5 border border-sf-border rounded-lg font-mono text-[13px] text-sf-text bg-sf-surface placeholder:text-sf-text-muted outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150 resize-y"
+              className="w-full resize-y rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2.5 font-mono text-[13px] text-sf-text outline-none transition-colors duration-150 placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus"
             />
           </div>
         </>

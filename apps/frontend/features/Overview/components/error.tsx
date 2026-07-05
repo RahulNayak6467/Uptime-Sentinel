@@ -2,7 +2,7 @@ type ErrorProps = { refetch: () => void };
 
 const Error = ({ refetch }: ErrorProps) => {
   return (
-    <div className="px-4 py-6 flex flex-col items-center justify-center gap-2 border-b border-sf-border bg-sf-surface text-center">
+    <div className="sf-panel flex min-h-28 flex-col items-center justify-center gap-2 px-4 py-6 text-center">
       <p className="text-sm font-semibold text-sf-red">
         Couldn&apos;t load overview stats
       </p>

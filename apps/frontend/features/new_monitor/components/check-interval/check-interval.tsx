@@ -10,9 +10,9 @@ const CheckInterval = ({
   onSelect: (interval: string) => void;
 }) => {
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-2 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Check interval
           </h1>
@@ -26,7 +26,7 @@ const CheckInterval = ({
               key={label}
               type="button"
               onClick={() => onSelect(label)}
-              className={`px-3 py-1 rounded-lg border font-sans text-[12px] font-medium transition-colors duration-150 cursor-pointer ${
+              className={`cursor-pointer rounded-sf-sm border px-3 py-1 font-sans text-[12px] font-medium transition-colors duration-150 ${
                 selected === label
                   ? "bg-sf-text text-sf-btn-text border-sf-text"
                   : "bg-sf-surface text-sf-text border-sf-border hover:border-sf-text-sub"

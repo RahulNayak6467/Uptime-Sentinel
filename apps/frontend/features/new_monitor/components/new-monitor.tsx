@@ -10,11 +10,10 @@ import NewMonitorHeader from "./monitor-types/new-monitor-header";
 import MonitoringRegions from "./monitoring-regions/monitoring-regions";
 import Notifications from "./notifications/notifications";
 import RequestType from "./request-settings/request-type";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@/lib/zod-resolver";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { monitorInfoProps, monitorInfoSchema } from "../schemas/monitor-info";
 import { useUrlRegister } from "../hooks/useUrlRegister";
-import { useRouter } from "next/router";
 import { ApiError } from "next/dist/server/api-utils";
 import { toast } from "sonner";
 
@@ -22,7 +21,7 @@ const NewMonitorProperties = () => {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<monitorInfoProps>({
     resolver: zodResolver(monitorInfoSchema),
@@ -32,11 +31,16 @@ const NewMonitorProperties = () => {
   const [interval, setInterval] = useState("5m");
   const [method, setMethod] = useState("get");
 
-  const monitorName = watch("monitorName");
-  const url = watch("url");
-  const timeout = watch("timeout");
-  const statusCode = watch("statusCode");
-  const responseTimeAlert = watch("responseTimeAlert");
+  const [monitorName, url, timeout, statusCode, responseTimeAlert] = useWatch({
+    control,
+    name: [
+      "monitorName",
+      "url",
+      "timeout",
+      "statusCode",
+      "responseTimeAlert",
+    ] as const,
+  });
 
   const { mutate, isPending } = useUrlRegister();
 
@@ -69,8 +73,8 @@ const NewMonitorProperties = () => {
         handleSubmit={handleSubmit}
         isPending={isPending}
       />
-      <div className="w-[98%] flex gap-2  ml-4 mt-4 ">
-        <div className="w-[80%]">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_320px] gap-5 px-6 py-6">
+        <div className="min-w-0">
           <MonitorTypeInfo selected={monitorType} onSelect={setMonitorType} />
           <MonitorInfo
             register={register}
@@ -96,7 +100,7 @@ const NewMonitorProperties = () => {
           />
           <Notifications />
         </div>
-        <div>
+        <div className="sticky top-6 h-fit w-full">
           <MonitorPreview
             monitorName={monitorName}
             url={url}

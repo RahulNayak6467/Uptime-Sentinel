@@ -52,8 +52,8 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
         : formatTimeUntil(data.nextCheckAt);
 
   return (
-    <div className="border border-b-sf-border bg-sf-surface mt-6 rounded-sf">
-      <div className="px-4 py-2 flex items-center justify-between">
+    <div className="sf-panel">
+      <div className="flex items-center justify-between px-5 py-3.5">
         <div className="flex gap-2 items-center">
           <p className="text-[16px] font-sans font-medium text-sf-text">
             {data.isActive ? "Operational" : "Not operational"}
@@ -62,7 +62,7 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
             {data.url}
           </a>
         </div>
-        <div className="flex gap-8 items-center">
+        <div className="flex items-center gap-10">
           <StripStat label="Next check" value={nextCheck} />
           <StripStat label="Intervals" value={`${data.intervalSeconds}s`} />
           <StripStat label="Regions" value="5" />
@@ -105,7 +105,7 @@ const IndividualMonitorInfoStats = ({
       ) : individualMonitorStatsError || !individualMonitorStats ? (
         <Error refetch={refetch} />
       ) : (
-        <div className="flex gap-2">
+        <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
           {IndividualStatsCardData.map((data) => (
             <StatsCard
               key={data.title}
@@ -128,7 +128,7 @@ const StatsCard = ({
   context,
 }: IndividualStatsCardProps) => {
   return (
-    <div className="w-full bg-sf-surface mt-6 flex flex-col gap-1 p-4  rounded-sf border border-sf-border hover:border-sf-text-muted transition-colors">
+    <div className="sf-panel flex w-full flex-col gap-1 p-4 transition-[border-color,box-shadow] hover:border-sf-text-muted/60 hover:shadow-sf-card">
       <p className="text-[14px] text-sf-text-sub font-sans font-medium">
         {title}
       </p>

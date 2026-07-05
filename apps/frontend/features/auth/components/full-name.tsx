@@ -16,7 +16,7 @@ const FullNameInput = ({
       </label>
       <input
         {...register("name")}
-        className="text-[14px] border border-sf-border bg-sf-surface px-2 py-2 rounded-[6px]"
+        className="rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2.5 text-[14px] outline-none transition-[border-color,box-shadow] focus:border-sf-blue focus:shadow-sf-focus"
         type="text"
         id="userName"
         placeholder="John Doe"

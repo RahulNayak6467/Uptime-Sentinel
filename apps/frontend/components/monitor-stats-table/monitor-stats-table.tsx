@@ -62,7 +62,7 @@ const MonitorStatsTable = () => {
   });
 
   return (
-    <div className="px-6 py-4">
+    <div>
       <DataTable
         columns={columns}
         currentPage={currentPage}

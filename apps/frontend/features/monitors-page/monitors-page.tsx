@@ -98,8 +98,9 @@ const MonitorsPage = () => {
   return (
     <section>
       <MonitorsHeader />
+      <div className="sf-page-content">
       <MonitorsFilterTabs active={activeTab} onChange={onChange} />
-      <div className="relative px-6 py-4 flex flex-col gap-3">
+      <div className="relative mt-4 flex flex-col gap-3">
         <FetchingIndicator
           active={isFetchingMonitors && !isLoading}
           label="Updating monitors"
@@ -121,6 +122,7 @@ const MonitorsPage = () => {
           isFiltered={activeTab !== "all"}
           onClearFilter={clearFilter}
         />
+      </div>
       </div>
     </section>
   );

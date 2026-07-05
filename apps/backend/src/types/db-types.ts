@@ -40,3 +40,40 @@ export interface IncidentStatsCardInfo {
   averageDurationMinutes: number;
   mttrMinutes: number;
 }
+
+export interface IncidentsDataProps {
+  id: string;
+  is_active: boolean;
+  url_name: string;
+  started_at: string;
+  resolved_at: string | null;
+  url: string;
+}
+
+export interface AddIncidentDataProps {
+  status: "detected" | "resolved" | "monitoring" | "investigating";
+  message: string;
+  occurredAt: Date | string;
+  incident_id: string;
+}
+
+export interface IncidentAddDataProps {
+  incident_id: string;
+  type: "detected" | "resolved" | "monitoring" | "investigating";
+  occurred_at: string;
+  message: string;
+  updated_at: string | null;
+  created_at: string;
+  id: string;
+}
+
+export interface IncidentTimelineProps {
+  title: string | null;
+  incident_id: string;
+  updates: {
+    id: string;
+    type: "detected" | "resolved" | "monitoring" | "investigating";
+    message: string | null;
+    occured_at: string | null;
+  }[];
+}

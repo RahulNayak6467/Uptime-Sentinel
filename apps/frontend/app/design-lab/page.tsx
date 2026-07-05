@@ -191,7 +191,7 @@ function Sidebar() {
         <div className="flex h-6 w-6 items-center justify-center rounded-sf bg-sf-logo-bg text-[12px] font-bold text-sf-logo-stroke">
           S
         </div>
-        <span className="text-[14px] font-semibold tracking-sf-tight">StatusForge</span>
+        <span className="text-[14px] font-semibold tracking-sf-tight">UptimeSentinel</span>
       </div>
 
       {nav.map((n) => (

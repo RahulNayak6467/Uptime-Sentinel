@@ -6,7 +6,7 @@ const Incidents = () => {
   return (
     <section className="pb-8">
       <IncidentHeader />
-      <div>
+      <div className="mx-auto max-w-7xl pb-2">
         <IncidentStats />
         <IncidentList />
       </div>

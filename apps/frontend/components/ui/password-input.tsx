@@ -27,7 +27,7 @@ const PasswordInput = ({
       <div className="relative">
         <input
           {...register(passwordSchema)}
-          className="w-full text-[14px] border border-sf-border bg-sf-surface px-3 py-2 pr-10 rounded-sf outline-none focus:border-sf-text transition-colors"
+          className="w-full rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2.5 pr-10 text-[14px] outline-none transition-[border-color,box-shadow] focus:border-sf-blue focus:shadow-sf-focus"
           type={show ? "text" : "password"}
           id={`user-${passwordSchema}`}
           placeholder="At least 8 characters"

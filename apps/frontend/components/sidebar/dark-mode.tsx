@@ -12,7 +12,7 @@ const DarkModeToggle = () => {
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
-      className="flex w-full cursor-pointer items-center gap-3 rounded-sf px-2 py-1.5 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text"
+      className="flex min-h-9 w-full cursor-pointer items-center gap-3 rounded-sf-sm px-2.5 py-2 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text"
     >
       <span className="relative size-4 shrink-0" aria-hidden="true">
         <Sun

@@ -15,28 +15,29 @@ const NewMonitorHeader = ({
   isPending,
 }: NewMonitorHeaderProps) => {
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-sf-border bg-sf-surface">
+    <header className="sf-page-header">
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-1.5 text-sf-text-muted hover:text-sf-text-sub transition-colors cursor-pointer">
+        <button className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm px-2 py-1 text-sf-text-muted transition-colors hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sf-label font-sans">Monitors</span>
         </button>
-        <h1 className="text-[16px] font-bold text-sf-text font-sans">
-          New monitor
-        </h1>
+        <div>
+          <h1 className="sf-page-title">New monitor</h1>
+          <p className="sf-page-subtitle">Configure an endpoint health check</p>
+        </div>
       </div>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex items-center gap-2"
       >
-        <button className="px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-text border border-sf-border rounded-sf hover:bg-sf-bg transition-colors cursor-pointer">
+        <button className="cursor-pointer rounded-sf-sm border border-sf-border px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-text transition-colors hover:border-sf-blue hover:bg-sf-blue-bg hover:text-sf-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
           Cancel
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="flex items-center gap-1.5 px-4 py-1.5 text-sf-label font-semibold font-sans text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-sf-text disabled:hover:text-sf-btn-text"
         >
           {isPending ? (
             <>

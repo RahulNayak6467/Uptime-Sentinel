@@ -1,6 +1,6 @@
 const IncidentHistory = () => {
   return (
-    <div className="p-4 pb-6 bg-sf-surface border border-sf-border mt-8 rounded-sf">
+    <div className="sf-panel mt-5 p-5 pb-6">
       <h3 className="text-[14px] font-semibold font-sans text-sf-text">
         Incident history
       </h3>

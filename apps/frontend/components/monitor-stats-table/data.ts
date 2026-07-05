@@ -31,7 +31,7 @@ import { monitorDataProps } from "@/features/Overview/types";
 export const servicesStatus: monitorDataProps[] = [
   {
     url_name: "Marketing Site",
-    url: "https://statusforge.io",
+    url: "https://uptimesentinel.io",
     uptime: 99.99,
     responseTime: 112,
     statusCode: 200,
@@ -46,7 +46,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "App Dashboard",
-    url: "https://app.statusforge.io",
+    url: "https://app.uptimesentinel.io",
     uptime: 99.97,
     responseTime: 168,
     statusCode: 200,
@@ -61,7 +61,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "API Gateway",
-    url: "https://api.statusforge.io/health",
+    url: "https://api.uptimesentinel.io/health",
     uptime: 99.95,
     responseTime: 88,
     statusCode: 200,
@@ -76,7 +76,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Auth Service",
-    url: "https://auth.statusforge.io",
+    url: "https://auth.uptimesentinel.io",
     uptime: 99.92,
     responseTime: 134,
     statusCode: 200,
@@ -91,7 +91,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Checkout Service",
-    url: "https://checkout.statusforge.io",
+    url: "https://checkout.uptimesentinel.io",
     uptime: 98.41,
     responseTime: 503,
     statusCode: 503,
@@ -106,7 +106,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Payments Webhook",
-    url: "https://api.statusforge.io/webhooks/payments",
+    url: "https://api.uptimesentinel.io/webhooks/payments",
     uptime: 99.88,
     responseTime: 224,
     statusCode: 200,
@@ -121,7 +121,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Search API",
-    url: "https://search.statusforge.io",
+    url: "https://search.uptimesentinel.io",
     uptime: 99.9,
     responseTime: 176,
     statusCode: 200,
@@ -136,7 +136,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "CDN Images",
-    url: "https://cdn.statusforge.io/images",
+    url: "https://cdn.uptimesentinel.io/images",
     uptime: 99.99,
     responseTime: 54,
     statusCode: 200,
@@ -151,7 +151,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Postgres Primary",
-    url: "tcp://db-primary.statusforge.io:5432",
+    url: "tcp://db-primary.uptimesentinel.io:5432",
     uptime: 99.98,
     responseTime: 38,
     statusCode: 200,
@@ -166,7 +166,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Redis Cache",
-    url: "tcp://redis.statusforge.io:6379",
+    url: "tcp://redis.uptimesentinel.io:6379",
     uptime: 99.99,
     responseTime: 16,
     statusCode: 200,
@@ -181,7 +181,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Webhooks Dispatcher",
-    url: "https://api.statusforge.io/dispatch",
+    url: "https://api.uptimesentinel.io/dispatch",
     uptime: 99.84,
     responseTime: 252,
     statusCode: 200,
@@ -196,7 +196,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Email Service",
-    url: "https://mail.statusforge.io",
+    url: "https://mail.uptimesentinel.io",
     uptime: 99.76,
     responseTime: 268,
     statusCode: 200,
@@ -211,7 +211,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Analytics Ingest",
-    url: "https://ingest.statusforge.io",
+    url: "https://ingest.uptimesentinel.io",
     uptime: 99.93,
     responseTime: 142,
     statusCode: 200,
@@ -226,7 +226,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Mobile API",
-    url: "https://mobile.statusforge.io/v2",
+    url: "https://mobile.uptimesentinel.io/v2",
     uptime: 99.91,
     responseTime: 198,
     statusCode: 200,
@@ -241,7 +241,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Status Page",
-    url: "https://status.statusforge.io",
+    url: "https://status.uptimesentinel.io",
     uptime: 100.0,
     responseTime: 72,
     statusCode: 200,
@@ -256,7 +256,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Docs",
-    url: "https://docs.statusforge.io",
+    url: "https://docs.uptimesentinel.io",
     uptime: 99.97,
     responseTime: 104,
     statusCode: 200,
@@ -271,7 +271,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Blog",
-    url: "https://blog.statusforge.io",
+    url: "https://blog.uptimesentinel.io",
     uptime: 99.99,
     responseTime: 126,
     statusCode: 200,
@@ -286,7 +286,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Admin Console",
-    url: "https://admin.statusforge.io",
+    url: "https://admin.uptimesentinel.io",
     uptime: 99.89,
     responseTime: 182,
     statusCode: 200,
@@ -301,7 +301,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Support Portal",
-    url: "https://support.statusforge.io",
+    url: "https://support.uptimesentinel.io",
     uptime: 99.94,
     responseTime: 214,
     statusCode: 200,
@@ -316,7 +316,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Staging API",
-    url: "https://staging-api.statusforge.io",
+    url: "https://staging-api.uptimesentinel.io",
     uptime: 97.2,
     responseTime: null,
     statusCode: null,
@@ -327,7 +327,7 @@ export const servicesStatus: monitorDataProps[] = [
   },
   {
     url_name: "Internal Cron",
-    url: "https://cron.statusforge.io",
+    url: "https://cron.uptimesentinel.io",
     uptime: 99.5,
     responseTime: null,
     statusCode: null,

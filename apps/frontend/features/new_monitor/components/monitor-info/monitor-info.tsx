@@ -14,9 +14,9 @@ const MonitorInfo = ({
   };
 }) => {
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Basic Info
           </h1>
@@ -24,7 +24,7 @@ const MonitorInfo = ({
             Name your monitor and point it to a URL
           </p>
         </div>
-        <div className="flex flex-col gap-4 p-4">
+        <div className="flex flex-col gap-3 px-4 py-3">
           <div className="flex flex-col gap-1">
             <label
               className="text-sf-text font-sans text-sf-label font-semibold"
@@ -35,7 +35,7 @@ const MonitorInfo = ({
             <input
               {...register("monitorName")}
               id="monitor-name"
-              className="px-4 py-2 border border-sf-border text-sf-text rounded-lg font-sans text-[14px] outline-none placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+              className="rounded-sf-sm border border-sf-border px-4 py-2 font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus"
               type="text"
               required
               autoComplete="off"
@@ -53,7 +53,7 @@ const MonitorInfo = ({
             <input
               {...register("url")}
               id="monitor-url"
-              className="px-4 py-2 border border-sf-border text-sf-text rounded-lg font-mono text-[14px] outline-none placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150"
+              className="rounded-sf-sm border border-sf-border px-4 py-2 font-mono text-[14px] text-sf-text outline-none transition-colors duration-150 placeholder:text-sf-text-muted focus:border-sf-text focus:shadow-sf-focus"
               type="url"
               required
               autoComplete="off"

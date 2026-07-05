@@ -14,9 +14,9 @@ const AlertConditions = ({
   errors: string | undefined;
 }) => {
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Alert conditions
           </h1>
@@ -49,7 +49,7 @@ const AlertConditions = ({
                 type="number"
                 defaultValue={5000}
                 min={0}
-                className="w-28 px-3 py-1 border border-sf-border rounded-lg font-sans text-[14px] text-sf-text outline-none focus:border-sf-text focus:shadow-sf-focus transition-colors duration-150 text-center"
+                className="w-28 rounded-sf-sm border border-sf-border px-3 py-1 text-center font-sans text-[14px] text-sf-text outline-none transition-colors duration-150 focus:border-sf-text focus:shadow-sf-focus"
               />
               <span className="text-[13px] text-sf-text-muted font-sans w-14">
                 ms

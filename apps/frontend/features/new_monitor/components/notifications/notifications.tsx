@@ -8,9 +8,9 @@ const Notifications = () => {
   const [selected, setSelected] = useState("Email");
 
   return (
-    <div className="w-full bg-sf-surface mt-6">
-      <div className="w-full h-full border border-sf-border rounded-lg">
-        <div className="w-full border-b border-sf-border py-3 px-4 rounded-t-lg">
+    <div className="mt-4 w-full bg-sf-surface">
+      <div className="h-full w-full rounded-lg border border-sf-border">
+        <div className="w-full rounded-t-lg border-b border-sf-border px-4 py-2">
           <h1 className="text-[14px] font-sans font-semibold tracking-normal text-sf-text">
             Notifications
           </h1>
@@ -18,14 +18,14 @@ const Notifications = () => {
             Choose where alerts are sent when this monitor triggers
           </p>
         </div>
-        <div className="px-4 py-4 flex flex-col gap-3">
+        <div className="flex flex-col gap-3 px-4 py-3">
           <div className="flex gap-2 flex-wrap">
             {notificationChannels.map(({ id, label, icon: Icon, comingSoon }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => !comingSoon && setSelected(label)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-sans text-[13px] font-medium transition-colors duration-150 ${
+                className={`flex items-center gap-1.5 rounded-sf-sm border px-3 py-1 font-sans text-[13px] font-medium transition-colors duration-150 ${
                   comingSoon
                     ? "border-sf-border text-sf-text-muted cursor-not-allowed opacity-50"
                     : selected === label
@@ -44,7 +44,7 @@ const Notifications = () => {
             ))}
           </div>
 
-          <div className="flex items-start gap-2 bg-sf-blue-bg border border-sf-blue rounded-lg px-3 py-2.5">
+          <div className="flex items-start gap-2 rounded-lg border border-sf-blue bg-sf-blue-bg px-3 py-2.5">
             <Info className="w-4 h-4 text-sf-blue shrink-0 mt-0.5" />
             <p className="text-[12.5px] font-sans text-sf-blue leading-snug">
               Configure channel details (webhooks, Slack workspace, etc.) in{" "}
