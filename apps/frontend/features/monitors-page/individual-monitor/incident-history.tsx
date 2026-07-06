@@ -1,6 +1,11 @@
 import { useLastFiveIncidentsData } from "./hooks/useLastFiveIncidents";
 import { formatIncidentDuration } from "@/utils/format-incident-duration";
 import { formatIncidentTimestamp } from "@/utils/format-incident-timestamp";
+import {
+  IncidentHistoryEmpty,
+  IncidentHistoryError,
+  IncidentHistorySkeleton,
+} from "./incident-history-states";
 
 // const incidents = [
 //   {
@@ -37,14 +42,21 @@ const IncidentHistory = ({ id }: { id: string }) => {
     data: lastFiveIncidents,
     isLoading,
     isError,
+    isFetching,
+    refetch,
   } = useLastFiveIncidentsData(id);
 
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return <IncidentHistorySkeleton />;
   }
 
   if (isError || !lastFiveIncidents) {
-    return <h1>Error...</h1>;
+    return (
+      <IncidentHistoryError
+        onRetry={() => void refetch()}
+        isRetrying={isFetching}
+      />
+    );
   }
 
   const requiredData = lastFiveIncidents.data.map((data) => {
@@ -94,67 +106,71 @@ const IncidentHistory = ({ id }: { id: string }) => {
         </span>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
-        {requiredData.map((incident, index) => (
-          <article
-            key={incident.id}
-            className={`grid gap-4 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
-              index > 0 ? "border-t border-sf-border" : ""
-            } ${incident.isActive ? "bg-sf-red-bg/20" : ""}`}
-          >
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
-                  className={`size-2 shrink-0 rounded-full ${
-                    incident.isActive ? "bg-sf-red" : "bg-sf-green"
-                  }`}
-                  aria-hidden="true"
-                />
-                <p className="text-[13px] font-semibold leading-5 text-sf-text">
-                  {incident.title}
+      {requiredData.length === 0 ? (
+        <IncidentHistoryEmpty />
+      ) : (
+        <div className="mt-4 overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
+          {requiredData.map((incident, index) => (
+            <article
+              key={incident.id}
+              className={`grid gap-4 px-4 py-3.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
+                index > 0 ? "border-t border-sf-border" : ""
+              } ${incident.isActive ? "bg-sf-red-bg/20" : ""}`}
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`size-2 shrink-0 rounded-full ${
+                      incident.isActive ? "bg-sf-red" : "bg-sf-green"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <p className="text-[13px] font-semibold leading-5 text-sf-text">
+                    {incident.title}
+                  </p>
+                  <span
+                    className={`rounded-sf border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${
+                      incident.isActive
+                        ? "border-sf-red-border bg-sf-red-bg text-sf-red"
+                        : "border-sf-green-border bg-sf-green-bg text-sf-green"
+                    }`}
+                  >
+                    {incident.isActive ? "Active" : "Resolved"}
+                  </span>
+                </div>
+
+                <p className="mt-1 text-[11px] leading-5 text-sf-text-muted">
+                  Started {incident.startedAt}
+                  <span className="text-sf-border-faint"> · </span>
+                  <span className="font-medium text-sf-text-sub">
+                    {incident.trigger}
+                  </span>
+                  {incident.recovery ? (
+                    <>
+                      <span className="text-sf-border-faint"> · </span>
+                      {incident.recovery}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sf-border-faint"> · </span>
+                      <span className="font-medium text-sf-red">Ongoing</span>
+                    </>
+                  )}
                 </p>
-                <span
-                  className={`rounded-sf border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] ${
-                    incident.isActive
-                      ? "border-sf-red-border bg-sf-red-bg text-sf-red"
-                      : "border-sf-green-border bg-sf-green-bg text-sf-green"
-                  }`}
-                >
-                  {incident.isActive ? "Active" : "Resolved"}
-                </span>
               </div>
 
-              <p className="mt-1 text-[11px] leading-5 text-sf-text-muted">
-                Started {incident.startedAt}
-                <span className="text-sf-border-faint"> · </span>
-                <span className="font-medium text-sf-text-sub">
-                  {incident.trigger}
-                </span>
-                {incident.recovery ? (
-                  <>
-                    <span className="text-sf-border-faint"> · </span>
-                    {incident.recovery}
-                  </>
-                ) : (
-                  <>
-                    <span className="text-sf-border-faint"> · </span>
-                    <span className="font-medium text-sf-red">Ongoing</span>
-                  </>
-                )}
-              </p>
-            </div>
-
-            <div className="sm:text-right">
-              <p className="font-mono text-[13px] font-medium tabular-nums text-sf-text-sub">
-                {incident.duration}
-              </p>
-              <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-sf-text-muted">
-                Duration
-              </p>
-            </div>
-          </article>
-        ))}
-      </div>
+              <div className="sm:text-right">
+                <p className="font-mono text-[13px] font-medium tabular-nums text-sf-text-sub">
+                  {incident.duration}
+                </p>
+                <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.12em] text-sf-text-muted">
+                  Duration
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
