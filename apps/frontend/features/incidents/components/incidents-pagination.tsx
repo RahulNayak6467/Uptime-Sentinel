@@ -21,7 +21,7 @@ const IncidentsPagination = ({
 
   return (
     <div className="mt-5 flex items-center justify-between gap-4 border-t border-sf-border px-1 py-3">
-      <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
+      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted">
         Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
         {totalPage}
       </span>

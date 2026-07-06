@@ -25,7 +25,7 @@ const RecentAlertsSkeleton = ({ rows = 5 }: { rows?: number }) => {
           {["Event", "Subject", "Recipients", "Sent", "Delivery"].map((col) => (
             <span
               key={col}
-              className="text-[11px] font-semibold font-sans text-sf-text-muted uppercase tracking-widest"
+              className="font-sans text-[10px] font-semibold uppercase tracking-widest text-sf-text-muted"
             >
               {col}
             </span>

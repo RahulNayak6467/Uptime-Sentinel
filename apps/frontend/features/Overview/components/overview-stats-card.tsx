@@ -68,7 +68,7 @@ const CardInner = ({
         {value}
       </p>
       {context ? (
-        <p className="mt-2 text-[11px] text-sf-text-muted">{context}</p>
+        <p className="mt-2 text-xs text-sf-text-muted">{context}</p>
       ) : null}
     </div>
 

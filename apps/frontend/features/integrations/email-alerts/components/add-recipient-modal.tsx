@@ -108,7 +108,7 @@ const AddRecipientModal = ({ open, onClose }: Props) => {
                       <span className="text-[13px] font-sans font-semibold text-sf-text leading-snug">
                         {opt.label}
                       </span>
-                      <span className="text-[11.5px] font-sans text-sf-text-muted">
+                      <span className="font-sans text-xs text-sf-text-muted">
                         {opt.description}
                       </span>
                     </div>
@@ -124,13 +124,13 @@ const AddRecipientModal = ({ open, onClose }: Props) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 text-[13px] font-sans font-medium text-sf-text-sub bg-sf-bg border border-sf-border rounded-sf hover:bg-sf-border-faint hover:text-sf-text transition-colors cursor-pointer"
+            className="px-4 py-1.5 text-[13px] font-sans font-medium text-sf-text-sub bg-sf-bg border border-sf-border rounded-[4px] hover:bg-sf-border-faint hover:text-sf-text transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-1.5 text-[13px] font-sans font-semibold text-sf-btn-text bg-sf-text rounded-sf hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
+            className="px-4 py-1.5 text-[13px] font-sans font-semibold text-sf-btn-text bg-sf-text rounded-[4px] hover:bg-sf-btn-hover active:bg-sf-btn-active transition-colors cursor-pointer"
           >
             Add recipient
           </button>

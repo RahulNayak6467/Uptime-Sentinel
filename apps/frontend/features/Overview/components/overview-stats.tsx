@@ -29,7 +29,7 @@ const UptimeBar = ({ pct, color }: { pct: number; color: string }) => (
 );
 
 const Chip = ({ children }: { children: ReactNode }) => (
-  <span className="inline-flex items-center gap-1 rounded-md bg-sf-bg px-1.5 py-1 text-[10.5px] font-medium text-sf-text-sub ring-1 ring-inset ring-sf-border-faint">
+  <span className="inline-flex items-center gap-1 rounded-md bg-sf-bg px-1.5 py-1 text-xs font-medium text-sf-text-sub ring-1 ring-inset ring-sf-border-faint">
     {children}
   </span>
 );
@@ -66,11 +66,11 @@ const OverviewStats = () => {
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
             Performance snapshot
           </p>
-          <h2 className="mt-1 text-base font-semibold tracking-sf-tight text-sf-text">
+          <h2 className="mt-1 text-[14px] font-semibold tracking-sf-tight text-sf-text">
             Key metrics
           </h2>
         </div>
-        <p className="hidden text-[11px] text-sf-text-muted sm:block">
+        <p className="hidden text-xs text-sf-text-muted sm:block">
           Aggregated across all monitored endpoints
         </p>
       </div>

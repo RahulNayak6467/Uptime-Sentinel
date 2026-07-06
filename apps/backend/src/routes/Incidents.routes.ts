@@ -6,12 +6,15 @@ import { getAllIncidentsData } from "../controllers/allIncidents.controllers";
 import { addIncidentData } from "../controllers/addIncidents.controllers";
 import { updateIncidentsData } from "../controllers/updateIncidentData";
 import { getIncidentsTimeline } from "../controllers/incidentsTimeline.controllers";
+import { getLastFiveIncidentsData } from "../controllers/lastFiveIncidentsData";
 
 const router: Router = express.Router();
 
 // router.get("/:id", authMiddleware, getSingleIncidentData);
 
 router.get("/all", authMiddleware, getAllIncidentsData);
+
+router.get("/:monitorId/info", authMiddleware, getLastFiveIncidentsData);
 
 router.get("/all/stats", authMiddleware, getIncidentsStatsCardData);
 

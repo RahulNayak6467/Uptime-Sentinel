@@ -74,7 +74,7 @@ const LoadingScreen = ({
 
       <div className="flex flex-col items-center gap-2.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-[15px] font-semibold font-sans text-sf-text">
+          <span className="font-sans text-sm font-semibold text-sf-text">
             {title}
           </span>
           <span className="ls-dots">
@@ -86,7 +86,7 @@ const LoadingScreen = ({
 
         <p
           key={index}
-          className="ls-message text-[12.5px] font-sans text-sf-text-sub h-4"
+          className="ls-message h-4 font-sans text-xs text-sf-text-sub"
         >
           {messages[index]}
         </p>

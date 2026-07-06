@@ -17,10 +17,10 @@ const MonitorsEmpty = ({
           <Activity className="size-5 text-sf-blue" aria-hidden="true" />
         </div>
 
-        <h2 className="text-[15px] font-semibold text-sf-text">
+        <h2 className="text-sm font-semibold text-sf-text">
           {isFiltered ? "No monitors match this filter" : "No monitors yet"}
         </h2>
-        <p className="mt-1.5 max-w-sm text-[13px] leading-5 text-sf-text-muted">
+        <p className="mt-1.5 max-w-sm text-xs leading-5 text-sf-text-muted">
           {isFiltered
             ? "Try another status filter to find the monitor you're looking for."
             : "Create your first monitor to start tracking uptime, response times, and incidents."}
@@ -30,14 +30,14 @@ const MonitorsEmpty = ({
           <button
             type="button"
             onClick={onClearFilter}
-            className="mt-5 rounded-lg border border-sf-border px-4 py-2 text-[13px] font-semibold text-sf-text transition-colors hover:bg-sf-bg"
+            className="mt-5 rounded-lg border border-sf-border px-4 py-2 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg"
           >
             View all monitors
           </button>
         ) : (
           <Link
             href="/dashboard/newmonitor"
-            className="mt-5 flex items-center gap-1.5 rounded-lg bg-sf-text px-4 py-2 text-[13px] font-semibold text-sf-btn-text transition-colors hover:bg-sf-btn-hover active:bg-sf-btn-active"
+            className="mt-5 flex items-center gap-1.5 rounded-lg bg-sf-text px-4 py-2 text-xs font-semibold text-sf-btn-text transition-colors hover:bg-sf-btn-hover active:bg-sf-btn-active"
           >
             <Plus className="size-3.5" aria-hidden="true" />
             Create monitor

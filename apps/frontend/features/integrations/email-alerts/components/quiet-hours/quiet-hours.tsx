@@ -54,7 +54,7 @@ const TimeDropdown = ({
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className="flex items-center gap-1.5 px-3 py-1.5 border border-sf-border rounded-lg text-[13px] font-sans font-medium text-sf-text bg-sf-surface hover:bg-sf-bg transition-colors cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 border border-sf-border rounded-[4px] text-[13px] font-sans font-medium text-sf-text bg-sf-surface hover:bg-sf-bg transition-colors cursor-pointer"
       >
         {value}
         <ChevronDown className="w-3.5 h-3.5 text-sf-text-muted" />
@@ -125,7 +125,7 @@ const QuietHours = () => {
                   key={opt}
                   type="button"
                   onClick={() => setDayScope(opt)}
-                  className={`px-3 py-1 text-[13px] font-sans font-medium rounded-lg border transition-colors duration-150 cursor-pointer ${
+                  className={`px-3 py-1 text-[13px] font-sans font-medium rounded-[4px] border transition-colors duration-150 cursor-pointer ${
                     dayScope === opt
                       ? "bg-sf-text text-sf-btn-text border-sf-text"
                       : "bg-sf-surface text-sf-text border-sf-border hover:bg-sf-bg"

@@ -50,8 +50,6 @@ const MonitorsPage = () => {
     setCurrentPage(() => page);
   };
 
-  console.log(currentPage);
-
   const {
     data: monitorTableData,
     isLoading,
@@ -97,7 +95,10 @@ const MonitorsPage = () => {
 
   return (
     <section className="min-h-full">
-      <MonitorsHeader />
+      <MonitorsHeader
+        onRefresh={() => void refetch()}
+        isRefreshing={isFetchingMonitors}
+      />
       <div className="sf-page-content pb-12">
       <MonitorsFilterTabs active={activeTab} onChange={onChange} />
       <div className="relative mt-5 flex flex-col gap-3">

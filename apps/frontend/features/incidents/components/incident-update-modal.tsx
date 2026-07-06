@@ -74,7 +74,7 @@ const labelClass =
   "text-[12px] font-semibold font-sans text-sf-text-sub uppercase tracking-wide";
 
 const sectionLabelClass =
-  "text-[11px] font-semibold font-sans text-sf-text-muted uppercase tracking-[0.06em]";
+  "text-[10px] font-semibold font-sans text-sf-text-muted uppercase tracking-[0.06em]";
 
 const overallBadge: Record<IncidentStatus, string> = {
   active: "bg-sf-red-bg text-sf-red border border-sf-red/30",
@@ -250,14 +250,14 @@ const IncidentUpdateModal = ({
         <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto px-5 py-4">
           {/* Context banner — which incident this belongs to (read-only) */}
           <div className="flex items-center gap-2.5 rounded-sf border border-sf-border bg-sf-border-faint/50 px-3 py-2">
-            <span className="text-[11px] font-semibold font-sans text-sf-text-muted uppercase tracking-wide">
+            <span className="text-[10px] font-semibold font-sans text-sf-text-muted uppercase tracking-wide">
               Incident
             </span>
             <span className="text-[13px] font-sans font-medium text-sf-text">
               {service}
             </span>
             <span
-              className={`ml-auto text-[10px] font-semibold font-sans px-2 py-0.5 rounded-full ${overallBadge[overallStatus]}`}
+              className={`ml-auto text-xs font-semibold font-sans px-2 py-0.5 rounded-full ${overallBadge[overallStatus]}`}
             >
               {overallStatus === "active" ? "Active" : "Resolved"}
             </span>
@@ -274,11 +274,11 @@ const IncidentUpdateModal = ({
                 className={inputClass}
               />
               {errors.title ? (
-                <p className="font-sans text-[11px] text-sf-red">
+                <p className="font-sans text-xs text-sf-red">
                   {errors.title.message}
                 </p>
               ) : (
-                <p className="font-sans text-[11px] text-sf-text-muted">
+                <p className="font-sans text-xs text-sf-text-muted">
                   Optional — names the incident itself, not this note.
                 </p>
               )}
@@ -323,7 +323,7 @@ const IncidentUpdateModal = ({
                 })}
               </div>
               {errors.status && (
-                <p className="font-sans text-[11px] text-sf-red">
+                <p className="font-sans text-xs text-sf-red">
                   {errors.status.message}
                 </p>
               )}
@@ -341,13 +341,13 @@ const IncidentUpdateModal = ({
               />
               <div className="flex items-center justify-between gap-2">
                 {errors.message ? (
-                  <p className="font-sans text-[11px] text-sf-red">
+                  <p className="font-sans text-xs text-sf-red">
                     {errors.message.message}
                   </p>
                 ) : (
                   <span />
                 )}
-                <span className="text-[11px] font-sans text-sf-text-muted tabular-nums">
+                <span className="text-xs font-sans text-sf-text-muted tabular-nums">
                   {message.length} / {MESSAGE_MAX}
                 </span>
               </div>
@@ -396,7 +396,7 @@ const IncidentUpdateModal = ({
 
                     <div className="flex items-center gap-2 rounded-sf border border-sf-border bg-sf-bg px-3 py-2.5">
                       <Clock className="h-3.5 w-3.5 text-sf-text-muted" />
-                      <span className="mr-auto font-sans text-[11px] font-medium text-sf-text-sub">
+                      <span className="mr-auto font-sans text-xs font-medium text-sf-text-sub">
                         Time
                       </span>
                       <button
@@ -443,11 +443,11 @@ const IncidentUpdateModal = ({
                     </div>
 
                     {customTimeError ? (
-                      <p className="rounded-sf border border-sf-red/30 bg-sf-red-bg px-3 py-2 font-sans text-[10.5px] text-sf-red">
+                      <p className="rounded-sf border border-sf-red/30 bg-sf-red-bg px-3 py-2 font-sans text-xs text-sf-red">
                         {customTimeError}
                       </p>
                     ) : selectedDate ? (
-                      <div className="flex items-center gap-1.5 rounded-sf border border-sf-border bg-sf-border-faint/50 px-3 py-2 font-sans text-[10.5px] text-sf-text-muted">
+                      <div className="flex items-center gap-1.5 rounded-sf border border-sf-border bg-sf-border-faint/50 px-3 py-2 font-sans text-xs text-sf-text-muted">
                         <CalendarDays className="h-3 w-3" />
                         {selectedDate.toLocaleDateString(undefined, {
                           weekday: "short",
@@ -460,7 +460,7 @@ const IncidentUpdateModal = ({
                     ) : null}
                   </div>
                 ) : (
-                  <p className="flex items-center gap-1.5 text-[11.5px] font-sans text-sf-text-muted">
+                  <p className="flex items-center gap-1.5 font-sans text-xs text-sf-text-muted">
                     <Clock className="w-3 h-3" />
                     The server will stamp this update when it is saved.
                   </p>
@@ -468,7 +468,7 @@ const IncidentUpdateModal = ({
               </div>
             )}
 
-            <p className="rounded-sf border border-sf-border bg-sf-border-faint/50 px-3 py-2 font-sans text-[11px] leading-4 text-sf-text-muted">
+            <p className="rounded-sf border border-sf-border bg-sf-border-faint/50 px-3 py-2 font-sans text-xs leading-4 text-sf-text-muted">
               Updates add commentary to the incident timeline. They do not
               change the incident lifecycle — detection and resolution are
               driven by monitor checks.
@@ -481,14 +481,14 @@ const IncidentUpdateModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-sf border border-sf-border bg-sf-bg px-4 py-1.5 font-sans text-[13px] font-medium text-sf-text-sub transition-colors hover:border-sf-text-sub hover:bg-sf-border-faint hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/20"
+            className="cursor-pointer rounded-[4px] border border-sf-border bg-sf-bg px-4 py-1.5 font-sans text-[13px] font-medium text-sf-text-sub transition-colors hover:border-sf-text-sub hover:bg-sf-border-faint hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/20"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={!isValid}
-            className="cursor-pointer rounded-sf bg-sf-text px-4 py-1.5 font-sans text-[13px] font-semibold text-sf-btn-text shadow-sm transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-sf-btn-hover hover:shadow-md active:translate-y-0 active:bg-sf-btn-active active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/25 focus-visible:ring-offset-2 focus-visible:ring-offset-sf-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-sf-text disabled:hover:shadow-sm"
+            className="cursor-pointer rounded-[4px] bg-sf-text px-4 py-1.5 font-sans text-[13px] font-semibold text-sf-btn-text shadow-sm transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-sf-btn-hover hover:shadow-md active:translate-y-0 active:bg-sf-btn-active active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/25 focus-visible:ring-offset-2 focus-visible:ring-offset-sf-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:bg-sf-text disabled:hover:shadow-sm"
           >
             {isEdit ? "Save changes" : "Save update"}
           </button>

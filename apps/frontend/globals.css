@@ -13,8 +13,8 @@
   --color-sf-border: #e4e4e7;
   --color-sf-border-faint: #f0f0f2;
   --color-sf-text: #1b1b1f;
-  --color-sf-text-sub: #5f5f69;
-  --color-sf-text-muted: #8a8a94;
+  --color-sf-text-sub: #5a5a64;
+  --color-sf-text-muted: #6b6b76;
   --color-sf-green: #16a34a;
   --color-sf-green-bg: #f0fdf4;
   --color-sf-green-border: #bbf7d0;
@@ -36,9 +36,9 @@
   --color-sf-logo-bg: #111827;
   --color-sf-logo-stroke: #ffffff;
 
-  --text-sf-tagline: 0.594rem;
-  --text-sf-xs: 0.719rem;
-  --text-sf-sm: 0.844rem;
+  --text-sf-tagline: 0.625rem;
+  --text-sf-xs: 0.75rem;
+  --text-sf-sm: 0.875rem;
   --text-sf-label: 0.8125rem;
   --text-sf-h1: 1.25rem;
 
@@ -198,8 +198,8 @@
   --color-sf-border: #24262e;
   --color-sf-border-faint: #191a1f;
   --color-sf-text: #f1f2f4;
-  --color-sf-text-sub: #a2a3ad;
-  --color-sf-text-muted: #72747f;
+  --color-sf-text-sub: #adaeb8;
+  --color-sf-text-muted: #8b8d98;
   --color-sf-green: #4ade80;
   --color-sf-green-bg: #052e16;
   --color-sf-green-border: #166534;
@@ -238,16 +238,25 @@
 }
 
 @layer components {
+  .sf-auth-page {
+    @apply relative isolate flex min-h-screen w-full items-center justify-center overflow-hidden px-6 py-10;
+    background: var(--color-sf-bg);
+  }
+
+  .sf-auth-content {
+    @apply relative z-10 flex w-full flex-col items-center gap-5;
+  }
+
   .sf-page-header {
-    @apply flex min-h-16 items-center justify-between border-b border-sf-border bg-sf-surface px-6;
+    @apply flex min-h-[88px] items-center justify-between gap-6 border-b border-sf-border bg-sf-surface px-6;
   }
 
   .sf-page-title {
-    @apply text-lg font-semibold tracking-sf-tight text-sf-text;
+    @apply text-xl font-semibold tracking-sf-tight text-sf-text;
   }
 
   .sf-page-subtitle {
-    @apply mt-0.5 text-xs text-sf-text-muted;
+    @apply mt-1 text-xs text-sf-text-muted;
   }
 
   .sf-page-content {

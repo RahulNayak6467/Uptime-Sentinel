@@ -23,7 +23,7 @@ const IncidentListError = ({ onRetry }: IncidentListErrorProps) => {
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 rounded-sf border border-sf-border bg-sf-bg px-3 py-1.5 text-[12px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
+          className="mt-1 rounded-[4px] border border-sf-border bg-sf-bg px-3 py-1.5 text-[12px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
         >
           Retry
         </button>

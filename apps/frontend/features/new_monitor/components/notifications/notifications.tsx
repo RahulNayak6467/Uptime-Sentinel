@@ -30,7 +30,7 @@ const Notifications = () => {
                 <Icon className="w-3.5 h-3.5" />
                 {label}
                 {comingSoon && (
-                  <span className="text-[10px] font-semibold px-1 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
+                  <span className="text-xs font-semibold px-1 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
                     Soon
                   </span>
                 )}

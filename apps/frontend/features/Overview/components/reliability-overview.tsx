@@ -120,7 +120,7 @@ const HeaderStat = ({
       emphasized ? "bg-sf-blue-bg" : "bg-sf-bg/70"
     }`}
   >
-    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-sf-text-muted">
+    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-sf-text-muted">
       {label}
     </p>
     <p
@@ -147,7 +147,7 @@ const PanelHeading = ({
       <span className="flex size-6 items-center justify-center rounded-sf-sm bg-sf-blue-bg text-sf-blue">
         <Icon className="size-3.5" />
       </span>
-      <h2 className="text-[15px] font-semibold tracking-sf-tight text-sf-text">
+      <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
         {title}
       </h2>
     </div>
@@ -176,22 +176,17 @@ const ReliabilityOverview = () => {
 
   return (
     <section>
-      <div className="mb-3 flex items-end justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
-            Reliability signals
-          </p>
-          <h2 className="mt-1 text-base font-semibold tracking-sf-tight text-sf-text">
-            Performance and check health
-          </h2>
-        </div>
-        <span className="hidden rounded-full border border-sf-border bg-sf-surface px-2.5 py-1 font-mono text-[10px] text-sf-text-muted sm:inline-flex">
-          Latest {RESPONSE_SAMPLE_COUNT} checks
-        </span>
+      <div className="mb-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
+          Reliability signals
+        </p>
+        <h2 className="mt-1 text-[14px] font-semibold tracking-sf-tight text-sf-text">
+          Performance and check health
+        </h2>
       </div>
 
       <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(390px,0.9fr)]">
-      <section className="sf-panel flex min-h-[410px] flex-col overflow-hidden p-5 shadow-sm">
+      <section className="sf-panel flex flex-col overflow-hidden p-5 shadow-sm">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <PanelHeading
             icon={Activity}
@@ -210,14 +205,14 @@ const ReliabilityOverview = () => {
         </div>
       </section>
 
-      <section className="sf-panel flex min-h-[410px] flex-col overflow-hidden p-5 shadow-sm">
+      <section className="sf-panel flex flex-col overflow-hidden p-5 shadow-sm">
         <PanelHeading
           icon={Grid3X3}
           title="Recent check health"
-          subtitle={`Last ${RESPONSE_SAMPLE_COUNT} checks per monitor · successful vs failed`}
+          subtitle={`Top 6 monitors · last ${RESPONSE_SAMPLE_COUNT} checks each`}
         />
 
-        <div className="mt-5 grid grid-cols-[minmax(0,110px)_1fr_44px] items-center gap-3 text-[9px] font-medium uppercase tracking-wider text-sf-text-muted">
+        <div className="mt-5 grid grid-cols-[minmax(0,110px)_1fr_44px] items-center gap-3 text-[10px] font-medium uppercase tracking-wider text-sf-text-muted">
           <span>Monitor</span>
           <span />
           <span className="text-right">OK rate</span>
@@ -242,7 +237,7 @@ const ReliabilityOverview = () => {
                   <i
                     className={`size-1.5 shrink-0 rounded-full ${STATUS_DOT[monitor.status] ?? STATUS_DOT.UNKNOWN}`}
                   />
-                  <span className="truncate text-[11px] font-medium text-sf-text-sub">
+                  <span className="truncate text-xs font-medium text-sf-text-sub">
                     {monitor.urlName}
                   </span>
                 </span>
@@ -260,7 +255,7 @@ const ReliabilityOverview = () => {
                   ))}
                 </div>
                 <span
-                  className={`text-right text-[11px] font-semibold tabular-nums ${
+                  className={`text-right text-xs font-semibold tabular-nums ${
                     okRate === null || okRate === 100
                       ? "text-sf-text-sub"
                       : okRate >= 90
@@ -275,7 +270,7 @@ const ReliabilityOverview = () => {
           })}
         </div>
 
-        <div className="mt-auto flex items-center gap-4 border-t border-sf-border pt-4 text-[10px] text-sf-text-muted">
+        <div className="mt-auto flex items-center gap-4 border-t border-sf-border pt-4 text-xs text-sf-text-muted">
           <span className="flex items-center gap-1.5">
             <i className="size-2 rounded-[2px] bg-sf-blue/55" />
             Successful

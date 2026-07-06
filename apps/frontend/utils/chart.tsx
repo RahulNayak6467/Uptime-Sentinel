@@ -19,9 +19,6 @@ const Chart = ({ option, height = 240, className, loading = false }: ChartProps)
   const ref = useRef<ReactECharts>(null);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const isDark = document.documentElement.classList.contains("dark");
-
     const applyTheme = () => {
       const instance = ref.current?.getEchartsInstance();
       if (!instance) return;

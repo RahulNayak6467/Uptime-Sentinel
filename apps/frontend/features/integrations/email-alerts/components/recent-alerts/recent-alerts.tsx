@@ -99,7 +99,7 @@ const RecentAlerts = () => {
           {["Event", "Subject", "Recipients", "Sent", "Delivery"].map((col) => (
             <span
               key={col}
-              className="text-[11px] font-semibold font-sans text-sf-text-muted uppercase tracking-widest"
+              className="font-sans text-[10px] font-semibold uppercase tracking-widest text-sf-text-muted"
             >
               {col}
             </span>
@@ -125,7 +125,7 @@ const RecentAlerts = () => {
                 className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
               >
                 <span
-                  className={`w-fit text-[11px] font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}
+                  className={`w-fit text-xs font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}
                 >
                   {alert.event}
                 </span>
@@ -139,7 +139,7 @@ const RecentAlerts = () => {
                       {alert.subject}
                     </span>
                   </div>
-                  <span className="text-[11px] font-sans text-sf-text-muted pl-3.5">
+                  <span className="text-xs font-sans text-sf-text-muted pl-3.5">
                     {alert.monitor}
                   </span>
                 </div>
@@ -178,13 +178,13 @@ const RecentAlerts = () => {
       {/* Footer — dummy 10-page pagination; wire to backend page/totalPages later */}
       <div className="flex items-center justify-between gap-4 border-t border-sf-border px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-sf-text-muted">
+          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted">
             Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
             {totalPages}
           </span>
           <span
             aria-live="polite"
-            className={`inline-flex w-[82px] items-center gap-1.5 rounded-sf border border-sf-border-faint bg-sf-bg px-2 py-1 text-[11px] font-medium text-sf-text-muted transition-opacity duration-200 ${
+            className={`inline-flex w-[82px] items-center gap-1.5 rounded-sf border border-sf-border-faint bg-sf-bg px-2 py-1 text-xs font-medium text-sf-text-muted transition-opacity duration-200 ${
               showFetchingIndicator ? "opacity-100" : "opacity-0"
             }`}
           >

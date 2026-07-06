@@ -22,7 +22,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
   return (
     <div className="flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-sf-border-faint/70">
       <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sf-blue/20 bg-sf-blue-bg">
-        <span className="text-[11px] font-semibold text-sf-blue">
+        <span className="text-xs font-semibold text-sf-blue">
           {recipient.initials}
         </span>
       </div>
@@ -33,7 +33,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
             {recipient.name}
           </span>
           {recipient.isYou && (
-            <span className="text-[11px] font-medium font-sans px-1.5 py-0.5 rounded-full bg-sf-blue-bg text-sf-blue border border-sf-blue/20 leading-none">
+            <span className="text-xs font-medium font-sans px-1.5 py-0.5 rounded-full bg-sf-blue-bg text-sf-blue border border-sf-blue/20 leading-none">
               you
             </span>
           )}
@@ -45,7 +45,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
 
       <div className="flex items-center gap-3 shrink-0">
         <span
-          className={`rounded-sf-sm border px-2.5 py-1 text-[11px] font-medium leading-none ${scopeClass}`}
+          className={`rounded-sf-sm border px-2.5 py-1 text-xs font-medium leading-none ${scopeClass}`}
         >
           {recipient.scope}
         </span>
@@ -68,7 +68,7 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
 
         <button
           type="button"
-          className="p-1 rounded-md text-sf-text-muted hover:text-sf-text hover:bg-sf-bg transition-colors cursor-pointer"
+          className="p-1 rounded-[4px] text-sf-text-muted hover:text-sf-text hover:bg-sf-bg transition-colors cursor-pointer"
         >
           <KebabIcon />
         </button>

@@ -66,7 +66,7 @@ const MonitorStatsTable = () => {
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
           Endpoint inventory
         </p>
-        <h2 className="mt-1 text-base font-semibold tracking-sf-tight text-sf-text">
+        <h2 className="mt-1 text-[14px] font-semibold tracking-sf-tight text-sf-text">
           Monitor health
         </h2>
       </div>

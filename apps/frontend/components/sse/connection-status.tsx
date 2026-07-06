@@ -70,7 +70,7 @@ export default function ConnectionStatus({
         title={`Real-time stream: ${c.label}`}
       >
         <StatusDot dot={c.dot} ping={c.ping} />
-        <span className={`text-[11px] font-medium ${c.text}`}>{c.label}</span>
+        <span className={`text-xs font-medium ${c.text}`}>{c.label}</span>
       </div>
     );
   }

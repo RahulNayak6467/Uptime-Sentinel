@@ -22,7 +22,7 @@ const CheckInterval = ({
               onClick={() => onSelect(label)}
               className={`cursor-pointer rounded-sf-sm border px-3 py-1 font-sans text-[12px] font-medium transition-colors duration-150 ${
                 selected === label
-                  ? "border-sf-text bg-sf-text text-sf-btn-text"
+                  ? "border-sf-blue bg-sf-blue text-white"
                   : "bg-sf-surface text-sf-text border-sf-border hover:border-sf-text-sub"
               }`}
             >

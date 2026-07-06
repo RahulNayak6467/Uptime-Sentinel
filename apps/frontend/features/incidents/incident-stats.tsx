@@ -67,7 +67,7 @@ const IncidentStats = () => {
     <section className="w-full">
       <div className="mb-3">
         <h2 className="text-sm font-semibold text-sf-text">Incident summary</h2>
-        <p className="mt-1 text-[11px] text-sf-text-muted">
+        <p className="mt-1 text-xs text-sf-text-muted">
           Reliability and recovery metrics for the last 30 days
         </p>
       </div>

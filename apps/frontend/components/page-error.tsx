@@ -31,7 +31,7 @@ const PageError = ({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 rounded-sf border border-sf-border bg-sf-surface px-4 py-2 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
+          className="mt-1 rounded-[4px] border border-sf-border bg-sf-surface px-4 py-2 text-[13px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
         >
           {retryLabel}
         </button>

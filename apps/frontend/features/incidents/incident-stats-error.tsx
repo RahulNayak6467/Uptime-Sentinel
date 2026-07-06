@@ -31,7 +31,7 @@ const IncidentStatsError = ({ onRetry }: IncidentStatsErrorProps) => {
         <button
           type="button"
           onClick={onRetry}
-          className="shrink-0 rounded-sf border border-sf-border bg-sf-bg px-3 py-1.5 text-[12px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
+          className="shrink-0 rounded-[4px] border border-sf-border bg-sf-bg px-3 py-1.5 text-[12px] font-semibold text-sf-text transition-colors hover:border-sf-text-muted"
         >
           Retry
         </button>

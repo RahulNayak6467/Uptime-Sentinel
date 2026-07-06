@@ -68,7 +68,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
             : "var(--color-sf-red)";
       return (
         <span
-          className="block text-center font-mono text-[12px] font-medium tabular-nums"
+          className="block text-center text-[12px] font-medium tabular-nums"
           style={{ color }}
         >
           {uptime == null ? "—" : `${uptime}%`}
@@ -83,7 +83,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
       const state = normalizeStatus(row.original.status);
       if (state === "UNKNOWN") {
         return (
-          <span className="block text-center font-mono text-[13px] tracking-widest text-sf-text-muted">
+          <span className="block text-center text-[13px] tracking-widest text-sf-text-muted">
             – – –
           </span>
         );
@@ -107,12 +107,12 @@ export const columns: ColumnDef<monitorDataProps>[] = [
       const ms = row.getValue<number | null>("responseTime");
       if (ms === null)
         return (
-          <span className="block text-right font-mono text-[12px] text-sf-text-muted">
+          <span className="block text-right text-[12px] text-sf-text-muted">
             —
           </span>
         );
       return (
-        <span className="block text-right font-mono text-[12px] tabular-nums text-sf-text">
+        <span className="block text-right text-[12px] tabular-nums text-sf-text">
           {ms}
           <span className="text-sf-text-muted">ms</span>
         </span>
@@ -126,14 +126,14 @@ export const columns: ColumnDef<monitorDataProps>[] = [
       const code = row.getValue<number | null>("statusCode");
       if (code === null)
         return (
-          <span className="block text-center font-mono text-[12px] text-sf-text-muted">
+          <span className="block text-center text-[12px] text-sf-text-muted">
             —
           </span>
         );
       const isOk = code >= 200 && code < 300;
       return (
         <span
-          className="mx-auto block w-fit rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-center font-mono text-[11px] font-medium tabular-nums"
+          className="mx-auto block w-fit rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-center text-xs font-medium tabular-nums"
           style={{
             color: isOk ? "var(--color-sf-green)" : "var(--color-sf-red)",
           }}
@@ -147,7 +147,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
     accessorKey: "interval_seconds",
     header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (
-      <span className="block text-center font-mono text-[12px] text-sf-text-sub tabular-nums">
+      <span className="block text-center text-[12px] text-sf-text-sub tabular-nums">
         {row.getValue<number>("interval_seconds")}s
       </span>
     ),
@@ -156,7 +156,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
     accessorKey: "next_check_at",
     header: () => <span className="block text-center">NEXT CHECK</span>,
     cell: ({ row }) => (
-      <span className="block text-center font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
+      <span className="block text-center text-[12px] tabular-nums text-sf-text-sub whitespace-nowrap">
         {row.getValue<string>("next_check_at")}
       </span>
     ),

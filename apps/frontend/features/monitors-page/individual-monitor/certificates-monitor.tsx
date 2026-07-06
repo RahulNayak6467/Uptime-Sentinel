@@ -58,7 +58,7 @@ const LastChecksBar = () => {
           <h2 className="text-[14px] font-semibold text-sf-text">
             Recent checks
           </h2>
-          <p className="mt-1 text-[11px] text-sf-text-muted">
+          <p className="mt-1 text-xs text-sf-text-muted">
             Latest {dataChecks.length} check results, oldest to newest
           </p>
         </div>
@@ -67,7 +67,7 @@ const LastChecksBar = () => {
             <p className="text-sm font-semibold tabular-nums text-sf-text">
               {uptimePct}%
             </p>
-            <p className="mt-0.5 text-[10px] text-sf-text-muted">
+            <p className="mt-0.5 text-xs text-sf-text-muted">
               {upCount}/{dataChecks.length} successful
             </p>
           </div>
@@ -96,7 +96,7 @@ const LastChecksBar = () => {
             </div>
           ))}
         </div>
-        <div className="mt-3 flex items-center gap-4 text-[10px] text-sf-text-muted">
+        <div className="mt-3 flex items-center gap-4 text-xs text-sf-text-muted">
           <span className="flex items-center gap-1.5">
             <i className="size-1.5 rounded-full bg-sf-green" /> Successful
           </span>
@@ -137,8 +137,8 @@ const SignalCard = ({
     <dl className="divide-y divide-sf-border">
       {rows.map((row) => (
         <div key={row.label} className="flex items-center justify-between gap-3 px-4 py-2.5">
-          <dt className="text-[11px] text-sf-text-muted">{row.label}</dt>
-          <dd className="text-right text-[11px] font-medium text-sf-text">{row.value}</dd>
+          <dt className="text-xs text-sf-text-muted">{row.label}</dt>
+          <dd className="text-right text-xs font-medium text-sf-text">{row.value}</dd>
         </div>
       ))}
     </dl>
@@ -164,7 +164,7 @@ const RegionalLatencyCard = () => (
               : "var(--color-sf-red)";
         return (
           <div key={region.id} className="flex items-center gap-3">
-            <span className="w-16 shrink-0 text-[10px] font-medium text-sf-text-muted">
+            <span className="w-16 shrink-0 text-xs font-medium text-sf-text-muted">
               {region.region}
             </span>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-sf-border">
@@ -176,7 +176,7 @@ const RegionalLatencyCard = () => (
                 }}
               />
             </div>
-            <span className="w-11 text-right font-mono text-[10px]" style={{ color }}>
+            <span className="w-11 text-right font-mono text-xs" style={{ color }}>
               {region.latency}
             </span>
           </div>
@@ -196,11 +196,11 @@ const CertificatesMonitor = () => (
       <div className="mb-3 flex items-end justify-between gap-4">
         <div>
           <h2 className="text-sm font-semibold text-sf-text">Infrastructure signals</h2>
-          <p className="mt-1 text-[11px] text-sf-text-muted">
+          <p className="mt-1 text-xs text-sf-text-muted">
             Certificate, DNS, and regional availability context
           </p>
         </div>
-        <span className="rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-sf-text-muted">
+        <span className="rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">
           Planned
         </span>
       </div>

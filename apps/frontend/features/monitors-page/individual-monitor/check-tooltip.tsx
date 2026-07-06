@@ -37,7 +37,7 @@ const CheckTooltip = ({
       }`}
     >
       <div
-        className="flex items-center gap-1.5 text-[11px] font-semibold"
+        className="flex items-center gap-1.5 text-xs font-semibold"
         style={{ color }}
       >
         <span
@@ -46,8 +46,8 @@ const CheckTooltip = ({
         />
         {status ?? "Unknown"}
       </div>
-      <div className="text-[11px] font-medium text-sf-text">{responseLabel}</div>
-      <div className="text-[10px] text-sf-text-muted">
+      <div className="text-xs font-medium text-sf-text">{responseLabel}</div>
+      <div className="text-xs text-sf-text-muted">
         {formatCheckedAt(checkedAt)}
       </div>
     </div>

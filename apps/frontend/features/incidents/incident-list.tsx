@@ -81,14 +81,14 @@ const IncidentDetailsCard = ({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2
-              className={`text-[15px] font-semibold tracking-sf-tight ${
+              className={`text-[14px] font-semibold tracking-sf-tight ${
                 incident.title ? "text-sf-text" : "italic text-sf-text-sub"
               }`}
             >
               {incident.title ?? "Untitled incident"}
             </h2>
             <span
-              className={`rounded-sf border px-2 py-0.5 text-[10px] font-semibold ${
+              className={`rounded-sf border px-2 py-0.5 text-xs font-semibold ${
                 isActive
                   ? "border-sf-red/30 bg-sf-red-bg text-sf-red"
                   : "border-sf-green/30 bg-sf-green-bg text-sf-green"
@@ -126,7 +126,7 @@ const IncidentDetailsCard = ({
 
         <div className="ml-4 text-right">
           <p className="font-mono text-xs font-medium text-sf-text-sub">{incident.duration}</p>
-          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-sf-text-muted">Duration</p>
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-sf-text-muted">Duration</p>
         </div>
 
         <motion.span
@@ -156,12 +156,12 @@ const IncidentDetailsCard = ({
               <span className={`size-2 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`} />
               <h3 className="text-sm font-semibold text-sf-text">Incident context</h3>
             </div>
-            <span className={`rounded-sf border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${isActive ? "border-sf-red-border bg-sf-red-bg text-sf-red" : "border-sf-green-border bg-sf-green-bg text-sf-green"}`}>
+            <span className={`rounded-sf border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${isActive ? "border-sf-red-border bg-sf-red-bg text-sf-red" : "border-sf-green-border bg-sf-green-bg text-sf-green"}`}>
               {isActive ? "Active" : "Resolved"}
             </span>
           </div>
           <div className="border-b border-sf-border px-5 py-4">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
               Affected endpoint
             </p>
             <a
@@ -203,7 +203,7 @@ const IncidentDetailsCard = ({
               <button
                 type="button"
                 onClick={onAddDetails}
-                className="cursor-pointer rounded-sf border border-sf-text bg-sf-text px-3 py-1.5 text-xs font-semibold text-sf-btn-text shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sf-btn-hover hover:bg-sf-btn-hover hover:shadow-md active:translate-y-0 active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/25 focus-visible:ring-offset-2 focus-visible:ring-offset-sf-surface"
+                className="cursor-pointer rounded-[4px] border border-sf-text bg-sf-text px-3 py-1.5 text-xs font-semibold text-sf-btn-text shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-sf-btn-hover hover:bg-sf-btn-hover hover:shadow-md active:translate-y-0 active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/25 focus-visible:ring-offset-2 focus-visible:ring-offset-sf-surface"
               >
                 Add details
               </button>
@@ -250,7 +250,7 @@ const IncidentDetailsCard = ({
                       <button
                         type="button"
                         onClick={() => onEditUpdate(update)}
-                        className="ml-auto cursor-pointer rounded-sf border border-transparent px-2 py-1 text-xs font-medium text-sf-text-muted transition-colors duration-150 hover:border-sf-border hover:bg-sf-border-faint hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/20"
+                        className="ml-auto cursor-pointer rounded-[4px] border border-transparent px-2 py-1 text-xs font-medium text-sf-text-muted transition-colors duration-150 hover:border-sf-border hover:bg-sf-border-faint hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-text/20"
                       >
                         Edit
                       </button>
@@ -286,7 +286,7 @@ const IncidentField = ({
   <div
     className={`px-5 py-4 ${bordered ? "border-t border-sf-border" : ""}`}
   >
-    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
       {label}
     </p>
     <p className="mt-1.5 text-[12px] font-semibold text-sf-text">{value}</p>
@@ -381,10 +381,10 @@ const IncidentList = () => {
       />
       <div className="mb-3 flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold tracking-sf-tight text-sf-text">Incident history</h2>
+          <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">Incident history</h2>
           <p className="mt-1 text-xs text-sf-text-muted">Detection, investigation, monitoring, and recovery events</p>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-sf-text-muted">
+        <div className="flex items-center gap-3 text-xs text-sf-text-muted">
           <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-red" />{activeCount} active</span>
           <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-green" />{requiredData.length - activeCount} resolved</span>
         </div>

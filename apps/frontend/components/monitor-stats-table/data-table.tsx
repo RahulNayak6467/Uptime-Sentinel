@@ -51,9 +51,6 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   });
 
-  // Dummy pagination: hard-coded 10 pages until the backend supplies the real
-  // page/totalPages. Later, lift currentPage/totalPages to props driven by the
-  // API response and call onPageChange instead of local state.
   const totalPages = totalPage;
   const goToPage = (page: number) =>
     changeCurrentPage(Math.min(Math.max(page, 1), totalPages));
@@ -74,18 +71,18 @@ export function DataTable<TData, TValue>({
               <span className="text-[13px] font-semibold text-sf-text">
                 All monitors
               </span>
-              <span className="rounded-full bg-sf-bg px-2 py-0.5 font-mono text-[10px] text-sf-text-muted ring-1 ring-inset ring-sf-border">
+              <span className="rounded-full bg-sf-bg px-2 py-0.5 font-mono text-xs text-sf-text-muted ring-1 ring-inset ring-sf-border">
                 {data.length} shown
               </span>
             </div>
-            <p className="mt-0.5 truncate text-[11px] text-sf-text-muted">
+            <p className="mt-0.5 truncate text-xs text-sf-text-muted">
               Live status and recent response performance
             </p>
           </div>
         </div>
         <Link
           href="/dashboard/monitors"
-          className="group flex shrink-0 items-center gap-1.5 rounded-lg border border-sf-border bg-sf-surface px-3 py-2 text-[11px] font-semibold text-sf-text-sub shadow-sm transition-all hover:border-sf-text-muted/50 hover:text-sf-text"
+          className="group flex shrink-0 items-center gap-1.5 rounded-lg border border-sf-border bg-sf-surface px-3 py-2 text-xs font-semibold text-sf-text-sub shadow-sm transition-all hover:border-sf-text-muted/50 hover:text-sf-text"
         >
           View all
           <ArrowUpRight className="size-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -93,75 +90,76 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              key={headerGroup.id}
-              className="border-b border-sf-border bg-sf-bg/60 hover:bg-sf-bg/60"
-            >
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className="px-4 py-2.5 align-middle font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-sf-text-muted"
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && "selected"}
-              className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70"
-            >
-              {row.getVisibleCells().map((cell) => {
-                const widthClass =
-                  cell.column.id === "url_name"
-                    ? "w-[190px] max-w-[190px]"
-                    : cell.column.id === "url"
-                      ? "w-[260px] max-w-[260px]"
-                      : "";
-                const alignClass =
-                  cell.column.id === "uptime" ||
-                  cell.column.id === "trend" ||
-                  cell.column.id === "statusCode" ||
-                  cell.column.id === "interval_seconds" ||
-                  cell.column.id === "next_check_at" ||
-                  cell.column.id === "status"
-                    ? "text-center"
-                    : cell.column.id === "responseTime"
-                      ? "text-right"
-                      : "";
-                return (
-                  <TableCell
-                    key={cell.id}
-                    className={`px-4 py-2.5 align-middle ${widthClass} ${alignClass}`}
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow
+                key={headerGroup.id}
+                className="border-b border-sf-border bg-sf-bg/60 hover:bg-sf-bg/60"
+              >
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="px-4 py-2.5 align-middle font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-sf-text-muted"
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                className="border-b border-sf-border transition-colors last:border-b-0 hover:bg-sf-bg/70"
+              >
+                {row.getVisibleCells().map((cell) => {
+                  const widthClass =
+                    cell.column.id === "url_name"
+                      ? "w-[190px] max-w-[190px]"
+                      : cell.column.id === "url"
+                        ? "w-[260px] max-w-[260px]"
+                        : "";
+                  const alignClass =
+                    cell.column.id === "uptime" ||
+                    cell.column.id === "trend" ||
+                    cell.column.id === "statusCode" ||
+                    cell.column.id === "interval_seconds" ||
+                    cell.column.id === "next_check_at" ||
+                    cell.column.id === "status"
+                      ? "text-center"
+                      : cell.column.id === "responseTime"
+                        ? "text-right"
+                        : "";
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={`px-4 py-2.5 align-middle ${widthClass} ${alignClass}`}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex items-center justify-between border-t border-sf-border px-5 py-3">
         <p className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
-          Page <span className="text-sf-text-sub">{currentPage}</span> of {totalPages}
+          Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
+          {totalPages}
         </p>
         <Pagination className="mx-0 w-auto">
           <PaginationContent>

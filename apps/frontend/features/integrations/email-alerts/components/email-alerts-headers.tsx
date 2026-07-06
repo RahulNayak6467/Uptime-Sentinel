@@ -18,7 +18,7 @@ const EmailAlertsHeaders = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setOpen(true)}
-            className="flex cursor-pointer items-center gap-1.5 rounded-sf-sm bg-sf-text px-4 py-1.5 font-sans text-sf-label font-semibold text-sf-btn-text transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-[4px] bg-sf-text px-4 font-sans text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-blue hover:text-white active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
           >
             <UserPlus className="size-3.5" />
             <span>Add recipient</span>

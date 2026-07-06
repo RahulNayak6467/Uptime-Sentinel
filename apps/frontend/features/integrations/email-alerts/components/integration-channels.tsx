@@ -4,8 +4,10 @@ import { channels } from "../data";
 
 const IntegrationChannels = () => {
   return (
-    <div className="mx-auto flex max-w-7xl px-6 pt-5">
-      <div className="flex items-center gap-1 rounded-lg border border-sf-border bg-sf-border-faint p-1 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+    <nav
+      aria-label="Alert channels"
+      className="flex max-w-full items-center gap-1 overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       {channels.map(({ icon: Icon, label, active, soon }) => (
         <div
           key={label}
@@ -29,8 +31,7 @@ const IntegrationChannels = () => {
           )}
         </div>
       ))}
-      </div>
-    </div>
+    </nav>
   );
 };
 

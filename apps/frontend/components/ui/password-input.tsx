@@ -7,19 +7,21 @@ const PasswordInput = ({
   passwordType,
   register,
   errors,
+  autoComplete,
 }: {
   passwordType: "Password" | "Confirm Password";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: UseFormRegister<any>;
   errors?: string;
+  autoComplete?: "current-password" | "new-password";
 }) => {
   const [show, setShow] = useState(false);
   const passwordSchema =
     passwordType === "Password" ? "password" : "confirmPassword";
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <label
-        className="text-[12px] text-sf-text font-semibold font-sans"
+        className="text-xs font-medium text-sf-text-sub"
         htmlFor={`user-${passwordSchema}`}
       >
         {passwordType}
@@ -27,22 +29,26 @@ const PasswordInput = ({
       <div className="relative">
         <input
           {...register(passwordSchema)}
-          className="w-full rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2.5 pr-10 text-[14px] outline-none transition-[border-color,box-shadow] focus:border-sf-blue focus:shadow-sf-focus"
+          className="h-10 w-full rounded-md border border-sf-border bg-sf-bg/50 px-3 pr-10 text-sm text-sf-text outline-none transition-[background-color,border-color,box-shadow] placeholder:text-sf-text-muted focus:border-sf-blue/60 focus:bg-sf-surface focus:ring-2 focus:ring-sf-blue/10 aria-[invalid=true]:border-sf-red"
           type={show ? "text" : "password"}
           id={`user-${passwordSchema}`}
+          autoComplete={
+            autoComplete ??
+            (passwordType === "Password" ? "current-password" : "new-password")
+          }
+          aria-invalid={Boolean(errors)}
           placeholder="At least 8 characters"
-          autoComplete="additional-name"
         />
-        {errors && <ErrorMessage error={errors} />}
         <button
           type="button"
           onClick={() => setShow((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-sf-text-muted hover:text-sf-text-sub transition-colors cursor-pointer"
+          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-sm text-sf-text-muted transition-colors hover:text-sf-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25"
           aria-label={show ? "Hide password" : "Show password"}
         >
           {show ? <EyeIcon /> : <EyeOffIcon />}
         </button>
       </div>
+      {errors && <ErrorMessage error={errors} />}
     </div>
   );
 };

@@ -82,17 +82,17 @@ export function MonitorsDataTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-sf-border bg-sf-surface shadow-sm">
+    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
         <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
           <div>
             <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
               Monitor inventory
             </h2>
-            <p className="mt-1 text-[11px] text-sf-text-muted">
+            <p className="mt-1 text-xs text-sf-text-muted">
               {data.length} endpoint{data.length === 1 ? "" : "s"} on this page
             </p>
           </div>
-          <span className="flex items-center gap-1.5 text-[10px] font-medium text-sf-text-muted">
+          <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
             <i className="size-1.5 rounded-full bg-sf-green" />
             Live data
           </span>

@@ -3,7 +3,7 @@ type errorProps = {
 };
 
 const ErrorMessage = ({ error }: errorProps) => {
-  return <p className="text-sf-red text-sm mt-1">{error}</p>;
+  return <p className="mt-1 text-xs text-sf-red">{error}</p>;
 };
 
 export default ErrorMessage;

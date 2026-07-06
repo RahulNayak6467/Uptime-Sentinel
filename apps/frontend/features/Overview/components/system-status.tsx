@@ -112,7 +112,7 @@ const CountBlock = ({
   dot: string;
 }) => (
   <div className="min-w-[76px] px-4 first:pl-0 last:pr-0">
-    <span className="flex items-center gap-1.5 text-[10px] font-medium text-sf-text-muted">
+    <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
       <i className={`size-1.5 rounded-full ${dot}`} />
       {label}
     </span>
@@ -203,7 +203,7 @@ const SystemStatus = () => {
 
       <div className="flex items-center gap-4 border-t border-sf-border bg-sf-bg/35 px-5 py-3">
         <div className="flex flex-1 items-center gap-3">
-          <span className="shrink-0 text-[10px] font-medium text-sf-text-muted">
+          <span className="shrink-0 text-xs font-medium text-sf-text-muted">
             Fleet health
           </span>
           <div className="flex h-1.5 flex-1 gap-px overflow-hidden rounded-full bg-sf-border-faint">
@@ -212,7 +212,7 @@ const SystemStatus = () => {
             <Segment pct={pausedPct} color="bg-sf-text-muted/45" />
           </div>
         </div>
-        <span className="font-mono text-[10px] tabular-nums text-sf-text-muted">
+        <span className="font-mono text-xs tabular-nums text-sf-text-muted">
           {up + down + paused} total
         </span>
       </div>

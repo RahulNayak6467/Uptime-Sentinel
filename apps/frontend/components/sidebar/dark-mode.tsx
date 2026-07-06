@@ -26,7 +26,7 @@ const DarkModeToggle = () => {
           }`}
         />
       </span>
-      <span className="font-sans text-[13.5px]">
+      <span className="font-sans text-[13px]">
         {isDark ? "Light mode" : "Dark mode"}
       </span>
     </button>

@@ -38,7 +38,7 @@ const MonitorStats = ({
         </p>
       </div>
       {comingSoon ? (
-        <span className="mr-2 text-[10px] font-semibold font-sans px-1.5 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
+        <span className="mr-2 text-xs font-semibold font-sans px-1.5 py-0.5 rounded-full bg-sf-bg text-sf-text-muted tracking-wide">
           Soon
         </span>
       ) : (
@@ -49,7 +49,7 @@ const MonitorStats = ({
             background: backgroundColor ?? "",
           }}
         >
-          <span className="text-[10px]">{number}</span>
+          <span className="text-xs">{number}</span>
         </div>
       )}
     </div>

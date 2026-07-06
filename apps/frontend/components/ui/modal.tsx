@@ -55,7 +55,7 @@ const Modal = ({
       >
         <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-sf-border">
           <div>
-            <h2 className="text-[15px] font-bold font-sans text-sf-text leading-snug">
+            <h2 className="font-sans text-sm font-semibold leading-snug text-sf-text">
               {title}
             </h2>
             {description && (

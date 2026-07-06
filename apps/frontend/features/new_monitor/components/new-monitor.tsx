@@ -29,13 +29,13 @@ const SetupChecklist = ({ hasName, hasUrl }: { hasName: boolean; hasUrl: boolean
     <div className="mt-3 rounded-lg border border-sf-border bg-sf-surface p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-sf-text">Required fields</h3>
-        <span className="font-mono text-[10px] text-sf-text-muted">
+        <span className="font-mono text-xs text-sf-text-muted">
           {items.filter((item) => item.complete).length}/{items.length}
         </span>
       </div>
       <div className="mt-3 space-y-2">
         {items.map((item) => (
-          <div key={item.label} className="flex items-center gap-2.5 text-[11px]">
+          <div key={item.label} className="flex items-center gap-2.5 text-xs">
             {item.complete ? (
               <CheckCircle2 className="size-3.5 text-sf-green" />
             ) : (
@@ -111,7 +111,7 @@ const NewMonitorProperties = () => {
             <h2 className="text-sm font-semibold text-sf-text">
               Monitor configuration
             </h2>
-            <p className="mt-1 text-[11px] text-sf-text-muted">
+            <p className="mt-1 text-xs text-sf-text-muted">
               Define the endpoint first, then review request behavior and alert delivery.
             </p>
           </div>
@@ -143,7 +143,7 @@ const NewMonitorProperties = () => {
         <aside className="h-fit w-full lg:sticky lg:top-6">
           <div className="mb-3">
             <h2 className="text-sm font-semibold text-sf-text">Review</h2>
-            <p className="mt-1 text-[11px] text-sf-text-muted">
+            <p className="mt-1 text-xs text-sf-text-muted">
               Confirm the effective check configuration before creating it.
             </p>
           </div>

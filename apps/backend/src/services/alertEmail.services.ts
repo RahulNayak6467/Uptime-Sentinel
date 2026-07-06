@@ -38,7 +38,8 @@ export const getEmailAlertsServices = async (
         ON n.incident_id = i.id
     INNER JOIN monitor AS m
         ON m.id = i.monitor_id
-    WHERE m.user_id = $1`;
+    WHERE m.user_id = $1
+    AND n.created_at >= NOW() - INTERVAL '7 days'`;
 
   const get_totalCount_value = [user_id];
 
@@ -73,6 +74,8 @@ export const getEmailAlertsServices = async (
       totalPage,
     },
   };
+
+  console.log("PAGINATION :", emailAlertResponsePagination);
 
   return emailAlertResponsePagination;
 };

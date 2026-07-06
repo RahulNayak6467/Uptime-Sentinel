@@ -65,7 +65,7 @@ const DeliveryPreferences = () => {
                 key={opt}
                 type="button"
                 onClick={() => setRenotify(opt)}
-                className={`px-4 py-1 text-[13px] font-sans font-medium rounded-lg border transition-colors duration-150 cursor-pointer ${
+                className={`px-4 py-1 text-[13px] font-sans font-medium rounded-[4px] border transition-colors duration-150 cursor-pointer ${
                   renotify === opt
                     ? "bg-sf-text text-sf-btn-text border-sf-text"
                     : "bg-sf-surface text-sf-text border-sf-border hover:bg-sf-bg"
@@ -95,7 +95,7 @@ const DeliveryPreferences = () => {
                 key={opt}
                 type="button"
                 onClick={() => setGroupAlerts(opt)}
-                className={`px-4 py-1 text-[13px] font-sans font-medium rounded-lg border transition-colors duration-150 cursor-pointer ${
+                className={`px-4 py-1 text-[13px] font-sans font-medium rounded-[4px] border transition-colors duration-150 cursor-pointer ${
                   groupAlerts === opt
                     ? "bg-sf-text text-sf-btn-text border-sf-text"
                     : "bg-sf-surface text-sf-text border-sf-border hover:bg-sf-bg"

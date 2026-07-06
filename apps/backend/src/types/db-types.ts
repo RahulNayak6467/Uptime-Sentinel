@@ -77,3 +77,11 @@ export interface IncidentTimelineProps {
     occured_at: string | null;
   }[];
 }
+
+export interface lastFiveIncidentDataProps {
+  id: string;
+  title: string | null;
+  started_at: string;
+  is_active: boolean;
+  resolved_at: string | null;
+}

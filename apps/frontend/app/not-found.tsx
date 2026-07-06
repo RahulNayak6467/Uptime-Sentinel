@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Creative 404 — intentionally ignores the UptimeSentinel design system.
@@ -11,18 +12,12 @@ import { useEffect, useState } from "react";
 type LogLine = { text: string; tone: "dim" | "ok" | "warn" | "err" };
 
 export default function NotFound() {
-  const [path, setPath] = useState("/the/page/you/wanted");
+  const path = usePathname() || "/the/page/you/wanted";
   const [done, setDone] = useState<LogLine[]>([]); // fully typed lines
   const [typed, setTyped] = useState(""); // chars typed on the active line
   const [tone, setTone] = useState<LogLine["tone"]>("dim"); // active line tone
   const [finished, setFinished] = useState(false);
   const [latency, setLatency] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setPath(window.location.pathname || "/");
-    }
-  }, []);
 
   // Typewriter: type each "incident" log line out character by character.
   useEffect(() => {

@@ -10,15 +10,17 @@ const EmailAddressInput = ({
   errors?: string;
 }) => {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[12px] font-semibold" htmlFor="userEmail">
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-medium text-sf-text-sub" htmlFor="userEmail">
         Email address
       </label>
       <input
         {...register("email")}
-        className="rounded-sf-sm border border-sf-border bg-sf-surface px-3 py-2.5 text-[14px] outline-none transition-[border-color,box-shadow] focus:border-sf-blue focus:shadow-sf-focus"
+        className="h-10 rounded-md border border-sf-border bg-sf-bg/50 px-3 text-sm text-sf-text outline-none transition-[background-color,border-color,box-shadow] placeholder:text-sf-text-muted focus:border-sf-blue/60 focus:bg-sf-surface focus:ring-2 focus:ring-sf-blue/10 aria-[invalid=true]:border-sf-red"
         type="email"
         id="userEmail"
+        autoComplete="email"
+        aria-invalid={Boolean(errors)}
         placeholder="name@example.com"
       />
       {errors && <ErrorMessage error={errors} />}

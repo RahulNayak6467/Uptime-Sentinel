@@ -88,7 +88,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
               {row.getValue<string>("name")}
             </span>
             <span
-              className="mt-0.5 block truncate font-mono text-[10.5px] text-sf-text-muted"
+              className="mt-0.5 block truncate font-mono text-xs text-sf-text-muted"
               title={row.original.url}
             >
               {row.original.url}
@@ -104,7 +104,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     cell: ({ row }) => {
       const t = row.getValue<MonitorType>("type");
       return (
-        <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[11px] font-medium tracking-wide text-sf-text-sub">
+        <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-xs font-medium tracking-wide text-sf-text-sub">
           {typeBadge[t]}
         </span>
       );
@@ -118,14 +118,14 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const colorVar =
         uptime == null
           ? "var(--color-sf-text-muted)"
-          : uptime >= 99.9
-          ? "var(--color-sf-text)"
           : uptime >= 99
-            ? "var(--color-sf-amber)"
-            : "var(--color-sf-red)";
+            ? "var(--color-sf-text)"
+            : uptime >= 95
+              ? "var(--color-sf-amber)"
+              : "var(--color-sf-red)";
       return (
         <span
-          className="block text-center font-mono text-[12px] font-medium tabular-nums"
+          className="block text-center text-[12px] font-medium tabular-nums"
           style={{ color: colorVar }}
         >
           {uptime == null ? "—" : `${uptime}%`}
@@ -140,7 +140,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const state = row.original.state;
       if (state === "paused") {
         return (
-          <span className="block text-center font-mono text-[13px] tracking-widest text-sf-text-muted">
+          <span className="block text-center text-[13px] tracking-widest text-sf-text-muted">
             — —
           </span>
         );
@@ -170,12 +170,12 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const ms = row.getValue<number | null>("responseTime");
       if (ms === null)
         return (
-          <span className="block text-right font-mono text-[12px] text-sf-text-muted">
+          <span className="block text-right text-[12px] text-sf-text-muted">
             —
           </span>
         );
       return (
-        <span className="block text-right font-mono text-[12px] tabular-nums text-sf-text">
+        <span className="block text-right text-[12px] tabular-nums text-sf-text">
           {ms}
           <span className="text-sf-text-muted">ms</span>
         </span>
@@ -186,7 +186,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     accessorKey: "interval",
     header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (
-      <span className="block text-center font-mono text-[12px] text-sf-text-sub">
+      <span className="block text-center text-[12px] tabular-nums text-sf-text-sub">
         {row.getValue<string>("interval")}
       </span>
     ),
@@ -195,7 +195,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     accessorKey: "nextCheck",
     header: () => <span className="block text-center">NEXT CHECK</span>,
     cell: ({ row }) => (
-      <span className="block text-center font-mono text-[12px] text-sf-text-sub whitespace-nowrap">
+      <span className="block text-center text-[12px] tabular-nums text-sf-text-sub whitespace-nowrap">
         {row.getValue<string>("nextCheck")}
       </span>
     ),
@@ -208,7 +208,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const color = stateColor[state];
       return (
         <span
-          className={`mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border px-2.5 py-1 text-[11px] font-semibold ${stateBadge[state]}`}
+          className={`mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border px-2.5 py-1 text-xs font-semibold ${stateBadge[state]}`}
         >
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"

@@ -27,7 +27,7 @@ import { useTheme } from "next-themes";
 
 const StripStat = ({ label, value }: { label: string; value: string }) => (
   <div className="min-w-28 border-l border-sf-border px-5 first:border-l-0">
-    <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">{label}</p>
+    <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">{label}</p>
     <p className="mt-1 text-[13px] font-semibold text-sf-text">{value}</p>
   </div>
 );
@@ -95,7 +95,7 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
                 href={data.url}
                 target="_blank"
                 rel="noreferrer"
-                className="block max-w-xl truncate font-mono text-[11px] text-sf-text-muted hover:text-sf-blue"
+                className="block max-w-xl truncate font-mono text-xs text-sf-text-muted hover:text-sf-blue"
               >
                 {data.url}
               </a>
@@ -167,7 +167,7 @@ const IndividualMonitorInfoStats = ({
         <div className="mt-5">
           <div className="mb-3">
             <h2 className="text-sm font-semibold text-sf-text">Performance summary</h2>
-            <p className="mt-1 text-[11px] text-sf-text-muted">
+            <p className="mt-1 text-xs text-sf-text-muted">
               Uptime and response metrics across current reporting windows
             </p>
           </div>
@@ -251,6 +251,12 @@ export const ResponseTimeTrend = ({
   const bucket = bucketData.map((el) => el.bucket);
   const p50Data = bucketData.map((el) => el.p50Data);
   const p95Data = bucketData.map((el) => el.p95Data);
+  const latestBucket = [...bucketData]
+    .reverse()
+    .find((item) => item.p50Data !== null || item.p95Data !== null);
+  const measuredBucketCount = bucketData.filter(
+    (item) => item.p50Data !== null || item.p95Data !== null,
+  ).length;
 
   const green = isDark ? "#4ade80" : "#16a34a";
   const amber = isDark ? "#fbbf24" : "#d97706";
@@ -275,10 +281,21 @@ export const ResponseTimeTrend = ({
     niceSteps[niceSteps.length - 1];
   const yAxisMax = Math.ceil(rawMax / step) * step;
   const yAxisInterval = step;
+  const hasSeriesData = seriesValues.length > 0;
 
   const option = {
     tooltip: {
       trigger: "axis",
+      backgroundColor: isDark ? "#171717" : "#ffffff",
+      borderColor: isDark ? "#3f3f46" : "#e2e8f0",
+      borderWidth: 1,
+      padding: [10, 12],
+      textStyle: {
+        color: isDark ? "#e5e7eb" : "#334155",
+        fontSize: 12,
+      },
+      extraCssText:
+        "border-radius:6px;box-shadow:0 10px 28px rgba(15,23,42,0.14);",
       axisPointer: {
         type: "line",
         lineStyle: { color: axisLine, type: "dashed", width: 1 },
@@ -296,7 +313,7 @@ export const ResponseTimeTrend = ({
         );
 
         if (!hasData) {
-          return `<div style="font-weight:600;margin-bottom:2px">${time}</div><span>No response-time data available for this time.</span>`;
+          return `<div style="font-weight:600;margin-bottom:4px">${time}</div><span style="opacity:.7">No checks in this bucket</span>`;
         }
 
         const rows = params
@@ -305,29 +322,21 @@ export const ResponseTimeTrend = ({
               typeof p.value === "number" && Number.isFinite(p.value)
                 ? `${p.value}ms`
                 : "No data";
+            const label = p.seriesName === "p50" ? "p50 · median" : "p95 · tail";
 
-            return `<span style="color:${p.seriesName === "p50" ? green : amber}">●</span> ${p.seriesName}: <b>${value}</b>`;
+            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:5px"><span><span style="color:${p.seriesName === "p50" ? green : amber}">●</span> ${label}</span><b>${value}</b></div>`;
           })
-          .join("<br/>");
+          .join("");
         const breach = params.some(
           (p) => typeof p.value === "number" && p.value >= threshold,
         )
-          ? `<br/><span style="color:${red}">▲ above ${threshold}ms threshold</span>`
+          ? `<div style="border-top:1px solid ${axisLine};margin-top:7px;padding-top:7px;color:${red}">▲ Above ${threshold}ms threshold</div>`
           : "";
-        return `<div style="font-weight:600;margin-bottom:2px">${time}</div>${rows}${breach}`;
+        return `<div style="font-weight:600;margin-bottom:4px">${time}</div>${rows}${breach}`;
       },
     },
     legend: {
-      data: [
-        { name: "p50", icon: "rect" },
-        { name: "p95", icon: "rect" },
-      ],
-      right: 4,
-      top: 2,
-      itemWidth: 12,
-      itemHeight: 2,
-      itemGap: 16,
-      textStyle: { fontSize: 11 },
+      show: false,
     },
     xAxis: {
       type: "category",
@@ -347,10 +356,11 @@ export const ResponseTimeTrend = ({
       {
         name: "p50",
         type: "line",
-        smooth: 0.4,
+        smooth: 0.18,
         data: p50Data,
         connectNulls: false,
-        emphasis: { focus: "series" },
+        showSymbol: false,
+        emphasis: { focus: "series", scale: true },
         areaStyle: {
           color: {
             type: "linear",
@@ -389,10 +399,11 @@ export const ResponseTimeTrend = ({
       {
         name: "p95",
         type: "line",
-        smooth: 0.4,
+        smooth: 0.18,
         data: p95Data,
         connectNulls: false,
-        emphasis: { focus: "series" },
+        showSymbol: false,
+        emphasis: { focus: "series", scale: true },
         areaStyle: null,
         itemStyle: { color: amber },
         lineStyle: { color: amber, width: 1.5, type: "dashed", dashOffset: 4 },
@@ -409,9 +420,74 @@ export const ResponseTimeTrend = ({
         active={isFetchingChart && !isLoading}
         label="Updating response time chart"
       />
-      <Chart option={option} height={300} />
+      <div className="grid gap-2 sm:grid-cols-3">
+        <ChartSummaryItem
+          label="Latest bucket p50"
+          value={
+            latestBucket?.p50Data === null || latestBucket?.p50Data === undefined
+              ? "—"
+              : `${latestBucket.p50Data}ms`
+          }
+          context={latestBucket?.bucket}
+        />
+        <ChartSummaryItem
+          label="Latest bucket p95"
+          value={
+            latestBucket?.p95Data === null || latestBucket?.p95Data === undefined
+              ? "—"
+              : `${latestBucket.p95Data}ms`
+          }
+          context={latestBucket?.bucket}
+        />
+        <ChartSummaryItem
+          label="Buckets with data"
+          value={`${measuredBucketCount} / ${bucketData.length}`}
+          context="Selected range"
+        />
+      </div>
+
+      {hasSeriesData ? (
+        <div className="mt-3">
+          <Chart option={option} height={300} />
+        </div>
+      ) : (
+        <div className="mt-3 flex h-[300px] items-center justify-center rounded-md border border-dashed border-sf-border bg-sf-bg/30 px-6 text-center">
+          <div>
+            <p className="text-sm font-semibold text-sf-text">
+              No response-time data
+            </p>
+            <p className="mt-1 text-xs text-sf-text-muted">
+              No completed checks were recorded during this range.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+const ChartSummaryItem = ({
+  label,
+  value,
+  context,
+}: {
+  label: string;
+  value: string;
+  context?: string;
+}) => (
+  <div className="rounded-md border border-sf-border bg-sf-bg/35 px-3.5 py-3">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sf-text-muted">
+      {label}
+    </p>
+    <div className="mt-1.5 flex items-end justify-between gap-2">
+      <p className="font-mono text-base font-semibold tabular-nums text-sf-text">
+        {value}
+      </p>
+      {context ? (
+        <p className="truncate text-[10px] text-sf-text-muted">{context}</p>
+      ) : null}
+    </div>
+  </div>
+);
 
 export default IndividualMonitorInfoStats;

@@ -16,19 +16,19 @@ const MonitorType = ({
         comingSoon
           ? "border-[1.5px] border-sf-border opacity-50 cursor-not-allowed"
           : isActive
-            ? "cursor-pointer border-[1.5px] border-sf-text bg-sf-bg shadow-[inset_0_0_0_1px_var(--color-sf-text)]"
+            ? "cursor-pointer border-[1.5px] border-sf-blue bg-sf-blue-bg shadow-[inset_0_0_0_1px_var(--color-sf-blue)]"
             : "cursor-pointer border-[1.5px] border-sf-border hover:border-sf-text-muted hover:bg-sf-bg"
       }`}
     >
       {comingSoon && (
-        <span className="absolute right-2.5 top-2.5 rounded-sf bg-sf-bg px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-wide text-sf-text-muted">
+        <span className="absolute right-2.5 top-2.5 rounded-sf bg-sf-bg px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">
           Soon
         </span>
       )}
       <div className="flex flex-col p-3">
         <div
           className={`w-fit rounded-sf-sm p-1.5 transition-colors duration-150 ease-in-out ${
-            isActive && !comingSoon ? "bg-sf-text" : "bg-sf-bg"
+            isActive && !comingSoon ? "bg-sf-blue" : "bg-sf-bg"
           }`}
         >
           <Icon

@@ -4,11 +4,13 @@ import IntegrationChannels from "@/features/integrations/email-alerts/components
 
 const EmailAlerts = () => {
   return (
-    <section className="w-full pb-8">
+    <section className="min-h-full pb-12">
       <EmailAlertsHeaders />
-      <IntegrationChannels />
-      <div className="mx-auto max-w-7xl">
+      <div className="sf-page-content">
+        <IntegrationChannels />
+        <div className="mt-4">
         <EmailAlertsInfo />
+        </div>
       </div>
     </section>
   );

@@ -22,11 +22,11 @@ const Sidebar = () => {
             <p className="text-sm text-sf-text font-bold font-sans">
               UptimeSentinel
             </p>
-            <p className="text-[9.5px] font-medium uppercase tracking-[0.14em] text-sf-text-muted">Monitoring</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-sf-text-muted">Monitoring</p>
           </div>
         </div>
         <div className="mt-4 flex w-full items-center gap-2.5 rounded-sf-sm border border-sf-border bg-sf-bg/60 px-2.5 py-2">
-          <span className="w-5.5 h-5.5 rounded-sm bg-[#464fe5] flex items-center justify-center text-[11px] font-bold text-white">
+          <span className="w-5.5 h-5.5 rounded-sm bg-[#464fe5] flex items-center justify-center text-xs font-bold text-white">
             A
           </span>
           <p className="text-[12px] text-sf-text font-sans font-bold">
@@ -104,7 +104,7 @@ const Sidebar = () => {
             <DarkModeToggle />
             <button className="flex min-h-9 w-full cursor-pointer items-center gap-3 rounded-sf-sm px-2.5 py-2 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text">
               <HelpIcon />
-              <span className="text-[13.5px] font-sans">Help &amp; docs</span>
+              <span className="font-sans text-[13px]">Help &amp; docs</span>
             </button>
           </div>
           <div className="mt-1.5 flex items-center gap-3 rounded-sf-sm px-2 py-2 hover:bg-sf-bg/70">
@@ -112,7 +112,7 @@ const Sidebar = () => {
               DW
             </span>
             <div className="flex flex-col flex-1 min-w-0">
-              <span className="text-[13.5px] font-semibold text-sf-text font-sans truncate">
+              <span className="truncate font-sans text-[13px] font-semibold text-sf-text">
                 Dana Whitman
               </span>
               <span className="text-[12px] text-sf-text-muted font-sans">

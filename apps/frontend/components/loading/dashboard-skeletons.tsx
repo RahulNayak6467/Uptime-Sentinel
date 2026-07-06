@@ -14,8 +14,11 @@ const LoadingRegion = ({
 );
 
 const PageHeaderSkeleton = ({ actions = 2 }: { actions?: number }) => (
-  <div className="flex items-center justify-between border-b border-sf-border bg-sf-surface px-6 py-3">
-    <Skeleton className="h-5 w-44" />
+  <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
+    <div>
+      <Skeleton className="h-5 w-44" />
+      <Skeleton className="mt-2 h-3 w-56" />
+    </div>
     <div className="flex gap-2">
       {Array.from({ length: actions }, (_, index) => (
         <Skeleton key={index} className="h-8 w-24" />
@@ -116,12 +119,9 @@ export const ChartSkeleton = () => (
 export const OverviewLoading = () => (
   <LoadingRegion label="Loading dashboard overview">
     <div className="flex min-h-[88px] items-center justify-between border-b border-sf-border bg-sf-surface px-6">
-      <div className="flex items-center gap-3.5">
-        <Skeleton className="size-10 rounded-xl" />
-        <div>
+      <div>
           <Skeleton className="h-5 w-52" />
           <Skeleton className="mt-2 h-3 w-64" />
-        </div>
       </div>
       <div className="flex gap-2">
         <Skeleton className="size-9 rounded-lg" />
@@ -129,9 +129,9 @@ export const OverviewLoading = () => (
       </div>
     </div>
     <div className="mx-auto w-full max-w-7xl space-y-6 px-6 py-6 pb-12">
-      <div className="rounded-2xl border border-sf-border bg-sf-surface p-7">
+      <div className="rounded-lg border border-sf-border bg-sf-surface p-5">
         <div className="flex items-center gap-4">
-          <Skeleton className="size-12 rounded-2xl" />
+          <Skeleton className="size-10 rounded-lg" />
           <div className="flex-1">
             <Skeleton className="h-3 w-32" />
             <Skeleton className="mt-3 h-7 w-64" />
@@ -139,7 +139,7 @@ export const OverviewLoading = () => (
           </div>
           <div className="hidden grid-cols-3 gap-2 sm:grid">
             {Array.from({ length: 3 }, (_, index) => (
-              <Skeleton key={index} className="h-[74px] w-28 rounded-xl" />
+              <Skeleton key={index} className="h-[62px] w-24 rounded-lg" />
             ))}
           </div>
         </div>
@@ -278,8 +278,9 @@ export const IncidentsLoading = () => (
 export const EmailAlertsLoading = () => (
   <LoadingRegion label="Loading email alert settings">
     <PageHeaderSkeleton actions={1} />
-    <div className="px-6 py-6">
-      <div className="rounded-sf border border-sf-border bg-sf-surface p-5">
+    <div className="sf-page-content pb-12">
+      <Skeleton className="h-9 w-72 rounded-sf-sm" />
+      <div className="mt-4 rounded-lg border border-sf-border bg-sf-surface p-5">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="mt-3 h-10 w-full" />
       </div>

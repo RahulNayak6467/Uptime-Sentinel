@@ -43,7 +43,7 @@ const MonitorPreview = ({
           <Activity className="size-3.5 text-sf-blue" />
           <span className="text-xs font-semibold text-sf-text">Configuration preview</span>
         </div>
-        <span className={`rounded-sf border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${hasName && hasUrl ? "border-sf-green-border bg-sf-green-bg text-sf-green" : "border-sf-border bg-sf-bg text-sf-text-muted"}`}>
+        <span className={`rounded-sf border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${hasName && hasUrl ? "border-sf-green-border bg-sf-green-bg text-sf-green" : "border-sf-border bg-sf-bg text-sf-text-muted"}`}>
           {hasName && hasUrl ? "Ready" : "Draft"}
         </span>
       </div>
@@ -61,7 +61,7 @@ const MonitorPreview = ({
                 {hasName ? monitorName : "Unnamed monitor"}
               </span>
               <span
-                className={`mt-1 block truncate font-mono text-[11px] ${
+                className={`mt-1 block truncate font-mono text-xs ${
                   hasUrl ? "text-sf-text-sub" : "text-sf-text-muted"
                 }`}
               >
@@ -69,7 +69,7 @@ const MonitorPreview = ({
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-[10px] font-medium text-sf-text-sub">
+          <span className="shrink-0 rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-xs font-medium text-sf-text-sub">
             {type}
           </span>
         </div>
@@ -85,10 +85,10 @@ const MonitorPreview = ({
               key={label}
               className="flex items-center justify-between gap-4 py-3"
             >
-              <dt className="text-[11px] text-sf-text-muted">
+              <dt className="text-xs text-sf-text-muted">
                 {label}
               </dt>
-              <dd className="font-mono text-[11px] font-medium text-sf-text">
+              <dd className="font-mono text-xs font-medium text-sf-text">
                 {value}
               </dd>
             </div>

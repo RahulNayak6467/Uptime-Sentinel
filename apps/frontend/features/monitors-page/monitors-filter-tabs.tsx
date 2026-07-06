@@ -59,7 +59,7 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
             {label}
             {count !== undefined && (
               <span
-                className={`text-[11px] tabular-nums ${isActive ? "text-sf-text" : "text-sf-text-muted"}`}
+                className={`text-xs tabular-nums ${isActive ? "text-sf-text" : "text-sf-text-muted"}`}
               >
                 {count}
               </span>
