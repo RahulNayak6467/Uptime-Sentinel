@@ -77,6 +77,7 @@ const MonitorsPage = () => {
 
   const requiredData: MonitorPageData[] = monitorTableData.data.map((el) => {
     return {
+      id: el.id,
       name: el.urlName,
       url: el.url,
       uptime: el.uptimePercentage,
@@ -100,30 +101,30 @@ const MonitorsPage = () => {
         isRefreshing={isFetchingMonitors}
       />
       <div className="sf-page-content pb-12">
-      <MonitorsFilterTabs active={activeTab} onChange={onChange} />
-      <div className="relative mt-5 flex flex-col gap-3">
-        <FetchingIndicator
-          active={isFetchingMonitors && !isLoading}
-          label="Updating monitors"
-        />
-        {selectedCount > 0 && (
-          <BulkActionBar
-            count={selectedCount}
-            onClear={() => setRowSelection({})}
+        <MonitorsFilterTabs active={activeTab} onChange={onChange} />
+        <div className="relative mt-5 flex flex-col gap-3">
+          <FetchingIndicator
+            active={isFetchingMonitors && !isLoading}
+            label="Updating monitors"
           />
-        )}
-        <MonitorsDataTable
-          onChangePage={onChangePage}
-          currentPage={currentPage}
-          totalPage={totalPage}
-          columns={columns}
-          data={requiredData}
-          rowSelection={rowSelection}
-          onRowSelectionChange={setRowSelection}
-          isFiltered={activeTab !== "all"}
-          onClearFilter={clearFilter}
-        />
-      </div>
+          {selectedCount > 0 && (
+            <BulkActionBar
+              count={selectedCount}
+              onClear={() => setRowSelection({})}
+            />
+          )}
+          <MonitorsDataTable
+            onChangePage={onChangePage}
+            currentPage={currentPage}
+            totalPage={totalPage}
+            columns={columns}
+            data={requiredData}
+            rowSelection={rowSelection}
+            onRowSelectionChange={setRowSelection}
+            isFiltered={activeTab !== "all"}
+            onClearFilter={clearFilter}
+          />
+        </div>
       </div>
     </section>
   );

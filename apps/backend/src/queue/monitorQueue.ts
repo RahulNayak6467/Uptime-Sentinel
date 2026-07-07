@@ -2,7 +2,7 @@ import { Queue } from "bullmq";
 import redis from "../Redis";
 
 const monitorQueue = new Queue("monitor-checks", {
-  connection: redis, // your existing redis client
+  connection: redis,
 });
 
 export const addToQueue = async (

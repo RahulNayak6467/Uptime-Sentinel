@@ -1,6 +1,7 @@
 import { QueryResult } from "pg";
 import { db } from "../db";
 import { IncidentTimelineProps } from "../types/db-types";
+import logger from "../config/logger";
 
 export const getIncidentsTimelineServices = async (
   user_id: string,
@@ -59,5 +60,9 @@ export const getIncidentsTimelineServices = async (
     },
   };
 
+  logger.debug(
+    { userId: user_id, page: pageNumber, totalPage, timelineCount: rows.length },
+    "fetched incident timelines",
+  );
   return paginatedIncidentsData;
 };

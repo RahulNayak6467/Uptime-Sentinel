@@ -10,6 +10,7 @@ import {
   REFRESH_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_SECONDS,
 } from "../auth-config";
+import logger from "../config/logger";
 interface userInfoProps {
   id: string;
   password: string;
@@ -23,6 +24,7 @@ export const checkLoginUser = async (email: string, password: string) => {
     const values = [email];
     const getUserInfo = await db.query(query, values);
     if (getUserInfo.rows.length === 0) {
+      logger.warn({ reason: "user_not_found" }, "login failed");
       throw new AppError(
         401,
         "Invalid login credentials",
@@ -36,6 +38,7 @@ export const checkLoginUser = async (email: string, password: string) => {
     }: userInfoProps = getUserInfo.rows[0];
     const checkPassword = await bcrypt.compare(password, userPassword);
     if (!checkPassword) {
+      logger.warn({ userId: user_id, reason: "bad_password" }, "login failed");
       throw new AppError(
         401,
         "Invalid login credentials",
@@ -43,6 +46,10 @@ export const checkLoginUser = async (email: string, password: string) => {
       );
     }
     if (!email_verified) {
+      logger.warn(
+        { userId: user_id, reason: "email_not_verified" },
+        "login blocked",
+      );
       throw new AppError(403, "Email not verified", "EMAIL_NOT_VERIFIED");
     }
     const secretKey = env.JWT_SECRET;
@@ -73,11 +80,12 @@ export const checkLoginUser = async (email: string, password: string) => {
     const hashedRefreshToken = await bcrypt.hash(generateRefreshToken, SALT);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
     const insert_Refresh_Query =
-      //   "INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES($1, $2, $3)";
       "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at";
     const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
 
     await db.query(insert_Refresh_Query, values_Refresh_Query);
+
+    logger.info({ userId: user_id }, "user logged in");
 
     return {
       message: "User successfully logged in",
@@ -85,6 +93,9 @@ export const checkLoginUser = async (email: string, password: string) => {
       refreshToken: generateRefreshToken,
     };
   } catch (error) {
+    if (!(error instanceof AppError)) {
+      logger.error({ err: error }, "login failed unexpectedly");
+    }
     throw error;
   }
 };

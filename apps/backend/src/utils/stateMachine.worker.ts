@@ -1,3 +1,4 @@
+import logger from "../config/logger";
 import { db } from "../db/index";
 import {
   addReminderEmailQueue,
@@ -102,7 +103,6 @@ const hasConsecutiveFailures = async (url_id: string) => {
   const check_down_values = [url_id];
   const getStatusValues = await db.query(check_down_query, check_down_values);
 
-  console.log(getStatusValues);
   const rows = getStatusValues.rows.length;
   if (rows < 2) {
     return isDown;
@@ -140,8 +140,6 @@ export const runStateMachine = async (
       const reminderEmailTime = getMinutesDifference(
         activeIncident.last_alert_sent_at,
       );
-      console.log(activeIncident.last_alert_sent_at);
-      console.log("reminder: ", reminderEmailTime);
       if (reminderEmailTime > 2) {
         await addReminderEmailQueue(url_id, activeIncident.id);
       } else {
@@ -153,7 +151,12 @@ export const runStateMachine = async (
       await addToRecoveryEmailQueue(url_id, activeIncident.id);
     },
   };
-  console.log(`${currentState}:${event}`);
+
+  logger.debug(
+    { currentState, event },
+    "Event type as processed by state machine",
+  );
+
   const action = transitions[`${currentState}:${event}`];
 
   await action();

@@ -15,6 +15,7 @@ export const env = {
   PORT: parseInt(process.env.PORT || "3000", 10),
 
   DATABASE_URL: requireEnv("DATABASE_URL"),
+  POSTGRESQL_PORT: parseInt(process.env.POSTGRESQL_PORT || "5432"),
 
   REDIS_HOST: process.env.REDIS_HOST || "localhost",
   REDIS_PORT: parseInt(process.env.REDIS_PORT || "6379", 10),
@@ -29,4 +30,5 @@ export const env = {
   RESEND_API_KEY: requireEnv("RESEND_API_KEY"),
   SENTRY_DSN: requireEnv("SENTRY_DSN"),
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+  PINO_LOG_LEVEL: process.env.PINO_LOG_LEVEL || "info",
 };

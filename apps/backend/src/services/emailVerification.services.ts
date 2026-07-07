@@ -13,6 +13,7 @@ import {
   REFRESH_TOKEN_TTL_MS,
   REFRESH_TOKEN_TTL_SECONDS,
 } from "../auth-config";
+import logger from "../config/logger";
 
 export const sendEmailVerification = async (email: string, otp: string) => {
   const { data, error } = await resend.emails.send({
@@ -22,10 +23,11 @@ export const sendEmailVerification = async (email: string, otp: string) => {
     html: `<p>Your verification code is: <strong>${otp}</strong></p>
            <p>This code expires in 10 minutes.</p>`,
   });
-  console.log("Resend response — data:", data, "error:", error);
   if (error) {
+    logger.error({ err: error }, "verification email send failed");
     throw new Error(`Failed to send verification email: ${error.message}`);
   }
+  logger.info({ emailId: data?.id }, "verification email sent");
   return data;
 };
 
@@ -71,8 +73,6 @@ export const verifyEmail = async (email: string, otp: string) => {
     const updatedRowCount: number = updateEmailVerification.rowCount as number;
 
     const updatedRow: number = updateEmailVerification.rows.length;
-
-    console.log(updateEmailVerification);
 
     if (updatedRow === 0) {
       const email_exists_query =
@@ -152,6 +152,7 @@ export const verifyEmail = async (email: string, otp: string) => {
     const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
 
     await db.query(insert_Refresh_Query, values_Refresh_Query);
+    logger.info({ userId: user_id }, "email verified");
     return {
       message: "user successfully signedIn",
       token: generatedToken,
@@ -181,12 +182,12 @@ export const sendDownAlertEmail = async (
       ${errorMessage ? `<p><strong>Error:</strong> ${errorMessage}</p>` : ""}
     `,
   });
-  console.log("Resend response — data:", data, "error:", error);
-
   if (error) {
+    logger.error({ err: error, monitorName }, "down alert email send failed");
     return null;
   }
 
+  logger.info({ emailId: data?.id, monitorName }, "down alert email sent");
   return data;
 };
 
@@ -210,12 +211,12 @@ export const sendRecoveryEmail = async (
       <p><strong>Outage duration:</strong> ${duration}</p>
     `,
   });
-  console.log("Resend response — data:", data, "error:", error);
-
   if (error) {
+    logger.error({ err: error, monitorName: urlName }, "recovery email send failed");
     return null;
   }
 
+  logger.info({ emailId: data?.id, monitorName: urlName }, "recovery email sent");
   return data;
 };
 
@@ -240,11 +241,17 @@ export const sendStillDownAlertEmail = async (
     `,
   });
 
-  console.log("Resend response — data:", data, "error:", error);
-
   if (error) {
+    logger.error(
+      { err: error, monitorName },
+      "still-down alert email send failed",
+    );
     return null;
   }
 
+  logger.info(
+    { emailId: data?.id, monitorName },
+    "still-down alert email sent",
+  );
   return data;
 };

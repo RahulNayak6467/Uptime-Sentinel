@@ -1,6 +1,7 @@
 import Redis from "ioredis";
 import redis from ".";
 import { broadcast } from "../sse/sse_connection_management";
+import logger from "../config/logger";
 
 const subscriptionsMap = new Map<string, Redis>();
 
@@ -12,9 +13,9 @@ export const subscribeUser = (user_id: string) => {
 
   subscriber.subscribe(`status-updates:${user_id}`, (err) => {
     if (err) {
-      console.log("Error while subscribing to the channel", err);
+      logger.error({ err, user_id }, "Error while subscribing to the channel");
     } else {
-      console.log("Subscribed to the channel");
+      logger.info({ user_id }, "Subscribed to the channel");
     }
   });
 
@@ -24,12 +25,14 @@ export const subscribeUser = (user_id: string) => {
       const user_id = channel.split(":")[1];
       broadcast(user_id, parsedBody.type, parsedBody.payload);
     } catch (err) {
-      console.log("Bad SSE message, dropping:", err);
+      logger.error({ err }, "Bad SSE message, dropping:");
       return;
     }
   });
 
   subscriptionsMap.set(user_id, subscriber);
+
+  logger.debug({ userId: user_id }, "user subscribed");
 };
 
 export const unsubscribeUser = async (user_id: string) => {
@@ -42,6 +45,8 @@ export const unsubscribeUser = async (user_id: string) => {
   await userSubscription.unsubscribe(`status-updates:${user_id}`);
   await userSubscription.quit();
   subscriptionsMap.delete(user_id);
+
+  logger.debug({ userId: user_id }, "user subscriptions deleted");
 };
 
 export const isSubscribed = (user_id: string) => {

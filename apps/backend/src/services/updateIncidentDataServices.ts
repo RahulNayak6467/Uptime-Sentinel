@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { AppError } from "../errors/AppError";
+import logger from "../config/logger";
 
 export const updateIncidentDataServices = async (
   title: string | null,
@@ -55,7 +56,10 @@ export const updateIncidentDataServices = async (
 
   const formData = { ...updatedData.rows[0], title: updatedTitle };
 
-  console.log("FORMAT DATA", formData);
+  logger.info(
+    { userId: user_id, incidentId: incident_id, updateType: type },
+    "incident update edited",
+  );
 
   return formData;
 };

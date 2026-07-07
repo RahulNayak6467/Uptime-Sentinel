@@ -2,6 +2,7 @@ import {db} from "../db";
 import {AppError} from "../errors/AppError";
 import {QueryResult} from "pg";
 import {monitorDataProps} from "../types/types";
+import logger from "../config/logger";
 
 export const getMonitorsDetails = async(user_id: string) => {
     const monitors_info_query = "SELECT url,url_name,interval_seconds,status,next_check_at FROM monitor where user_id = $1";
@@ -16,5 +17,9 @@ export const getMonitorsDetails = async(user_id: string) => {
         throw new AppError(404,"No monitors found","MONITORS_NOT_FOUND")
     }
 
+    logger.debug(
+        { userId: user_id, monitorCount: rows.length },
+        "fetched monitor details",
+    );
     return rows
 }

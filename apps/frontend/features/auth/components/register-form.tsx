@@ -2,8 +2,7 @@
 import EmailAddressInput from "@/components/ui/email-address";
 import PasswordInput from "@/components/ui/password-input";
 import AuthFormHeader from "./auth-form-header";
-import GoogleAuthButton from "./google-auth-button";
-import FullNameInput from "./full-name";
+import SocialAuthButtons from "./social-auth-buttons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -56,11 +55,10 @@ function RegisterForm() {
         description="Set up your workspace and start monitoring endpoints."
       />
 
-      <GoogleAuthButton dividerLabel="or sign up with email" />
+      <SocialAuthButtons dividerLabel="or sign up with email" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-6 flex flex-col gap-4">
-          <FullNameInput register={register} errors={errors.name?.message} />
           <EmailAddressInput
             register={register}
             errors={errors.email?.message}

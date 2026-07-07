@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { QueryResult } from "pg";
 import { allMonitorsDataProps } from "../types/types";
+import logger from "../config/logger";
 
 export const getAllMonitorInfo = async (
   query: (string | null | boolean)[],
@@ -44,8 +45,6 @@ export const getAllMonitorInfo = async (
         OFFSET $4
         LIMIT $5
     `;
-
-  console.log(query);
 
   const all_monitors_value = query;
 
@@ -93,7 +92,10 @@ export const getAllMonitorInfo = async (
     },
   };
 
-  console.log(paginatedMonitorsData);
+  logger.debug(
+    { userId: query[0], page: pageNumber, totalPage, monitorCount: rows.length },
+    "fetched monitors",
+  );
 
   return paginatedMonitorsData;
 };

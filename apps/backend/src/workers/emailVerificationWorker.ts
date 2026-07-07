@@ -4,13 +4,16 @@ import redis from "../Redis";
 import crypto from "crypto";
 import { AppError } from "../errors/AppError";
 import { sendEmailVerification } from "../services/emailVerification.services";
+import logger from "../config/logger";
 
-console.log("monitorWorkers module loaded");
-console.log("Redis connection state:", redis.status);
+logger.info({}, "monitorWorkers module loaded");
+logger.info({ status: redis.status }, "Redis connection state:");
 
-redis.on("connect", () => console.log("Redis connected in worker"));
-redis.on("ready", () => console.log("Redis ready in worker"));
-redis.on("error", (err) => console.error("Redis error in worker:", err));
+redis.on("connect", () => logger.info("Redis connected in worker"));
+redis.on("ready", () => logger.info("Redis ready in worker"));
+redis.on("error", (err) =>
+  logger.error({ err }, "Redis error in worker:", err),
+);
 
 const getEmailVerificationOptions = () => {
   return {
@@ -30,19 +33,9 @@ const getEmailVerificationOptions = () => {
 
 const processor = async (job: Job) => {
   const { email, otp } = job.data;
-  // const generatedOTP = crypto.randomInt(100000, 999999).toString();
-  // const addOTP = await redis.set(
-  //   `emailVerify-${email}`,
-  //   generatedOTP,
-  //   "EX",
-  //   600,
-  // );
 
   const sendEmail = await sendEmailVerification(email, otp);
   console.log(sendEmail);
-  // if (sendEmail === null) {
-  //   throw new Error("Email sent unsuccessful");
-  // }
 };
 
 export const emailVerificationWorker = new Worker(
@@ -52,18 +45,34 @@ export const emailVerificationWorker = new Worker(
 );
 
 emailVerificationWorker.on("ready", () => {
-  console.log("Email Worker connected to Redis and ready");
+  logger.info(
+    { emailVerificationStatus: "READY" },
+    "Email Worker connected to Redis and ready",
+  );
 });
 
-emailVerificationWorker.on("error", (error) => {
-  console.error("Email Worker error:", error);
+emailVerificationWorker.on("error", (err) => {
+  logger.error(
+    { emailVerificationStatus: "ERROR", err },
+    "Email Worker error:",
+  );
 });
 
 emailVerificationWorker.on("completed", (job) => {
-  console.log(`Email Job ${job.id} completed`);
+  logger.info(
+    { emailVerificationStatus: "COMPLETED", jobId: job.id },
+    "Email worker Job completed",
+  );
 });
 
-emailVerificationWorker.on("failed", (job, error) => {
-  console.log(`Email Job ${job?.id} failed:`, error.message);
-  console.error("Stack:", error.stack);
+emailVerificationWorker.on("failed", (job, err) => {
+  logger.error(
+    {
+      emailVerificationStatus: "FAILED",
+      err,
+      jobId: job?.id,
+      stack: err.stack,
+    },
+    "Email worker Job failed",
+  );
 });

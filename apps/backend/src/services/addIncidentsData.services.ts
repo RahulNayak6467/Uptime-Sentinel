@@ -6,6 +6,7 @@ import {
   validateOccurredAt,
 } from "../utils/validateOccurredAt";
 import { IncidentAddDataProps } from "../types/db-types";
+import logger from "../config/logger";
 
 export const addIncidentUpdatesServices = async (
   title: string | null,
@@ -79,7 +80,10 @@ export const addIncidentUpdatesServices = async (
 
   const formData = { ...rows[0], title: updatedTitle };
 
-  console.log("FORMAT DATA", formData);
+  logger.info(
+    { userId: user_id, incidentId: incident_id, updateType: type },
+    "incident update added",
+  );
 
   return rows[0];
 };

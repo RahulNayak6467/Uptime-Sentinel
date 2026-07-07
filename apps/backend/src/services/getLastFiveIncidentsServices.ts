@@ -2,6 +2,7 @@ import { QueryResult } from "pg";
 import { db } from "../db";
 import { AppError } from "../errors/AppError";
 import { lastFiveIncidentDataProps } from "../types/db-types";
+import logger from "../config/logger";
 
 export const getLastFiveIncidentsServices = async (
   user_id: string,
@@ -33,5 +34,9 @@ export const getLastFiveIncidentsServices = async (
 
   const rows = getLastFiveData.rows;
 
+  logger.debug(
+    { userId: user_id, monitorId, incidentCount: rows.length },
+    "fetched recent incidents",
+  );
   return rows;
 };

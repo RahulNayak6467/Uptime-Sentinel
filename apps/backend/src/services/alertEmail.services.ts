@@ -2,6 +2,7 @@ import { QueryResult } from "pg";
 import { db } from "../db";
 import { emailAlertProps } from "../types/types";
 import { LIMIT_RECENT_ALERTS } from "../constants/constants";
+import logger from "../config/logger";
 
 export const getEmailAlertsServices = async (
   user_id: string,
@@ -50,8 +51,6 @@ export const getEmailAlertsServices = async (
 
   const totalMonitors = getTotalCountQuery.rows[0].total_count || 1;
 
-  console.log("totalMonitors:", totalMonitors);
-
   const totalPage = Math.ceil(totalMonitors / limit);
 
   const rows = getEmailAlertDetails.rows;
@@ -75,7 +74,10 @@ export const getEmailAlertsServices = async (
     },
   };
 
-  console.log("PAGINATION :", emailAlertResponsePagination);
+  logger.debug(
+    { userId: user_id, page: pageNumber, totalPage },
+    "fetched email alerts",
+  );
 
   return emailAlertResponsePagination;
 };

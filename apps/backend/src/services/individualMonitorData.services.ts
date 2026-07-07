@@ -2,6 +2,7 @@ import {db} from "../db";
 import {QueryResult} from "pg";
 import {individualStatsState} from "../types/db-types";
 import {AppError} from "../errors/AppError";
+import logger from "../config/logger";
 
 export const individualMonitorInfo = async(user_id:string,monitor_id:string) => {
     const monitor_info_query = "SELECT url,url_name,next_check_at,interval_seconds,status,is_active from monitor where id = $1 and user_id = $2"
@@ -17,6 +18,10 @@ export const individualMonitorInfo = async(user_id:string,monitor_id:string) => 
 
     const individual_monitor_info = rows[0];
 
+    logger.debug(
+        { userId: user_id, monitorId: monitor_id },
+        "fetched monitor details",
+    );
     return {
         url: individual_monitor_info.url,
         urlName:individual_monitor_info.url_name,

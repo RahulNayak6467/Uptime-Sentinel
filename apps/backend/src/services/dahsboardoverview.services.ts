@@ -2,6 +2,7 @@ import { UPTIME_STATS_PERIOD } from "../constants/constants";
 import { db } from "../db";
 import { uptimeStatsProps, overViewStatsProps } from "../types/db-types";
 import { QueryResult } from "pg";
+import logger from "../config/logger";
 
 export const fetchDashboardOverviewData = async (user_id: string) => {
   const fetch_stats_query = `select count(*) FILTER (WHERE checked_at >= date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS total_checks,
@@ -47,8 +48,13 @@ export const fetchDashboardOverviewData = async (user_id: string) => {
         get_uptime_rows === null ? null : Number(get_uptime_rows),
     };
 
+    logger.debug({ userId: user_id }, "fetched dashboard overview");
     return get_overview_data;
   } catch (err) {
+    logger.error(
+      { err, userId: user_id },
+      "dashboard overview fetch failed",
+    );
     throw err;
   }
 };

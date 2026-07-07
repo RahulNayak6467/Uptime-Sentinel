@@ -1,5 +1,6 @@
 import { AppError } from "../errors/AppError";
 import { db } from "../db/index";
+import logger from "../config/logger";
 
 export const checkUrlRegistration = async (
   url: string,
@@ -26,9 +27,15 @@ export const checkUrlRegistration = async (
       "INSERT INTO monitor (url,url_name,interval_seconds,user_id) VALUES($1,$2,$3,$4)";
     const values_monitor_url = [url, urlName, intervalSeconds, user_id];
     await db.query(insert_monitor_url, values_monitor_url);
+    logger.info({ userId: user_id }, "monitor registered");
     return "url successfully registered";
   } catch (error) {
-    // console.log(error.message);
+    if (!(error instanceof AppError)) {
+      logger.error(
+        { err: error, userId: user_id },
+        "monitor registration failed unexpectedly",
+      );
+    }
     throw error;
   }
 };

@@ -2,7 +2,7 @@ import { Queue } from "bullmq";
 import redis from "../Redis";
 
 const emailVerificationQueue = new Queue("email-verification", {
-  connection: redis, // your existing redis client
+  connection: redis,
 });
 
 export const addToEmailVerificationQueue = async (

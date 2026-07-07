@@ -4,6 +4,7 @@ import { TIMEOUT } from "../constants/constants";
 import { Pool } from "pg";
 import { AppError } from "../errors/AppError";
 import { publishSSEEvent } from "../sse/publishSSEEvent";
+import logger from "../config/logger";
 // import { CheckUrlPayload } from "../types/sse-types";
 // import { publishSSEEvent } from "../sse/publishSSEEvent";
 export const checkUrlHealth = async (
@@ -27,10 +28,8 @@ export const checkUrlHealth = async (
       "SELECT url,next_check_at FROM monitor where id = $1",
       [url_id],
     );
-    console.log(getUrl);
     const url: string = getUrl.rows[0].url;
     nextCheckAt = getUrl.rows[0].next_check_at;
-    console.log("url ", url);
 
     const getUrlData = await fetch(url, {
       signal: AbortSignal.timeout(TIMEOUT),
@@ -42,8 +41,6 @@ export const checkUrlHealth = async (
       errorMessage: null,
     };
   } catch (err) {
-    console.log(err.message);
-    console.log(err?.code);
     if (err instanceof Error) {
       if (err.name === "TimeoutError") {
         response = {
@@ -92,9 +89,16 @@ export const checkUrlHealth = async (
       };
       await publishSSEEvent(user_id, "check_result", payload);
     } catch (err) {
-      console.log("SSE publish failed (non-fatal):", err);
+      logger.warn(
+        { err, userId: user_id, monitorId: url_id },
+        "SSE check result publish failed",
+      );
     }
 
+    logger.info(
+      { userId: user_id, monitorId: url_id, status, responseTime, statusCode },
+      "monitor check completed",
+    );
     return response;
   } catch (error) {
     if (error instanceof AppError) {

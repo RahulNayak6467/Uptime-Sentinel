@@ -1,19 +1,15 @@
 export type MonitorType = "http" | "tcp" | "dns";
-export type MonitorState = "up" | "down" | "degraded" | "paused" | "unknown";
+export type MonitorState = "up" | "down" | "degraded" | "paused";
 
 export type MonitorPageData = {
+  id: string;
   name: string;
   url: string;
   type: MonitorType;
-  uptime: number | null;
+  uptime: number;
   responseTime: number | null;
   interval: string;
-  nextCheck: string;
+  lastCheck: string;
   state: MonitorState;
   trend: number[];
-};
-
-export type IndividualStatsCardProps = {
-  title: string;
-  stats: number;
 };

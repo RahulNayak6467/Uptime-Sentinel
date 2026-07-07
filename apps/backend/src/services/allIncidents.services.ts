@@ -1,6 +1,7 @@
 import { QueryResult } from "pg";
 import { db } from "../db";
 import { IncidentsDataProps } from "../types/db-types";
+import logger from "../config/logger";
 
 export const getIncidentsDataServices = async (
   user_id: string,
@@ -42,11 +43,6 @@ export const getIncidentsDataServices = async (
     };
   });
 
-  console.log("INCIDENTS DATA:", incidentsData);
-  console.log("LIMIT", limit);
-  console.log("OFFSET", offset);
-  console.log("PAGE NUMBER", pageNumber);
-
   const paginatedIncidentsData = {
     data: incidentsData,
     pagination: {
@@ -55,5 +51,9 @@ export const getIncidentsDataServices = async (
       totalPage,
     },
   };
+  logger.debug(
+    { userId: user_id, page: pageNumber, totalPage, incidentCount: rows.length },
+    "fetched incidents",
+  );
   return paginatedIncidentsData;
 };

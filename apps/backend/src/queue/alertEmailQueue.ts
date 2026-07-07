@@ -2,7 +2,7 @@ import { Queue } from "bullmq";
 import redis from "../Redis";
 
 const alertEmailQueue = new Queue("alert-email", {
-  connection: redis, // your existing redis client
+  connection: redis,
 });
 
 export const addToDownAlertEmailQueue = async (

@@ -2,6 +2,7 @@ import { QueryResult } from "pg";
 import { db } from "../db/index";
 import { AppError } from "../errors/AppError";
 import { formatDuration } from "../utils/formatDate";
+import logger from "../config/logger";
 
 interface incidentsTableDataProps {
   id: string;
@@ -46,6 +47,10 @@ export const getIncidentsDetailsById = async (
       },
     );
 
+    logger.debug(
+      { userId: user_id, monitorId: url_id, incidentCount: response.length },
+      "fetched monitor incidents",
+    );
     return response;
   } catch (err) {
     throw err;

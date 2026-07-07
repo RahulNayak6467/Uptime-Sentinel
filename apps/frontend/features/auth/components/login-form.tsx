@@ -2,7 +2,7 @@
 import EmailAddressInput from "@/components/ui/email-address";
 import PasswordInput from "@/components/ui/password-input";
 import AuthFormHeader from "./auth-form-header";
-import GoogleAuthButton from "./google-auth-button";
+import SocialAuthButtons from "./social-auth-buttons";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaProps } from "../schemas/login-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,7 +50,7 @@ function LoginForm() {
         description="Sign in to continue to your monitoring workspace."
       />
 
-      <GoogleAuthButton dividerLabel="or continue with email" />
+      <SocialAuthButtons dividerLabel="or continue with email" />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-6 flex flex-col gap-4">

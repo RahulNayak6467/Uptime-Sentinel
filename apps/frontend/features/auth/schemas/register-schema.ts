@@ -2,10 +2,6 @@ import { z } from "zod";
 
 export const registerSchema = z
   .object({
-    name: z
-      .string()
-      .min(2, { message: "Minimum 2 characters are requried for name" })
-      .max(100, { message: "Maximum 100 characters are available for name" }),
     email: z.string({ message: "Invalid input format" }).max(255),
     password: z
       .string()

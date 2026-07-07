@@ -14,18 +14,21 @@ function AuthPageShell({ children }: AuthPageShellProps) {
       >
         <LightPillarBackground
           className="absolute inset-0 h-full w-full [mix-blend-mode:screen]"
-          topColor="#a5b4fc"
-          bottomColor="#4f46e5"
-          intensity={0.85}
-          rotationSpeed={0.25}
-          noiseIntensity={0.35}
-          pillarRotation={52}
+          topColor="#818cf8"
+          bottomColor="#4338ca"
+          intensity={0.72}
+          rotationSpeed={0.16}
+          glowAmount={0.003}
+          pillarWidth={1.8}
+          pillarHeight={0.45}
+          noiseIntensity={0.16}
+          pillarRotation={48}
         />
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(34% 40% at 50% 47%, var(--color-sf-bg) 0%, transparent 74%), radial-gradient(120% 90% at 50% 50%, transparent 0%, transparent 52%, var(--color-sf-bg) 94%)",
+              "radial-gradient(28% 34% at 50% 46%, var(--color-sf-bg) 0%, transparent 72%), radial-gradient(46% 52% at 50% 46%, color-mix(in oklab, var(--color-sf-blue) 30%, transparent) 0%, transparent 70%), radial-gradient(130% 100% at 50% 48%, transparent 0%, transparent 48%, var(--color-sf-bg) 96%)",
           }}
         />
       </div>

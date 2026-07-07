@@ -1,5 +1,6 @@
 import { db } from "../db/index";
 import { AppError } from "../errors/AppError";
+import logger from "../config/logger";
 
 export const pauseUrl = async (url_id: string, user_id: string) => {
   const pause_url_query =
@@ -11,6 +12,7 @@ export const pauseUrl = async (url_id: string, user_id: string) => {
     if (rows === 0 || null) {
       throw new AppError(404, "no such url exists", "URL_NOT_FOUND");
     }
+    logger.info({ userId: user_id, monitorId: url_id }, "monitor paused");
     return;
   } catch (error) {
     throw error;
@@ -18,8 +20,6 @@ export const pauseUrl = async (url_id: string, user_id: string) => {
 };
 
 export const resumeUrl = async (url_id: string, user_id: string) => {
-  // console.log(user_id);
-  // console.log(url_id);
   const pause_url_query =
     "UPDATE monitor set is_active = true where id = $1 and user_id = $2";
   const pause_url_value = [url_id, user_id];
@@ -29,6 +29,7 @@ export const resumeUrl = async (url_id: string, user_id: string) => {
     if (rows === 0 || null) {
       throw new AppError(404, "no such url exists", "URL_NOT_FOUND");
     }
+    logger.info({ userId: user_id, monitorId: url_id }, "monitor resumed");
     return;
   } catch (error) {
     throw error;

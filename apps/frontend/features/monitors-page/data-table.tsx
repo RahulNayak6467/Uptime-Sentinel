@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/pagination";
 import { MonitorPageData } from "./types";
 import MonitorsEmpty from "@/components/empty-states/monitors-empty";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps {
   columns: ColumnDef<MonitorPageData, unknown>[];
@@ -51,6 +52,12 @@ export function MonitorsDataTable({
   isFiltered,
   onClearFilter,
 }: DataTableProps) {
+  const router = useRouter();
+
+  const handleRoute = (id: string) => {
+    router.push(`/dashboard/monitors/${id}`);
+  };
+
   const handleRowSelectionChange = useCallback(
     (
       updater:
@@ -83,21 +90,21 @@ export function MonitorsDataTable({
 
   return (
     <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-        <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
-          <div>
-            <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
-              Monitor inventory
-            </h2>
-            <p className="mt-1 text-xs text-sf-text-muted">
-              {data.length} endpoint{data.length === 1 ? "" : "s"} on this page
-            </p>
-          </div>
-          <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
-            <i className="size-1.5 rounded-full bg-sf-green" />
-            Live data
-          </span>
+      <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
+        <div>
+          <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
+            Monitor inventory
+          </h2>
+          <p className="mt-1 text-xs text-sf-text-muted">
+            {data.length} endpoint{data.length === 1 ? "" : "s"} on this page
+          </p>
         </div>
-        <div className="overflow-x-auto">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
+          <i className="size-1.5 rounded-full bg-sf-green" />
+          Live data
+        </span>
+      </div>
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -125,8 +132,9 @@ export function MonitorsDataTable({
             {table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
+                onClick={() => handleRoute(row.original.id)}
                 data-state={row.getIsSelected() ? "selected" : undefined}
-                className="border-b border-sf-border/80 transition-colors last:border-b-0 hover:bg-sf-bg/60 data-[state=selected]:bg-sf-blue-bg/40"
+                className="cursor-pointer border-b border-sf-border/80 transition-colors last:border-b-0 hover:bg-sf-bg/60 data-[state=selected]:bg-sf-blue-bg/40"
               >
                 {row.getVisibleCells().map((cell) => {
                   const colId = cell.column.id;
@@ -135,7 +143,7 @@ export function MonitorsDataTable({
                       ? "w-10"
                       : colId === "name"
                         ? "w-[280px] max-w-[280px]"
-                          : "";
+                        : "";
                   const align =
                     colId === "select" ||
                     colId === "type" ||
@@ -151,7 +159,7 @@ export function MonitorsDataTable({
                   return (
                     <TableCell
                       key={cell.id}
-                    className={`px-4 py-3 align-middle ${w} ${align}`}
+                      className={`px-4 py-3 align-middle ${w} ${align}`}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -164,11 +172,12 @@ export function MonitorsDataTable({
             ))}
           </TableBody>
         </Table>
-        </div>
+      </div>
 
       <div className="flex items-center justify-between border-t border-sf-border bg-sf-bg/20 px-5 py-3">
         <p className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
-          Page <span className="text-sf-text-sub">{currentPage}</span> of {totalPages}
+          Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
+          {totalPages}
         </p>
         <Pagination className="mx-0 w-auto">
           <PaginationContent>

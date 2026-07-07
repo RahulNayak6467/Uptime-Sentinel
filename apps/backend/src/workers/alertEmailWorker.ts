@@ -8,13 +8,16 @@ import {
   sendStillDownAlertEmail,
 } from "../services/emailVerification.services";
 import { db } from "../db";
+import logger from "../config/logger";
 
-console.log("monitorWorkers module loaded");
-console.log("Redis connection state:", redis.status);
+logger.info("monitorWorkers module loaded");
+logger.info({ status: redis.status }, "Redis connection state:");
 
-redis.on("connect", () => console.log("Redis connected in worker"));
-redis.on("ready", () => console.log("Redis ready in worker"));
-redis.on("error", (err) => console.error("Redis error in worker:", err));
+redis.on("connect", () => logger.info("Redis connected in worker"));
+redis.on("ready", () => logger.info("Redis ready in worker"));
+redis.on("error", (err) =>
+  logger.error({ err }, "Redis error in worker:", err),
+);
 
 const alertEmailOptions = () => {
   return {
@@ -52,7 +55,6 @@ const updateLastAlertSentAt = async (incident_id: string) => {
 };
 
 const processor = async (job: Job) => {
-  console.log("Job Name:", job.name);
   if (job.name === "down-alert-email") {
     const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
@@ -148,3 +150,36 @@ export const emailAlertWorker = new Worker(
   processor,
   alertEmailOptions(),
 );
+
+emailAlertWorker.on("ready", () => {
+  logger.info(
+    { emailWorkerStatus: "READY" },
+    "Email verification worker connected to Redis and ready",
+  );
+});
+
+emailAlertWorker.on("error", (err) => {
+  logger.error(
+    { emailWorkerStatus: "ERROR", err },
+    "Email verification worker error",
+  );
+});
+
+emailAlertWorker.on("completed", (job) => {
+  logger.info(
+    { emailWorkerStatus: "COMPLETED", jobId: job.id },
+    "Email verification worker Job Completed",
+  );
+});
+
+emailAlertWorker.on("failed", (job, err) => {
+  logger.error(
+    {
+      emailWorkerStatus: "FAILED",
+      err: err.message,
+      jobId: job?.id,
+      stack: err.stack,
+    },
+    "Email verification worker Job Failed",
+  );
+});

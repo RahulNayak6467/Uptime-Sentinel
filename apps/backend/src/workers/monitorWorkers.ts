@@ -3,13 +3,16 @@ import redis from "../Redis";
 import { checkUrlHealth } from "../services/url.services";
 import { runStateMachine } from "../utils/stateMachine.worker";
 import { db } from "../db";
+import logger from "../config/logger";
 
-console.log("monitorWorkers module loaded");
-console.log("Redis connection state:", redis.status);
+logger.info({}, "monitorWorkers module loaded");
+logger.info({ status: redis.status }, "Redis connection state:");
 
-redis.on("connect", () => console.log("Redis connected in worker"));
-redis.on("ready", () => console.log("Redis ready in worker"));
-redis.on("error", (err) => console.error("Redis error in worker:", err));
+redis.on("connect", () => logger.info({}, "Redis connected in worker"));
+redis.on("ready", () => logger.info({}, "Redis ready in worker"));
+redis.on("error", (err) =>
+  logger.error({ err }, "Redis error in worker:", err),
+);
 
 const getWorkerOptions = () => {
   return {
@@ -41,14 +44,10 @@ const updateMonitorStatus = async (
 
 const processor = async (job: Job) => {
   const { TIMEOUT, user_id, url_id } = job.data;
+
   console.log("Worker gets the job");
 
-  console.log("TIMEOU: ", TIMEOUT);
-  console.log("user_id: ", user_id);
-  console.log("url_id: ", url_id);
-
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
-  console.log(urlMonitorResponse);
   await updateMonitorStatus(urlMonitorResponse.status, user_id, url_id);
   await runStateMachine(url_id, urlMonitorResponse.status);
 };
@@ -60,18 +59,31 @@ export const urlCheckWorker = new Worker(
 );
 
 urlCheckWorker.on("ready", () => {
-  console.log("Monitor Worker connected to Redis and ready");
+  logger.info(
+    { urlWorkerStatus: "READY" },
+    "Url check  Worker connected to Redis and ready",
+  );
 });
 
-urlCheckWorker.on("error", (error) => {
-  console.error("Monitor Worker error:", error);
+urlCheckWorker.on("error", (err) => {
+  logger.error({ urlWorkerStatus: "ERROR", err }, "Url check worker error");
 });
 
 urlCheckWorker.on("completed", (job) => {
-  console.log(`Montior Job ${job.id} completed`);
+  logger.info(
+    { urlWorkerStatus: "COMPLETED", jobId: job.id },
+    "Url check worker Job Completed",
+  );
 });
 
-urlCheckWorker.on("failed", (job, error) => {
-  console.log(`Monitor Job ${job?.id} failed:`, error.message);
-  console.error("Stack:", error.stack);
+urlCheckWorker.on("failed", (job, err) => {
+  logger.error(
+    {
+      urlWorkerStatus: "FAILED",
+      err: err.message,
+      jobId: job?.id,
+      stack: err.stack,
+    },
+    "Url check worker Job Failed",
+  );
 });

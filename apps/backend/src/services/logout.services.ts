@@ -1,6 +1,7 @@
 import { AppError } from "../errors/AppError";
 import { db } from "../db/index";
 import redis from "../Redis";
+import logger from "../config/logger";
 
 export const removeToken = async (
   user_id: string,
@@ -16,7 +17,7 @@ export const removeToken = async (
       throw new AppError(200, "Already loggedout", "ALREADY_LOGGED_OUT");
     }
     const timeLeftToLive = expirationTime - Math.floor(Date.now() / 1000);
-    console.log("TimeLeftToLive: ", timeLeftToLive);
+    logger.debug({ userId: user_id, tokenTtl: timeLeftToLive }, "blacklisting access token");
     const addAccessTokens = await redis.set(
       `auth:blacklist:${jti}`,
       "1",
@@ -26,9 +27,12 @@ export const removeToken = async (
     if (!addAccessTokens) {
       throw new AppError(500, "Internal server error", "REDIS_ERROR");
     }
+    logger.info({ userId: user_id }, "user logged out");
     return "successfully logged out";
   } catch (error) {
-    // console.log("Error:", error.message);
+    if (!(error instanceof AppError)) {
+      logger.error({ err: error, userId: user_id }, "logout failed unexpectedly");
+    }
     throw error;
   }
 };

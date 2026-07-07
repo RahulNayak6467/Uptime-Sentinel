@@ -1,6 +1,7 @@
 import { db } from "../db/index";
 import { AppError } from "../errors/AppError";
 import { formatDuration } from "../utils/formatDate";
+import logger from "../config/logger";
 
 interface singleIncidentsTableDataProps {
   id: string;
@@ -32,7 +33,6 @@ export const getSingleIncidentsDetailsById = async (
       throw new AppError(404, "No incidents exist", "INCIDENTS_NOT_FOUND");
     }
     const data = getSingleDataFromIncidentTable.rows[0];
-    console.log(data);
     const response: singleIncidentsTableDataProps = {
       id: data.id,
       urlName: data.url_name,
@@ -43,6 +43,10 @@ export const getSingleIncidentsDetailsById = async (
       duration: formatDuration(data.started_at, data.resolved_at),
     };
 
+    logger.debug(
+      { userId: user_id, incidentId: incident_id },
+      "fetched incident details",
+    );
     return response;
   } catch (err) {
     throw err;

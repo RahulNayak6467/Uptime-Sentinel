@@ -6,6 +6,7 @@ import { UrlActiveRowsProps } from "../types/types";
 import { addToQueue } from "../queue/monitorQueue";
 import { addToDownAlertEmailQueue } from "../queue/alertEmailQueue";
 import { runStateMachine } from "../utils/stateMachine.worker";
+import logger from "../config/logger";
 
 export const scheduleResponseIntoDB = () => {
   const task = cron.schedule("* * * * *", async () => {
@@ -22,15 +23,20 @@ export const scheduleResponseIntoDB = () => {
       await db.query(update_next_check, [monitor.id]);
       await addToQueue(TIMEOUT, monitor.user_id, monitor.id);
     }
+
+    const { id: monitorId, user_id: userId } = getUrlActiveRows[0];
+
+    logger.info({ monitorId, userId }, "monitor added to the check url queue");
   });
+
   process.on("SIGTERM", () => {
-    // console.log("Shutting down scheduler...");
+    logger.info("Shutting down scheduler");
     task.stop();
     process.exit(0);
   });
 
   process.on("SIGINT", () => {
-    // console.log("Shutting down scheduler...");
+    logger.info("Shutting down scheduler");
     task.stop();
     process.exit(0);
   });

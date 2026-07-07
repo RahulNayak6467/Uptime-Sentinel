@@ -6,10 +6,10 @@ import { email } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "../config/env";
 import { ACCESS_TOKEN_TTL_SECONDS } from "../auth-config";
+import logger from "../config/logger";
 
 export const checkValidRefreshToken = async (refreshToken: string) => {
   const refreshTokenSecret = env.JWT_REFRESH_SECRET;
-  // console.log(refreshTokenSecret);
   try {
     if (!refreshTokenSecret) {
       throw new AppError(500, "Internal server error", "REFRESH_SECRET_NOT_CONFIGURED");
@@ -21,12 +21,10 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
     const query = "SELECT token FROM refresh_tokens where user_id = $1";
     const values = [user_id];
     const result = await db.query(query, values);
-    // console.log(result);
     if (result.rows.length === 0) {
       throw new AppError(401, "Unauthorized1", "REFRESH_TOKEN_NOT_FOUND");
     }
     const hashedRefreshToken: string = result.rows[0].token;
-    // console.log(hashedRefreshToken);
     const isCorrectRefreshToken = await bcrypt.compare(
       refreshToken,
       hashedRefreshToken,
@@ -48,13 +46,16 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
       },
     );
 
+    logger.info({ userId: user_id }, "access token refreshed");
     return {
       message: "Succesfully logged In",
       token: generateNewJWTToken,
       refreshToken: refreshToken,
     };
   } catch (error) {
-    // console.log(error);
+    if (!(error instanceof AppError)) {
+      logger.error({ err: error }, "token refresh failed unexpectedly");
+    }
     throw error;
   }
 };

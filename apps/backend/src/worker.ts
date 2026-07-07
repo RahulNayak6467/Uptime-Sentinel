@@ -2,14 +2,16 @@ import "./config/env";
 import { urlCheckWorker } from "./workers/monitorWorkers";
 import { emailVerificationWorker } from "./workers/emailVerificationWorker";
 import { emailAlertWorker } from "./workers/alertEmailWorker";
+import logger from "./config/logger";
+
 process.on("uncaughtException", (err) => {
-  console.error("Uncaught exception:", err);
+  logger.error({ err }, "Uncaught exception");
   process.exit(1);
 });
 
 process.on("unhandledRejection", (err) => {
-  console.error("Unhandled rejection:", err);
+  logger.error({ err }, "Unhandled rejection");
   process.exit(1);
 });
 
-console.log("Worker process started");
+logger.info("worker process started");

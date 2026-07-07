@@ -3,6 +3,7 @@ import { AppError } from "../errors/AppError";
 import { addToEmailVerificationQueue } from "../queue/emailVerificationQueue.";
 import redis from "../Redis";
 import crypto, { X509Certificate } from "crypto";
+import logger from "../config/logger";
 
 interface verifiedProps {
   email_verified: boolean;
@@ -69,7 +70,11 @@ export const resendOtpRequest = async (email: string) => {
       throw new AppError(500, "Internal server error", "REDIS_ERROR");
     }
     await addToEmailVerificationQueue(email, generatedOTP);
+    logger.info("verification email re-queued");
   } catch (err) {
+    if (!(err instanceof AppError)) {
+      logger.error({ err }, "verification email re-queue failed unexpectedly");
+    }
     throw err;
   }
 };

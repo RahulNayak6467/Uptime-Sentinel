@@ -1,5 +1,6 @@
 import { db } from "../db/index";
 import { AppError } from "../errors/AppError";
+import logger from "../config/logger";
 
 export const updateUrl = async (
   url_id: string,
@@ -38,11 +39,11 @@ export const updateUrl = async (
 
   try {
     const updateUrlAttributes = await db.query(update_url_query, values);
-    console.log(updateUrlAttributes);
     const rows = updateUrlAttributes.rowCount;
     if (rows === null || rows === 0) {
       throw new AppError(404, "No such url exists", "URL_NOT_FOUND");
     }
+    logger.info({ userId: user_id, monitorId: url_id }, "monitor updated");
     return;
   } catch (error) {
     if (error instanceof AppError) {

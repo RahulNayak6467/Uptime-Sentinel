@@ -3,6 +3,7 @@ import {timeRangeData} from "../utils/timeResponse";
 import {db} from "../db";
 import {QueryResult} from "pg";
 import {responseTimeDataProps} from "../types/types";
+import logger from "../config/logger";
 
 
 export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeRange:string) => {
@@ -58,6 +59,10 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
         series: formatedData,
     }
 
+    logger.debug(
+        { userId: user_id, monitorId: monitor_id, timeRange, bucketCount: formatedData.length },
+        "fetched response-time series",
+    );
     return data
 
 }

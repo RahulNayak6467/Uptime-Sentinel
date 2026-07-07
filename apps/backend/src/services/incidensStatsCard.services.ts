@@ -4,6 +4,7 @@ import {
   IncidentStatsCardInfo,
   IncidentStatsQueryResult,
 } from "../types/db-types";
+import logger from "../config/logger";
 
 export const getIncidentsStatsCardInfo = async (
   user_id: string,
@@ -61,6 +62,7 @@ export const getIncidentsStatsCardInfo = async (
 
   const stats = result.rows[0];
 
+  logger.debug({ userId: user_id }, "fetched incident statistics");
   return {
     activeIncidents: Number(stats.active_incidents),
     totalIncidents: Number(stats.total_incidents),
