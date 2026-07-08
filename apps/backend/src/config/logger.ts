@@ -18,7 +18,7 @@ const logger = pino({
           translateTime: "SYS:HH:MM:ss.l",
           ignore: "pid,hostname,service",
           messageFormat: "{msg}",
-          singleLine: true,
+          colorizeObjects: true,
         },
       }
     : undefined,

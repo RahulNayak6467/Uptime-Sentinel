@@ -25,6 +25,7 @@ export const getAllMonitorInfo = async (
                     jsonb_build_object(
                         'responseTime', u.response_time
                     )
+                     ORDER BY u.checked_at
                 ) FILTER (WHERE u.id IS NOT NULL),
                 '[]'
             ) AS response
@@ -93,7 +94,12 @@ export const getAllMonitorInfo = async (
   };
 
   logger.debug(
-    { userId: query[0], page: pageNumber, totalPage, monitorCount: rows.length },
+    {
+      userId: query[0],
+      page: pageNumber,
+      totalPage,
+      monitorCount: rows.length,
+    },
     "fetched monitors",
   );
 

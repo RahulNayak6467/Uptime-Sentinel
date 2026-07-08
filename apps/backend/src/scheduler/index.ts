@@ -24,9 +24,9 @@ export const scheduleResponseIntoDB = () => {
       await addToQueue(TIMEOUT, monitor.user_id, monitor.id);
     }
 
-    const { id: monitorId, user_id: userId } = getUrlActiveRows[0];
+    // const { id: monitorId, user_id: userId } = getUrlActiveRows[0];
 
-    logger.info({ monitorId, userId }, "monitor added to the check url queue");
+    // logger.info({ monitorId, userId }, "monitor added to the check url queue");
   });
 
   process.on("SIGTERM", () => {

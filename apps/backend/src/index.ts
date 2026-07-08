@@ -19,7 +19,7 @@ app.options("/{*path}", cors(corsConfigOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-// scheduleResponseIntoDB();
+scheduleResponseIntoDB();
 
 app.use(routes);
 app.use(handleError);

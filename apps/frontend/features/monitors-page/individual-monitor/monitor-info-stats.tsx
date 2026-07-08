@@ -359,7 +359,7 @@ export const ResponseTimeTrend = ({
         smooth: 0.18,
         data: p50Data,
         connectNulls: false,
-        showSymbol: false,
+        showSymbol: true,
         emphasis: { focus: "series", scale: true },
         areaStyle: {
           color: {
@@ -402,7 +402,7 @@ export const ResponseTimeTrend = ({
         smooth: 0.18,
         data: p95Data,
         connectNulls: false,
-        showSymbol: false,
+        showSymbol: true,
         emphasis: { focus: "series", scale: true },
         areaStyle: null,
         itemStyle: { color: amber },
