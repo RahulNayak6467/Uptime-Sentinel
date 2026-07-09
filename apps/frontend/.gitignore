@@ -1,0 +1,58 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# temporary landing-page prototypes and generated image assets
+/app/test/
+/public/test/
+/app/landing-page*/
+/features/landing-page*/
+/public/landing-page*/
+/components/Aurora.tsx
+/components/ShinyText.tsx
+/components/ui/border-beam.tsx
+/components/ui/glowing-effect.tsx
+/components/ui/shimmer-button.tsx
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files — keep .env.example tracked as a template
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

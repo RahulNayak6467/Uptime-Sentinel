@@ -1,0 +1,185 @@
+import "../config/env";
+import { Job, Worker } from "bullmq";
+import redis from "../Redis";
+import {
+  sendDownAlertEmail,
+  sendEmailVerification,
+  sendRecoveryEmail,
+  sendStillDownAlertEmail,
+} from "../services/emailVerification.services";
+import { db } from "../db";
+import logger from "../config/logger";
+
+logger.info("monitorWorkers module loaded");
+logger.info({ status: redis.status }, "Redis connection state:");
+
+redis.on("connect", () => logger.info("Redis connected in worker"));
+redis.on("ready", () => logger.info("Redis ready in worker"));
+redis.on("error", (err) =>
+  logger.error({ err }, "Redis error in worker:", err),
+);
+
+const alertEmailOptions = () => {
+  return {
+    connection: redis,
+    concurrency: 10,
+    lockDuration: 30000,
+    removeOnComplete: {
+      age: 172800,
+      count: 10,
+    },
+    removeOnFail: {
+      age: 172800,
+      count: 100,
+    },
+  };
+};
+
+const insertIntoNotificationsTable = async (
+  id: string,
+  resendId: string | null,
+  status: "sent" | "failed",
+  type: "down" | "recovery" | "reminder",
+) => {
+  const insert_notifications_query =
+    "INSERT INTO notification_logs (incident_id,resend_email_id,type,status) VALUES($1,$2,$3,$4)";
+  const insert_notifications_values = [id, resendId, type, status];
+  await db.query(insert_notifications_query, insert_notifications_values);
+};
+
+const updateLastAlertSentAt = async (incident_id: string) => {
+  const updatelast_alert_query =
+    "UPDATE incidents SET last_alert_sent_at = NOW() where id = $1";
+  const updatelast_alert_values = [incident_id];
+  await db.query(updatelast_alert_query, updatelast_alert_values);
+};
+
+const processor = async (job: Job) => {
+  if (job.name === "down-alert-email") {
+    const { url_id, incident_id } = job.data;
+    const getEmailAndUrlInfo = await db.query(
+      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      [url_id],
+    );
+    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const getStartedAt = await db.query(
+      "SELECT id,started_at from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
+    );
+    const [{ id, started_at: startedAt }] = getStartedAt.rows;
+
+    const downAlertEmail = await sendDownAlertEmail(
+      email,
+      urlName,
+      url,
+      startedAt,
+    );
+
+    if (downAlertEmail === null) {
+      await insertIntoNotificationsTable(id, null, "failed", "down");
+    } else {
+      await updateLastAlertSentAt(incident_id);
+      await insertIntoNotificationsTable(id, downAlertEmail.id, "sent", "down");
+    }
+  } else if (job.name === "recovery-email") {
+    const { url_id, incident_id } = job.data;
+    const getEmailAndUrlInfo = await db.query(
+      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      [url_id],
+    );
+    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const getStartedAt = await db.query(
+      "SELECT id,started_at,resolved_at from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
+    );
+    const [{ id, started_at: startedAt, resolved_at: resolvedAt }] =
+      getStartedAt.rows;
+    const recoveryAlertEmail = await sendRecoveryEmail(
+      email,
+      urlName,
+      url,
+      startedAt,
+      resolvedAt,
+    );
+    if (recoveryAlertEmail === null) {
+      await insertIntoNotificationsTable(id, null, "failed", "recovery");
+    } else {
+      await insertIntoNotificationsTable(
+        id,
+        recoveryAlertEmail.id,
+        "sent",
+        "recovery",
+      );
+    }
+  } else if (job.name === "reminder-email") {
+    const { url_id, incident_id } = job.data;
+    const getEmailAndUrlInfo = await db.query(
+      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      [url_id],
+    );
+    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const getStartedAt = await db.query(
+      "SELECT started_at,id from incidents where monitor_id = $1 and id = $2",
+      [url_id, incident_id],
+    );
+    const [{ started_at: startedAt, id }] = getStartedAt.rows;
+
+    const reminderEmail = await sendStillDownAlertEmail(
+      email,
+      urlName,
+      url,
+      startedAt,
+    );
+
+    if (reminderEmail === null) {
+      await insertIntoNotificationsTable(id, null, "failed", "reminder");
+    } else {
+      await updateLastAlertSentAt(incident_id);
+      await insertIntoNotificationsTable(
+        id,
+        reminderEmail.id,
+        "sent",
+        "reminder",
+      );
+    }
+  }
+};
+
+export const emailAlertWorker = new Worker(
+  "alert-email",
+  processor,
+  alertEmailOptions(),
+);
+
+emailAlertWorker.on("ready", () => {
+  logger.info(
+    { emailWorkerStatus: "READY" },
+    "Email verification worker connected to Redis and ready",
+  );
+});
+
+emailAlertWorker.on("error", (err) => {
+  logger.error(
+    { emailWorkerStatus: "ERROR", err },
+    "Email verification worker error",
+  );
+});
+
+emailAlertWorker.on("completed", (job) => {
+  logger.info(
+    { emailWorkerStatus: "COMPLETED", jobId: job.id },
+    "Email verification worker Job Completed",
+  );
+});
+
+emailAlertWorker.on("failed", (job, err) => {
+  logger.error(
+    {
+      emailWorkerStatus: "FAILED",
+      err: err.message,
+      jobId: job?.id,
+      stack: err.stack,
+    },
+    "Email verification worker Job Failed",
+  );
+});
