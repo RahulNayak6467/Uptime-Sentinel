@@ -85,3 +85,10 @@ export interface lastFiveIncidentDataProps {
   is_active: boolean;
   resolved_at: string | null;
 }
+
+export interface AuthMeProps {
+  id: string
+  email_verified: boolean
+  created_at: string
+  email:string
+}

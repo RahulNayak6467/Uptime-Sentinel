@@ -14,6 +14,7 @@ import incidentsData from "./Incidents.routes";
 import dashboardoverviewRoutes from "./dashboardoverview.routes";
 import emailAlerts from "./alertEmails.routes";
 import sseEvents from "./sseEvents";
+import authMe from "./authMe.routes"
 import bullboardAuth from "../middleware/bullboardAuth.middleware";
 import { serverAdapter } from "../config/bullboard";
 import individualMonitorRoutes from "./individualMonitor.routes";
@@ -21,6 +22,7 @@ import individualMonitorRoutes from "./individualMonitor.routes";
 const router: Router = Router();
 
 router.use("/health", healthRouter);
+router.use("/auth/me", authMe)
 router.use("/url/health", urlHealth);
 router.use("/url/checks", checkUrl);
 router.use("/user/registration", userCheck);
