@@ -56,7 +56,7 @@ const MonitorSectionNav = () => {
   }, []);
 
   return (
-    <div className="sticky top-3 z-20 mx-auto w-fit max-w-full">
+    <div className="sticky top-3 z-20 mx-auto w-full max-w-full sm:w-fit">
       <nav
         aria-label="Monitor detail sections"
         className="overflow-x-auto rounded-md border border-sf-border/70 bg-sf-surface/60 p-1 shadow-[0_8px_28px_rgba(15,23,42,0.09)] ring-1 ring-sf-border/20 backdrop-blur-2xl supports-[backdrop-filter]:bg-sf-surface/55 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

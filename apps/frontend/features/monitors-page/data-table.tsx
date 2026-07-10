@@ -90,7 +90,7 @@ export function MonitorsDataTable({
 
   return (
     <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-      <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
+      <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
             Monitor inventory
@@ -105,7 +105,7 @@ export function MonitorsDataTable({
         </span>
       </div>
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="min-w-[980px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -174,13 +174,13 @@ export function MonitorsDataTable({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-sf-border bg-sf-bg/20 px-5 py-3">
+      <div className="flex flex-col gap-3 border-t border-sf-border bg-sf-bg/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <p className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
           Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
           {totalPages}
         </p>
-        <Pagination className="mx-0 w-auto">
-          <PaginationContent>
+        <Pagination className="mx-0 w-full justify-start overflow-x-auto sm:w-auto sm:justify-center">
+          <PaginationContent className="min-w-max">
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => goToPage(currentPage - 1)}

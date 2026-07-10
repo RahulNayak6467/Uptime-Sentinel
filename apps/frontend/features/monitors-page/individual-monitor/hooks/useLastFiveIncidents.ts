@@ -6,7 +6,7 @@ export const useLastFiveIncidentsData = (monitorId: string) => {
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["monitor", monitorId, "incidents", "latest"],
     queryFn: () =>
-      apiFetch<LastFiveIncidentDataProps>(`/incidents/${monitorId}/info`),
+      apiFetch<LastFiveIncidentDataProps>(`/monitors/${monitorId}/incidents`),
   });
 
   return { data, isLoading, isError, isFetching, refetch };

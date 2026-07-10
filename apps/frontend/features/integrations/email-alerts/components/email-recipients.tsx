@@ -20,14 +20,15 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
       : "text-sf-text border-sf-border bg-sf-surface";
 
   return (
-    <div className="flex items-center gap-3.5 px-4 py-3.5 transition-colors hover:bg-sf-border-faint/70">
+    <div className="flex flex-col gap-3 px-4 py-3.5 transition-colors hover:bg-sf-border-faint/70 sm:flex-row sm:items-center sm:gap-3.5">
+      <div className="flex min-w-0 flex-1 items-center gap-3.5">
       <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-sf-blue/20 bg-sf-blue-bg">
         <span className="text-xs font-semibold text-sf-blue">
           {recipient.initials}
         </span>
       </div>
 
-      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-1.5">
           <span className="text-[14px] font-semibold font-sans text-sf-text leading-none">
             {recipient.name}
@@ -38,12 +39,13 @@ const RecipientRow = ({ recipient, onToggle }: RecipientRowProps) => {
             </span>
           )}
         </div>
-        <span className="text-[12px] font-mono text-sf-text-muted">
+        <span className="truncate text-[12px] font-mono text-sf-text-muted">
           {recipient.email}
         </span>
       </div>
+      </div>
 
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center justify-between gap-3 sm:shrink-0 sm:justify-start">
         <span
           className={`rounded-sf-sm border px-2.5 py-1 text-xs font-medium leading-none ${scopeClass}`}
         >
@@ -92,7 +94,7 @@ const EmailRecipients = () => {
   return (
     <div className="w-full bg-sf-surface">
       <div className="h-full w-full rounded-lg border border-sf-border shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-        <div className="w-full border-b border-sf-border py-3 px-4 flex items-start justify-between rounded-t-lg">
+        <div className="flex w-full flex-col gap-3 rounded-t-lg border-b border-sf-border px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-[14px] font-semibold tracking-normal text-sf-text">
               Recipient list
@@ -105,7 +107,7 @@ const EmailRecipients = () => {
           <button
             type="button"
             onClick={() => setAddOpen(true)}
-            className="flex shrink-0 cursor-pointer items-center gap-1 rounded-sf-sm border border-sf-border px-3 py-1.5 text-[12px] font-medium text-sf-text transition-colors hover:border-sf-text-muted hover:bg-sf-bg"
+            className="flex w-fit shrink-0 cursor-pointer items-center gap-1 rounded-sf-sm border border-sf-border px-3 py-1.5 text-[12px] font-medium text-sf-text transition-colors hover:border-sf-text-muted hover:bg-sf-bg"
           >
             <span className="text-[15px] leading-none font-light">+</span>
             Add

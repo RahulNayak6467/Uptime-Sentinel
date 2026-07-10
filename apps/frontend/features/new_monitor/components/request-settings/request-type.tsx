@@ -29,12 +29,12 @@ const RequestType = ({
     <div className="mt-4 w-full">
       <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
         <SectionHeader step="03" title="Request settings" description="Configure how the request is sent" />
-        <div className="flex flex-col gap-5 p-5">
+        <div className="flex flex-col gap-5 p-4 sm:p-5">
           <div className="flex flex-col gap-1">
             <h3 className="text-sf-label font-semibold font-sans text-sf-text">
               HTTP method
             </h3>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap">
               {httpMethods.map((method) => (
                 <button
                   key={method}

@@ -1,5 +1,9 @@
 import { ApiError } from "./api-error";
 
+export type ApiDataResponse<T> = {
+  data: T;
+};
+
 let isRefreshing = false;
 const refreshQueue: Array<() => void> = [];
 
@@ -13,11 +17,9 @@ export async function apiFetch<T>(
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
   // if (res.status === 401) return handle401<T>(endpoint, init);
-  if (endpoint == "/user/login" && res.status === 401)
+  if (endpoint == "/auth/login" && res.status === 401)
     throw new ApiError("Invalid Login Credentials", 401, "INVALID_CREDENTIALS");
   else if (res.status === 401) return handle401<T>(endpoint, init);
-  console.log(res.ok);
-
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new ApiError(body.message ?? "Request failed", res.status, body.code);

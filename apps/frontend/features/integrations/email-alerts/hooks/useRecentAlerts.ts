@@ -7,7 +7,7 @@ export const useRecentAlerts = (page: number, limit: number) => {
     useQuery({
       queryKey: ["monitor recent alerts", page],
       queryFn: () =>
-        apiFetch<RecentAlerts>(`/alert-email?page=${page}&limit=${limit}`),
+        apiFetch<RecentAlerts>(`/alert-emails?page=${page}&limit=${limit}`),
       placeholderData: (prev) => prev,
     });
 

@@ -5,14 +5,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Sparkline from "@/utils/sparkline";
 import { MonitorPageData, MonitorState, MonitorType } from "./types";
 import { Globe2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 const stateColor: Record<MonitorState, string> = {
   up: "var(--color-sf-green)",
   down: "var(--color-sf-red)",
   degraded: "var(--color-sf-amber)",
   paused: "var(--color-sf-text-muted)",
-  // unknown: "var(--color-sf-text-muted)",
+  unknown: "var(--color-sf-text-muted)",
 };
 
 const stateLabel: Record<MonitorState, string> = {
@@ -20,7 +19,7 @@ const stateLabel: Record<MonitorState, string> = {
   down: "Down",
   degraded: "Degraded",
   paused: "Paused",
-  // unknown: "Unknown",
+  unknown: "Unknown",
 };
 
 const stateBadge: Record<MonitorState, string> = {
@@ -28,7 +27,7 @@ const stateBadge: Record<MonitorState, string> = {
   down: "border-sf-red-border bg-sf-red-bg text-sf-red",
   degraded: "border-sf-amber-border bg-sf-amber-bg text-sf-amber",
   paused: "border-sf-border bg-sf-bg text-sf-text-muted",
-  // unknown: "border-sf-border bg-sf-bg text-sf-text-muted",
+  unknown: "border-sf-border bg-sf-bg text-sf-text-muted",
 };
 
 const typeBadge: Record<MonitorType, string> = {

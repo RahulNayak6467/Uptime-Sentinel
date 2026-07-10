@@ -105,7 +105,7 @@ const NewMonitorProperties = () => {
         handleSubmit={handleSubmit}
         isPending={isPending}
       />
-      <div className="mx-auto grid w-full max-w-7xl gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-4 sm:px-6 sm:py-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0">
           <div className="mb-4">
             <h2 className="text-sm font-semibold text-sf-text">
@@ -140,7 +140,7 @@ const NewMonitorProperties = () => {
           />
           <Notifications />
         </div>
-        <aside className="h-fit w-full lg:sticky lg:top-6">
+        <aside className="h-fit w-full xl:sticky xl:top-6">
           <div className="mb-3">
             <h2 className="text-sm font-semibold text-sf-text">Review</h2>
             <p className="mt-1 text-xs text-sf-text-muted">

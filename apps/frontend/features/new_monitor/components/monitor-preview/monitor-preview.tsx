@@ -38,8 +38,8 @@ const MonitorPreview = ({
 
   return (
     <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
-      <div className="flex items-center justify-between border-b border-sf-border px-4 py-3.5">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 border-b border-sf-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
           <Activity className="size-3.5 text-sf-blue" />
           <span className="text-xs font-semibold text-sf-text">Configuration preview</span>
         </div>
@@ -49,7 +49,7 @@ const MonitorPreview = ({
       </div>
 
       <div className="flex flex-col">
-        <div className="flex items-start justify-between gap-3 border-b border-sf-border px-4 py-4">
+        <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-start gap-2">
             <span className="mt-1.5 size-2 shrink-0 rounded-full bg-sf-border" />
             <div className="min-w-0">
@@ -69,17 +69,17 @@ const MonitorPreview = ({
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-xs font-medium text-sf-text-sub">
+          <span className="w-fit shrink-0 rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-xs font-medium text-sf-text-sub">
             {type}
           </span>
         </div>
 
         <dl className="divide-y divide-sf-border px-4">
           {[
-            { label: "Interval", value: interval, available: true },
-            { label: "Method", value: method.toUpperCase(), available: true },
-            { label: "Timeout", value: timeoutDisplay, available: true },
-            { label: "Expected status", value: statusDisplay, available: true },
+            { label: "Interval", value: interval },
+            { label: "Method", value: method.toUpperCase() },
+            { label: "Timeout", value: timeoutDisplay },
+            { label: "Expected status", value: statusDisplay },
           ].map(({ label, value }) => (
             <div
               key={label}
@@ -88,7 +88,7 @@ const MonitorPreview = ({
               <dt className="text-xs text-sf-text-muted">
                 {label}
               </dt>
-              <dd className="font-mono text-xs font-medium text-sf-text">
+              <dd className="break-all text-right font-mono text-xs font-medium text-sf-text">
                 {value}
               </dd>
             </div>

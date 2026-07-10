@@ -209,7 +209,7 @@ const ReliabilityOverview = () => {
               Statistics calculated from the points shown in the chart
             </p>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             <HeaderStat label="Lowest point" value={ms(lowestPoint)} />
             <HeaderStat label="P95 point" value={ms(p95)} />
             <HeaderStat label="Highest point" value={ms(highestPoint)} />
@@ -267,7 +267,7 @@ const ReliabilityOverview = () => {
                     {okRate === null ? "No checks" : `${okRate}% OK`}
                   </span>
                 </div>
-                <div className="mt-3 grid max-w-[620px] grid-cols-[repeat(26,minmax(5px,1fr))] gap-1">
+                <div className="mt-3 grid max-w-[620px] grid-cols-[repeat(26,minmax(3px,1fr))] gap-0.5 sm:grid-cols-[repeat(26,minmax(5px,1fr))] sm:gap-1">
                   {Array.from({ length: RESPONSE_SAMPLE_COUNT }, (_, index) => {
                     const check = checks[index];
                     const title = !check
@@ -285,7 +285,7 @@ const ReliabilityOverview = () => {
                       <span
                         key={index}
                         title={title}
-                        className={`h-4 rounded-[3px] transition-colors ${color}`}
+                        className={`h-3 rounded-[3px] transition-colors sm:h-4 ${color}`}
                       />
                     );
                   })}
@@ -295,7 +295,7 @@ const ReliabilityOverview = () => {
           })}
         </div>
 
-        <div className="mt-5 flex items-center gap-4 border-t border-sf-border pt-4 text-xs text-sf-text-muted">
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-sf-border pt-4 text-xs text-sf-text-muted">
           <span className="flex items-center gap-1.5">
             <i className="size-2 rounded-[2px] bg-sf-blue/55" />
             Successful

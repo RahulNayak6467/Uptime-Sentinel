@@ -78,7 +78,7 @@ const RecentAlerts = () => {
 
   return (
     <div className="mt-7 w-full rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-      <div className="py-3 px-4 border-b border-sf-border flex items-start justify-between">
+      <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-[14px] font-semibold tracking-normal text-sf-text">
             Delivery activity
@@ -94,7 +94,8 @@ const RecentAlerts = () => {
         </button>
       </div>
 
-      <div className="px-4">
+      <div className="overflow-x-auto px-4">
+        <div className="min-w-[720px]">
         <div className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-2.5 border-b border-sf-border">
           {["Event", "Subject", "Recipients", "Sent", "Delivery"].map((col) => (
             <span
@@ -119,9 +120,9 @@ const RecentAlerts = () => {
             aria-busy={showFetchingIndicator}
             className="divide-y divide-sf-border"
           >
-            {requiredData.map((alert) => (
+            {requiredData.map((alert,index) => (
               <div
-                key={alert.id}
+                key={`${alert.id}-${index}`}
                 className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
               >
                 <span
@@ -173,10 +174,11 @@ const RecentAlerts = () => {
             ))}
           </div>
         </div>
+        </div>
       </div>
 
       {/* Footer — dummy 10-page pagination; wire to backend page/totalPages later */}
-      <div className="flex items-center justify-between gap-4 border-t border-sf-border px-4 py-2.5">
+      <div className="flex flex-col gap-3 border-t border-sf-border px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted">
             Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
@@ -193,7 +195,7 @@ const RecentAlerts = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex max-w-full items-center gap-1 overflow-x-auto">
           <button
             type="button"
             onClick={() => goToPage(currentPage - 1)}

@@ -31,7 +31,7 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
     <div
       role="tablist"
       aria-label="Filter monitors by status"
-      className="flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-1"
+      className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-1 sm:w-fit [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {TABS.map(({ key, label }) => {
         const isActive = active === key;

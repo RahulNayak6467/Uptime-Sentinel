@@ -81,7 +81,7 @@ const IncidentHistory = ({ id }: { id: string }) => {
       id="incidents"
       className="sf-panel scroll-mt-16 p-5 pb-6 shadow-sm"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h3 className="text-base font-semibold tracking-tight text-sf-text">
             Incident history
@@ -95,7 +95,7 @@ const IncidentHistory = ({ id }: { id: string }) => {
         </span>
       </div>
 
-      <div className="mt-2 flex items-center gap-3 text-xs text-sf-text-muted">
+      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-sf-text-muted">
         <span className="flex items-center gap-1.5">
           <i className="size-1.5 rounded-full bg-sf-red" />
           {lastFiveIncidents.activeCount} active

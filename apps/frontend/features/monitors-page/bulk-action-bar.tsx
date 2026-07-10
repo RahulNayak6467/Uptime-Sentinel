@@ -9,13 +9,13 @@ interface Props {
 
 const BulkActionBar = ({ count, onClear }: Props) => {
   return (
-    <div className="mb-1 flex items-center justify-between gap-4 rounded-lg border border-sf-border bg-sf-surface px-4 py-2.5 shadow-sm">
-      <div className="flex items-center gap-3">
+    <div className="mb-1 flex flex-col gap-3 rounded-lg border border-sf-border bg-sf-surface px-4 py-2.5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <span className="rounded-full bg-sf-text px-2.5 py-1 text-xs font-semibold text-sf-btn-text">
           {count} selected
         </span>
-        <span className="h-4 w-px bg-sf-border" />
-        <div className="flex items-center gap-1.5">
+        <span className="hidden h-4 w-px bg-sf-border sm:block" />
+        <div className="flex flex-wrap items-center gap-1.5">
           <button className="flex cursor-pointer items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text">
             <Pause className="size-3.5" />
             Pause
@@ -33,7 +33,7 @@ const BulkActionBar = ({ count, onClear }: Props) => {
 
       <button
         onClick={onClear}
-        className="flex cursor-pointer items-center gap-1 rounded-[4px] px-2 py-1.5 text-xs text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text"
+        className="flex w-fit cursor-pointer items-center gap-1 rounded-[4px] px-2 py-1.5 text-xs text-sf-text-muted transition-colors hover:bg-sf-bg hover:text-sf-text"
       >
         <X className="size-3.5" />
         Clear

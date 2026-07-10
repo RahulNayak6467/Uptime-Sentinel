@@ -10,6 +10,7 @@ const MonitorStats = ({
   color,
   isActive,
   comingSoon,
+  onNavigate,
 }: monitorStatsProps) => {
   const Icon = icon;
 
@@ -57,7 +58,11 @@ const MonitorStats = ({
 
   if (comingSoon) return content;
 
-  return <Link href={href}>{content}</Link>;
+  return (
+    <Link href={href} onClick={onNavigate}>
+      {content}
+    </Link>
+  );
 };
 
 export default MonitorStats;

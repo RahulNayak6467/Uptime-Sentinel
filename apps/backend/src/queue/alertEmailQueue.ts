@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import redis from "../Redis";
+import redis from "../redis";
 
 const alertEmailQueue = new Queue("alert-email", {
   connection: redis,

@@ -72,13 +72,13 @@ const IncidentDetailsCard = ({
             setIsOpen((open) => !open);
           }
         }}
-        className="flex cursor-pointer items-start gap-3 px-5 py-4 transition-colors hover:bg-sf-bg/45"
+        className="flex cursor-pointer flex-col gap-3 px-4 py-4 transition-colors hover:bg-sf-bg/45 sm:flex-row sm:items-start sm:px-5"
       >
-        <span
-          className={`mt-1.5 size-2 shrink-0 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`}
-        />
-
-        <div className="min-w-0 flex-1">
+        <div className="flex w-full min-w-0 items-start gap-3 sm:flex-1">
+          <span
+            className={`mt-1.5 size-2 shrink-0 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`}
+          />
+          <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2
               className={`text-[14px] font-semibold tracking-sf-tight ${
@@ -122,9 +122,10 @@ const IncidentDetailsCard = ({
               </button>
             </p>
           ) : null}
+          </div>
         </div>
 
-        <div className="ml-4 text-right">
+        <div className="flex w-full items-center justify-between gap-3 pl-5 sm:ml-4 sm:w-auto sm:flex-col sm:items-end sm:justify-start sm:pl-0 sm:text-right">
           <p className="font-mono text-xs font-medium text-sf-text-sub">{incident.duration}</p>
           <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-sf-text-muted">Duration</p>
         </div>
@@ -148,7 +149,7 @@ const IncidentDetailsCard = ({
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
             className="overflow-hidden"
           >
-      <div className="border-t border-sf-border bg-sf-bg/35 p-5">
+      <div className="border-t border-sf-border bg-sf-bg/35 p-4 sm:p-5">
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="self-start overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
           <div className="flex items-center justify-between border-b border-sf-border px-5 py-3.5">
@@ -191,11 +192,11 @@ const IncidentDetailsCard = ({
         </aside>
 
         <div className="min-w-0 rounded-lg border border-sf-border bg-sf-surface p-5">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <p className="text-sm font-semibold text-sf-text">
             Incident timeline
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs text-sf-text-muted">
               {updates.length} {updates.length === 1 ? "event" : "events"}
             </span>
@@ -238,7 +239,7 @@ const IncidentDetailsCard = ({
                     className={`relative z-10 mt-1 size-2.5 rounded-full ring-4 ring-sf-surface ${meta.dot}`}
                   />
                   <div className="min-w-0">
-                    <div className="flex min-h-5 -translate-y-0.5 items-baseline gap-2.5">
+                    <div className="flex min-h-5 -translate-y-0.5 flex-wrap items-baseline gap-2.5">
                       <span className={`text-sm font-semibold ${meta.text}`}>
                         {meta.label}
                       </span>
@@ -328,13 +329,11 @@ const IncidentList = () => {
     return <IncidentListError onRetry={() => refetch()} />;
   }
 
-  const { getTimeline } = incidentTimelineData;
-
   const { totalPage } = allIncidentData?.pagination;
 
   const timelinePropsMap = new Map();
 
-  const timelineData = getTimeline.data;
+  const timelineData = incidentTimelineData.data;
 
   for (const item of timelineData) {
     timelinePropsMap.set(item.incident_id, {
@@ -379,12 +378,12 @@ const IncidentList = () => {
         active={isPageFetching}
         label="Loading incident page"
       />
-      <div className="mb-3 flex items-end justify-between gap-4">
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">Incident history</h2>
           <p className="mt-1 text-xs text-sf-text-muted">Detection, investigation, monitoring, and recovery events</p>
         </div>
-        <div className="flex items-center gap-3 text-xs text-sf-text-muted">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-sf-text-muted">
           <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-red" />{activeCount} active</span>
           <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-green" />{requiredData.length - activeCount} resolved</span>
         </div>

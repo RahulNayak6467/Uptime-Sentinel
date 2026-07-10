@@ -16,7 +16,7 @@ const MonitorInfo = ({
     <div className="mt-4 w-full">
       <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
         <SectionHeader step="02" title="Basic information" description="Name the monitor and provide its endpoint" />
-        <div className="grid gap-4 p-5 md:grid-cols-2">
+        <div className="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
           <div className="flex flex-col gap-1">
             <label
               className="text-sf-text font-sans text-sf-label font-semibold"

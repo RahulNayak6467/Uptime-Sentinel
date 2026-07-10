@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 import redis from ".";
-import { broadcast } from "../sse/sse_connection_management";
+import { broadcast } from "../sse/services/sse_connection_management";
 import logger from "../config/logger";
 
 const subscriptionsMap = new Map<string, Redis>();

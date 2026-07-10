@@ -1,7 +1,7 @@
 import { Job, Worker } from "bullmq";
-import redis from "../Redis";
-import { checkUrlHealth } from "../services/url.services";
-import { runStateMachine } from "../utils/stateMachine.worker";
+import redis from "../redis";
+import { checkUrlHealth } from "../modules/monitors/services/url.services";
+import { runStateMachine } from "./stateMachine.worker";
 import { db } from "../db";
 import logger from "../config/logger";
 
@@ -45,7 +45,7 @@ const updateMonitorStatus = async (
 const processor = async (job: Job) => {
   const { TIMEOUT, user_id, url_id } = job.data;
 
-  console.log("Worker gets the job");
+  logger.debug({ jobId: job.id, monitorId: url_id }, "monitor worker received job");
 
   const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
   await updateMonitorStatus(urlMonitorResponse.status, user_id, url_id);

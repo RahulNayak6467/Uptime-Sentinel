@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="overflow-hidden rounded-xl border border-sf-border bg-sf-surface shadow-sm">
-      <div className="flex items-center justify-between gap-4 border-b border-sf-border px-5 py-4">
+      <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sf-blue-bg text-sf-blue">
             <RadioTower className="size-4" />
@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="min-w-[860px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -156,13 +156,13 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between border-t border-sf-border px-5 py-3">
+      <div className="flex flex-col gap-3 border-t border-sf-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <p className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
           Page <span className="text-sf-text-sub">{currentPage}</span> of{" "}
           {totalPages}
         </p>
-        <Pagination className="mx-0 w-auto">
-          <PaginationContent>
+        <Pagination className="mx-0 w-full justify-start overflow-x-auto sm:w-auto sm:justify-center">
+          <PaginationContent className="min-w-max">
             <PaginationItem>
               <PaginationPrevious
                 onClick={() => goToPage(currentPage - 1)}

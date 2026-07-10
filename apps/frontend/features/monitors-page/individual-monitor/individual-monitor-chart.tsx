@@ -20,8 +20,8 @@ const IndividualMonitorCharts = () => {
             p50 (solid) vs p95 (dashed) · last {range}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex overflow-hidden rounded-sf-sm border border-sf-border bg-sf-border-faint p-0.5">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <div className="flex w-full overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-0.5 sm:w-auto">
             {RANGES.map((r) => (
               <button
                 key={r}
@@ -29,7 +29,7 @@ const IndividualMonitorCharts = () => {
                 onClick={() =>
                   setRange(r)
                 }
-                className={`cursor-pointer rounded-[4px] px-3 py-1 text-xs font-semibold transition-colors ${
+                className={`min-w-12 flex-1 cursor-pointer rounded-[4px] px-3 py-1 text-xs font-semibold transition-colors sm:flex-none ${
                   range === r
                     ? "bg-sf-surface text-sf-text shadow-sm"
                     : "text-sf-text-muted hover:text-sf-text"
@@ -39,11 +39,11 @@ const IndividualMonitorCharts = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex max-w-full items-center gap-2 overflow-x-auto">
             <span className="rounded-sf bg-sf-bg px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">
               Soon
             </span>
-            <div className="flex cursor-not-allowed overflow-hidden rounded-sf border border-sf-border bg-sf-surface opacity-50">
+            <div className="flex min-w-max cursor-not-allowed overflow-hidden rounded-sf border border-sf-border bg-sf-surface opacity-50">
               {REGIONS.map((region) => (
                 <span
                   key={region}

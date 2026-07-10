@@ -6,7 +6,7 @@ type SectionHeaderProps = {
 };
 
 const SectionHeader = ({ step, title, description, badge }: SectionHeaderProps) => (
-  <div className="flex items-center justify-between border-b border-sf-border px-5 py-4">
+  <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
     <div className="flex min-w-0 items-center gap-3">
       {step && (
         <span className="shrink-0 font-mono text-xs font-semibold text-sf-text-muted">
@@ -15,7 +15,7 @@ const SectionHeader = ({ step, title, description, badge }: SectionHeaderProps) 
       )}
       <div className="min-w-0">
         <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">{title}</h2>
-        <p className="mt-1 text-xs text-sf-text-muted">{description}</p>
+        <p className="mt-1 text-xs leading-5 text-sf-text-muted">{description}</p>
       </div>
     </div>
     {badge && (

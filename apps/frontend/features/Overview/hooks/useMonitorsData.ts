@@ -8,7 +8,7 @@ export const useAllMonitorsData = (page: number, limit: number) => {
     queryKey: ["all monitors overview data", page],
     queryFn: () =>
       apiFetch<allMonitorsDataDashboardViewProps>(
-        `/monitor/data?limit=${limit}&page=${page}`,
+        `/monitors?limit=${limit}&page=${page}`,
       ),
     placeholderData: (prev) => prev,
   });

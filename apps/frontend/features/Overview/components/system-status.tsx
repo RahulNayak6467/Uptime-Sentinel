@@ -111,7 +111,7 @@ const CountBlock = ({
   value: number;
   dot: string;
 }) => (
-  <div className="min-w-[76px] px-4 first:pl-0 last:pr-0">
+  <div className="min-w-[76px] px-3 first:pl-0 last:pr-0 sm:px-4">
     <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
       <i className={`size-1.5 rounded-full ${dot}`} />
       {label}
@@ -175,18 +175,18 @@ const SystemStatus = () => {
   return (
     <section className="sf-panel overflow-hidden">
       <div className="flex flex-col gap-6 p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
-        <div className="flex min-w-0 items-center gap-3.5">
+        <div className="flex min-w-0 items-start gap-3.5 sm:items-center">
           <span
             className={`flex size-10 shrink-0 items-center justify-center rounded-lg border ${tone.border} ${tone.bg} ${tone.text}`}
           >
             <Icon className="size-[18px]" strokeWidth={2} />
           </span>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold tracking-sf-tight text-sf-text">
+            <div className="flex items-start gap-2 sm:items-center">
+              <h2 className="text-base font-semibold tracking-sf-tight text-sf-text sm:text-lg">
                 {verdict.headline}
               </h2>
-              <span className={`size-1.5 rounded-full ${tone.dot}`} />
+              <span className={`mt-2 size-1.5 shrink-0 rounded-full sm:mt-0 ${tone.dot}`} />
             </div>
             <p className="mt-1 text-xs text-sf-text-muted">
               {verdict.sub} · Updated {formatTimeAgo(dataUpdatedAt)}
@@ -194,15 +194,15 @@ const SystemStatus = () => {
           </div>
         </div>
 
-        <div className="flex divide-x divide-sf-border">
+        <div className="flex w-full overflow-x-auto divide-x divide-sf-border sm:w-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <CountBlock label="Operational" value={up} dot="bg-sf-green" />
           <CountBlock label="Down" value={down} dot="bg-sf-red" />
           <CountBlock label="Paused" value={paused} dot="bg-sf-text-muted/60" />
         </div>
       </div>
 
-      <div className="flex items-center gap-4 border-t border-sf-border bg-sf-bg/35 px-5 py-3">
-        <div className="flex flex-1 items-center gap-3">
+      <div className="flex flex-col gap-3 border-t border-sf-border bg-sf-bg/35 px-5 py-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex w-full flex-1 items-center gap-3">
           <span className="shrink-0 text-xs font-medium text-sf-text-muted">
             Fleet health
           </span>
@@ -212,7 +212,7 @@ const SystemStatus = () => {
             <Segment pct={pausedPct} color="bg-sf-text-muted/45" />
           </div>
         </div>
-        <span className="font-mono text-xs tabular-nums text-sf-text-muted">
+        <span className="shrink-0 font-mono text-xs tabular-nums text-sf-text-muted">
           {up + down + paused} total
         </span>
       </div>
