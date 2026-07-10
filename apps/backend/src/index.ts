@@ -4,7 +4,7 @@ import express, { Application } from "express";
 import { env } from "./config/env";
 import routes from "./routes";
 import { scheduleResponseIntoDB } from "./scheduler";
-import { handleError } from "./middleware/error.middleware";
+import { handleError } from "./shared/middleware/error.middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { corsConfigOptions } from "./config/cors";

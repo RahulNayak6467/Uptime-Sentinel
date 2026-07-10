@@ -1,9 +1,9 @@
 import "../config/env";
 import { Job, Worker } from "bullmq";
-import redis from "../Redis";
+import redis from "../redis";
 import crypto from "crypto";
-import { AppError } from "../errors/AppError";
-import { sendEmailVerification } from "../services/emailVerification.services";
+import { AppError } from "../shared/errors/AppError";
+import { sendEmailVerification } from "../modules/auth/services/emailVerification.services";
 import logger from "../config/logger";
 
 logger.info({}, "monitorWorkers module loaded");
@@ -34,8 +34,7 @@ const getEmailVerificationOptions = () => {
 const processor = async (job: Job) => {
   const { email, otp } = job.data;
 
-  const sendEmail = await sendEmailVerification(email, otp);
-  console.log(sendEmail);
+  await sendEmailVerification(email, otp);
 };
 
 export const emailVerificationWorker = new Worker(

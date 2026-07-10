@@ -8,7 +8,7 @@ export const useAllIncidentsData = (limit: number, page: number) => {
     queryKey: ["incidents data timeline", limit, page],
     queryFn: () =>
       apiFetch<IncidentsPaginatedData>(
-        `/incidents/all?limit=${limit}&page=${page}`,
+        `/incidents?limit=${limit}&page=${page}`,
       ),
     placeholderData: (prev) => prev,
   });

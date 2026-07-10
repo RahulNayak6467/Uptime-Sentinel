@@ -11,7 +11,7 @@ const IncidentStatsSkeleton = () => (
     role="status"
     aria-label="Loading incident statistics"
   >
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
@@ -71,7 +71,7 @@ const IncidentStats = () => {
           Reliability and recovery metrics for the last 30 days
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {incidentStats.map((incident) => (
           <IncidentStatCard
             key={incident.id}

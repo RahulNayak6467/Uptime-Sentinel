@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiDataResponse } from "@/lib/api";
 import { DashboardOverviewResponse } from "@/features/Overview/types";
 
 const BASE_TITLE = "UptimeSentinel";
@@ -23,7 +23,9 @@ export default function LiveTabStatus() {
   const { data } = useQuery({
     queryKey: ["dashboardOverview"],
     queryFn: () =>
-      apiFetch<DashboardOverviewResponse>("/dashboard/overview/stats"),
+      apiFetch<ApiDataResponse<DashboardOverviewResponse>>(
+        "/dashboard/overview",
+      ).then((res) => res.data),
     refetchInterval: 60_000,
   });
 

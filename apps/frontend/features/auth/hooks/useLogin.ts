@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiDataResponse } from "@/lib/api";
 
 export type userLoginResponseProps = {
   message: string;
@@ -13,10 +13,10 @@ export type userLoginProps = {
 export const useLogin = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (userLoginDetails: userLoginProps) =>
-      apiFetch<userLoginResponseProps>("/user/login", {
+      apiFetch<ApiDataResponse<userLoginResponseProps>>("/auth/login", {
         method: "POST",
         body: JSON.stringify(userLoginDetails),
-      }),
+      }).then((res) => res.data),
     retry: false,
   });
 

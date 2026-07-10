@@ -32,7 +32,7 @@ const OverviewHeaders = () => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex w-full items-center gap-2 sm:w-auto">
         <button
           onClick={refresh}
           disabled={isFetching}
@@ -47,7 +47,7 @@ const OverviewHeaders = () => {
 
         <button
           onClick={() => router.push("/dashboard/newmonitor")}
-          className="flex h-9 cursor-pointer items-center gap-2 rounded-[4px] bg-sf-text px-4 font-sans text-xs font-semibold text-sf-btn-text shadow-sm transition-all hover:-translate-y-px hover:bg-sf-blue hover:text-white hover:shadow-md active:translate-y-0 active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30"
+          className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] bg-sf-text px-4 font-sans text-xs font-semibold text-sf-btn-text shadow-sm transition-all hover:-translate-y-px hover:bg-sf-blue hover:text-white hover:shadow-md active:translate-y-0 active:bg-sf-btn-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/30 sm:flex-none"
         >
           <Plus className="size-3.5" strokeWidth={2.5} />
           <span>New Monitor</span>

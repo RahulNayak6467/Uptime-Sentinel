@@ -9,4 +9,5 @@ export type monitorStatsProps = {
   color?: string;
   isActive?: boolean;
   comingSoon?: boolean;
+  onNavigate?: () => void;
 };

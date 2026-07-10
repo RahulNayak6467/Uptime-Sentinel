@@ -1,5 +1,6 @@
 import { Queue } from "bullmq";
-import redis from "../Redis";
+import redis from "../redis";
+import logger from "../config/logger";
 
 const monitorQueue = new Queue("monitor-checks", {
   connection: redis,
@@ -10,7 +11,6 @@ export const addToQueue = async (
   user_id: string,
   url_id: string,
 ) => {
-  console.log("Monitor Job added to queue");
   const addJob = await monitorQueue.add(
     "monitor-checks",
     {
@@ -36,6 +36,7 @@ export const addToQueue = async (
       },
     },
   );
+  logger.debug({ jobId: addJob.id, monitorId: url_id }, "monitor check job added");
 
   return addJob;
 };

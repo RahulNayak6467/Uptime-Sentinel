@@ -106,21 +106,15 @@ export type IncidentTypeTimelineUpdates = {
   occurred_at: string | null;
 };
 
-// export type IncidentTypeTimelineProps = {
-//   [key: string]: IncidentTypeTimelineUpdates[];
-// };
-
 export type IncidentTypeTimelineProps = {
-  getTimeline: {
-    data: {
-      title: string | null;
-      incident_id: string;
-      updates: IncidentTypeTimelineUpdates[];
-    }[];
-    pagination: {
-      page: number;
-      limit: number;
-      totalPage: number;
-    };
+  data: {
+    title: string | null;
+    incident_id: string;
+    updates: IncidentTypeTimelineUpdates[];
+  }[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalPage: number;
   };
 };

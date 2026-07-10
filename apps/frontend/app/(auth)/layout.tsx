@@ -6,21 +6,21 @@ import LoadingScreen from "@/components/ui/loading-screen";
 import { redirect } from "next/navigation";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const { data, isLoading, isError } = useMe()
+  // const { data, isLoading, isError } = useMe()
 
-  useEffect(() => {
-    if (isError) {
-      redirect("/login");
-    }
-  }, [isError]);
+  // useEffect(() => {
+  //   if (isError) {
+  //     redirect("/login");
+  //   }
+  // }, [isError]);
 
-  if (isLoading) {
-    return <LoadingScreen />
-  }
+  // if (isLoading) {
+  //   return <LoadingScreen />
+  // }
 
-  if (data) {
-   redirect("/dashboard/overview")
-  }
+  // if (data) {
+  //  redirect("/dashboard/overview")
+  // }tmu
 
   return <AuthPageShell>{children}</AuthPageShell>;
 }

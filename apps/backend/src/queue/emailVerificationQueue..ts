@@ -1,5 +1,6 @@
 import { Queue } from "bullmq";
-import redis from "../Redis";
+import redis from "../redis";
+import logger from "../config/logger";
 
 const emailVerificationQueue = new Queue("email-verification", {
   connection: redis,
@@ -9,7 +10,6 @@ export const addToEmailVerificationQueue = async (
   email: string,
   otp: string,
 ) => {
-  console.log("Email Job added to queue");
   const addJob = await emailVerificationQueue.add(
     "email-verification",
     {
@@ -34,6 +34,7 @@ export const addToEmailVerificationQueue = async (
       },
     },
   );
+  logger.debug({ jobId: addJob.id, email }, "email verification job added");
 
   return addJob;
 };

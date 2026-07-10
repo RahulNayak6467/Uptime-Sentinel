@@ -26,7 +26,7 @@ import { useSSEIndividualMonitorData } from "./hooks/useSSEIndividualMonitorData
 import { useTheme } from "next-themes";
 
 const StripStat = ({ label, value }: { label: string; value: string }) => (
-  <div className="min-w-28 border-l border-sf-border px-5 first:border-l-0">
+  <div className="min-w-28 border-l border-sf-border px-4 first:border-l-0 sm:px-5">
     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">{label}</p>
     <p className="mt-1 text-[13px] font-semibold text-sf-text">{value}</p>
   </div>
@@ -121,7 +121,7 @@ const OperationalStrip = ({ data }: { data: IndividualOverviewStatsProps }) => {
             </div>
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex w-full overflow-x-auto sm:w-auto">
           <StripStat label="Next check" value={nextCheck} />
           <StripStat label="Interval" value={`${data.intervalSeconds}s`} />
           <StripStat label="Regions" value="5" />
@@ -171,7 +171,7 @@ const IndividualMonitorInfoStats = ({
               Uptime and response metrics across current reporting windows
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {IndividualStatsCardData.map((data) => (
             <StatsCard
               key={data.title}
@@ -447,7 +447,7 @@ export const ResponseTimeTrend = ({
       </div>
 
       {hasSeriesData ? (
-        <div className="mt-3">
+        <div className="mt-3 min-w-0 overflow-x-auto">
           <Chart option={option} height={300} />
         </div>
       ) : (

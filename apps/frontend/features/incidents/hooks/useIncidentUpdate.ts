@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiDataResponse } from "@/lib/api";
 import {
   IncidentAddDataProps,
   IncidentDataAddPayload,
@@ -10,10 +10,13 @@ export const useIncidentAdd = (incidentId: string) => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: IncidentDataAddPayload) =>
-      apiFetch<IncidentAddDataProps>(`/incidents/${incidentId}/insert`, {
+      apiFetch<ApiDataResponse<IncidentAddDataProps>>(
+        `/incidents/${incidentId}/updates`,
+        {
         method: "POST",
         body: JSON.stringify(payload),
-      }),
+        },
+      ).then((res) => res.data),
     retry: false,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["incidents type timeline"] }),
@@ -26,10 +29,13 @@ export const useIncidentUpdate = (incidentId: string) => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: IncidentDataUpdatesPayload) =>
-      apiFetch<IncidentAddDataProps>(`/incidents/${incidentId}/updates`, {
+      apiFetch<ApiDataResponse<IncidentAddDataProps>>(
+        `/incidents/${incidentId}/updates`,
+        {
         method: "PATCH",
         body: JSON.stringify(payload),
-      }),
+        },
+      ).then((res) => res.data),
     retry: false,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["incidents type timeline"] }),

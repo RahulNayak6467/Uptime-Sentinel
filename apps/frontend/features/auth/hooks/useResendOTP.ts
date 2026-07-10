@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiDataResponse } from "@/lib/api";
 import { ApiError } from "@/lib/api-error";
 import { toast } from "sonner";
 
@@ -14,10 +14,10 @@ export type resendOtpProps = {
 export const useResendOTP = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (resendOtp: resendOtpProps) =>
-      apiFetch<resendEmailProps>("/user/otp-resend", {
+      apiFetch<ApiDataResponse<resendEmailProps>>("/auth/otp-resends", {
         method: "POST",
         body: JSON.stringify(resendOtp),
-      }),
+      }).then((res) => res.data),
     onSuccess: () => {
       toast.success("Verification code sent. Check your inbox.");
     },

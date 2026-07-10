@@ -2,16 +2,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { IndividualOverviewStatsProps } from "../types";
 
-type patchResponseDataProps = {
-  message: string;
-};
-
 export const usePause = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (id: string) =>
-      apiFetch<patchResponseDataProps>(`/monitor/${id}/pause`, {
+      apiFetch<null>(`/monitors/${id}/status`, {
         method: "PATCH",
+        body: JSON.stringify({ isActive: false }),
       }),
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({
@@ -23,14 +20,12 @@ export const usePause = () => {
         id,
         "overview data",
       ]);
-      console.log("PREVIOUS DATA", previousData);
       queryClient.setQueryData(
         ["monitor", id, "overview data"],
         (oldData: IndividualOverviewStatsProps) => {
           return { ...oldData, isActive: false };
         },
       );
-      console.log("UPDATED DATA", previousData);
 
       return { previousData };
     },
@@ -40,11 +35,7 @@ export const usePause = () => {
         ctx?.previousData,
       );
     },
-    onSuccess: () => {
-      console.log("Success");
-    },
     onSettled: (_data, _error, id) => {
-      console.log("Mutation Settled");
       queryClient.invalidateQueries({
         queryKey: ["monitor", id, "overview data"],
       });
@@ -59,8 +50,9 @@ export const useResume = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
     mutationFn: (id: string) =>
-      apiFetch<patchResponseDataProps>(`/monitor/${id}/resume`, {
+      apiFetch<null>(`/monitors/${id}/status`, {
         method: "PATCH",
+        body: JSON.stringify({ isActive: true }),
       }),
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({
@@ -72,14 +64,12 @@ export const useResume = () => {
         id,
         "overview data",
       ]);
-      console.log("PREVIOUS DATA", previousData);
       queryClient.setQueryData(
         ["monitor", id, "overview data"],
         (oldData: IndividualOverviewStatsProps) => {
           return { ...oldData, isActive: true };
         },
       );
-      console.log("UPDATED DATA", previousData);
 
       return { previousData };
     },
@@ -89,12 +79,7 @@ export const useResume = () => {
         ctx?.previousData,
       );
     },
-    onSuccess: () => {
-      console.log("Success");
-    },
     onSettled: (_data, _error, id) => {
-      console.log(id);
-      console.log("Mutation Settled");
       queryClient.invalidateQueries({
         queryKey: ["monitor", id, "overview data"],
       });

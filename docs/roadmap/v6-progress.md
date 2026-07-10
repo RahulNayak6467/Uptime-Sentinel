@@ -4,7 +4,7 @@
 > Dashboard and Real-Time Frontend**. Mark items `✅ Done` as they land.
 > Source of truth for scope stays [`v6.md`](v6.md); this file tracks status.
 
-_Last updated: 2026-06-28_
+_Last updated: 2026-07-10_
 
 ## Core features
 
@@ -27,8 +27,8 @@ _Last updated: 2026-06-28_
 | 2 | Validated limit/offset pagination | ✅ Done | Implemented V6 list APIs use `generatePagePagination.ts` and `offsetValidation.ts` |
 | 3 | Credential-aware CORS | ✅ Done | `corsConfigOptions` in `index.ts` |
 | 4 | Connection cleanup / reconnect / per-user isolation | ⏸ N/A yet | Only if persistent connection chosen (#8 above) |
-| 5 | Docker Compose (Postgres + Redis) | ❌ Not started | No compose file exists |
-| 6 | Replace `console.log` with Pino | ❌ Not started | No `pino` dep; 33 files still use `console.log` |
+| 5 | Docker Compose (Postgres + Redis) | ✅ Done | `docker-compose.yml` exists at repo root |
+| 6 | Replace `console.log` with Pino | ✅ Done | Raw backend `console.log`/stale auth-string scan is clear; operational debug output uses Pino logger |
 
 ## Incidents page (sequenced last, on hold)
 
@@ -49,7 +49,12 @@ _Last updated: 2026-06-28_
 
 | # | Item | Status | Note |
 |---|------|--------|------|
-| 1 | Standardize 401 response strings | ❌ Not started | Tracked cleanup after the V6 feature slices |
+| 1 | Standardize 401 response strings | ✅ Done | Backend scan is clear for `Unauthorized`, `UnAuthorized`, and `Token is expired`; current 401 contract is `{ message: "Unauthenticated" }` |
+| 2 | Backend folder/module refactor | 🟡 Partial | Feature-first backend folders are in place; app typecheck, migration typecheck, and backend build pass. Route aggregators now use noun-style module paths. Broader convention alignment remains. |
+| 3 | Separate migration typechecking | ✅ Done | Migrations moved to `apps/backend/migrations`; app `tsconfig` excludes them; `tsconfig.migrations.json` typechecks them separately |
+| 4 | Noun-style route cleanup | ✅ Done | Old `/user/*`, `/url/*`, `/monitor/*`, and verb-style incident/update aliases removed from active routers; frontend API calls were updated to the new paths |
+| 5 | Centralized backend error responses | ✅ Done | Auth middleware and controllers delegate failures to the shared error middleware; Zod validation returns `VALIDATION_ERROR` with field-level errors |
+| 6 | Standard success envelope | ✅ Done | Single/action responses use `{ data }`, list responses use `{ data, pagination }`, and no-body actions stay `204 No Content` |
 
 ## Sequencing note
 

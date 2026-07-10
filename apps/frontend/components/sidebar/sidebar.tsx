@@ -9,7 +9,7 @@ import DarkModeToggle from "./dark-mode";
 import Spinner from "../ui/spinner";
 import ConnectionStatus from "../sse/connection-status";
 
-const Sidebar = () => {
+const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const pathname = usePathname();
   const { logout, isPending } = useLogout();
 
@@ -49,6 +49,7 @@ const Sidebar = () => {
                 color={item.color}
                 backgroundColor={item.backgroundColor}
                 comingSoon={item.comingSoon}
+                onNavigate={onNavigate}
                 isActive={
                   pathname === item.href ||
                   (item.href !== "/dashboard/overview" && pathname.startsWith(`${item.href}/`))
@@ -70,6 +71,7 @@ const Sidebar = () => {
                 label={item.label}
                 href={item.href}
                 isActive={pathname === item.href}
+                onNavigate={onNavigate}
               />
             ))}
           </div>
@@ -88,6 +90,7 @@ const Sidebar = () => {
                 href={item.href}
                 comingSoon={item.comingSoon}
                 isActive={pathname === item.href}
+                onNavigate={onNavigate}
               />
             ))}
           </div>

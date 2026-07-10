@@ -210,7 +210,7 @@ export const MonitorDetailsLoading = () => (
           <Skeleton className="h-10 w-60" />
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="rounded-lg border border-sf-border bg-sf-surface p-5">
             <Skeleton className="h-3 w-24" />
@@ -240,7 +240,7 @@ export const IncidentsLoading = () => (
       <div>
         <Skeleton className="h-4 w-32" />
         <Skeleton className="mt-2 h-3 w-72" />
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
             <div key={index} className="rounded-lg border border-sf-border bg-sf-surface p-5">
               <Skeleton className="h-3 w-24" />

@@ -97,19 +97,19 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:shrink-0">
         {monitorOverviewData.isActive ? (
-          <button onClick={() => onPauseUpdate()} className="flex h-9 cursor-pointer items-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:border-sf-amber hover:bg-sf-amber-bg hover:text-sf-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-amber/25">
+          <button onClick={() => onPauseUpdate()} className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:border-sf-amber hover:bg-sf-amber-bg hover:text-sf-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-amber/25 sm:flex-none">
             <Pause className="size-3.5" />
             Pause monitor
           </button>
         ) : (
-          <button onClick={() => onResumeUpdate()} className="flex h-9 cursor-pointer items-center gap-2 rounded-[4px] bg-sf-text px-4 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-green hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-green/25">
+          <button onClick={() => onResumeUpdate()} className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] bg-sf-text px-4 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-green hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-green/25 sm:flex-none">
             <Play className="size-3.5" />
             Resume monitor
           </button>
         )}
-        <button className="flex h-9 cursor-pointer items-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25">
+        <button className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25 sm:flex-none">
           <Edit className="size-3.5" />
           Edit
         </button>

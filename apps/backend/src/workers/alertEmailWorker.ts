@@ -1,12 +1,12 @@
 import "../config/env";
 import { Job, Worker } from "bullmq";
-import redis from "../Redis";
+import redis from "../redis";
 import {
   sendDownAlertEmail,
   sendEmailVerification,
   sendRecoveryEmail,
   sendStillDownAlertEmail,
-} from "../services/emailVerification.services";
+} from "../modules/auth/services/emailVerification.services";
 import { db } from "../db";
 import logger from "../config/logger";
 
