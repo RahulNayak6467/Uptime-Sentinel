@@ -39,6 +39,7 @@ docs/learning/backend-review-checklist.md
 # temporary design/testing previews
 /apps/frontend/app/design-lab/individual-monitor-check/
 /apps/frontend/app/design-lab/individual-monitor-checks/
+/apps/frontend/app/design-lab/edit-monitor-modal/
 /apps/frontend/app/design-lab/new-monitor-checks/
 /apps/frontend/features/individual-monitor-samples/
 /apps/frontend/features/monitor-check-samples/
