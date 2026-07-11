@@ -2,24 +2,25 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../../shared/errors/AppError";
 import { getLastFiveIncidentsServices } from "../services/getLastFiveIncidentsServices";
 import { uuidSchema } from "../../../shared/validators/uuidValidation";
+import { ZodError } from "zod";
 
 export const getLastFiveIncidentsData = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user?.user_id;
+  const user_id = req.user?.user_id;
   const monitorId = req.params.monitorId as string;
 
   try {
     uuidSchema.parse(monitorId);
 
-    if (!userId) {
+    if (!user_id) {
       throw new AppError(401, "Unauthenticated", "UNAUTHENTICATED");
     }
 
     const getLastFiveIncidents = await getLastFiveIncidentsServices(
-      userId,
+      user_id,
       monitorId,
     );
 
@@ -32,6 +33,15 @@ export const getLastFiveIncidentsData = async (
       .status(200)
       .json({ data: getLastFiveIncidents, activeCount, resolvedCount });
   } catch (err) {
+    if (err instanceof ZodError) {
+      return next(
+        new AppError(
+          400,
+          "Monitor ID must be a valid UUID",
+          "INVALID_MONITOR_ID",
+        ),
+      );
+    }
     return next(err);
   }
 };
