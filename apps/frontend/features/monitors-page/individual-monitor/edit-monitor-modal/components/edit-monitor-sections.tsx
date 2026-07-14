@@ -22,10 +22,9 @@ import { Field, SegmentedControl, ToggleRow } from "./form-controls";
 type SectionProps = {
   monitor: IndividualOverviewStatsProps;
   state: EditMonitorDraftState;
-  setSelectedMethod: (value: string) => void;
+  setSelectedMethod: (value: EditMonitorDraftState["selectedMethod"]) => void;
   setRequestBodyType: (value: string) => void;
   setContentType: (value: string) => void;
-  setFollowRedirects: (value: boolean) => void;
   setKeywordMode: (value: string) => void;
   setSslEnabled: (value: boolean) => void;
   setDnsEnabled: (value: boolean) => void;
@@ -47,7 +46,7 @@ export const GeneralSettingsSection = ({
     </div>
     <div className="grid gap-4 sm:grid-cols-2">
       <Field label="Monitor name">
-        <input className={formInputClass} defaultValue={monitor.urlName} />
+        <input className={formInputClass} defaultValue={monitor.monitorName} />
       </Field>
       <Field label="Primary type" hint="Locked for this monitor">
         <button
@@ -55,7 +54,7 @@ export const GeneralSettingsSection = ({
           disabled
           className="flex h-10 w-full items-center justify-between rounded-md border border-sf-border bg-sf-bg/35 px-3 text-[13px] font-semibold text-sf-text-muted"
         >
-          HTTP/HTTPS
+          {monitor.monitorType.toUpperCase()}
           <LockKeyhole className="size-3.5" />
         </button>
       </Field>
@@ -81,13 +80,14 @@ export const GeneralSettingsSection = ({
         <div className="relative">
           <input
             className={`${formInputClass} pr-12`}
-            defaultValue="10"
+            defaultValue={monitor.requestTimeoutMS}
             type="number"
-            min={1}
-            max={60}
+            min={1000}
+            max={60000}
+            step={1000}
           />
           <span className="absolute right-3 top-2.5 text-xs text-sf-text-muted">
-            sec
+            ms
           </span>
         </div>
       </Field>
@@ -98,19 +98,19 @@ export const GeneralSettingsSection = ({
 );
 
 export const HttpRulesSection = ({
+  monitor,
   state,
   setSelectedMethod,
   setRequestBodyType,
   setContentType,
-  setFollowRedirects,
   setKeywordMode,
 }: Pick<
   SectionProps,
+  | "monitor"
   | "state"
   | "setSelectedMethod"
   | "setRequestBodyType"
   | "setContentType"
-  | "setFollowRedirects"
   | "setKeywordMode"
 >) => (
   <section className="space-y-5">
@@ -122,22 +122,23 @@ export const HttpRulesSection = ({
     </div>
     <div className="grid gap-4 sm:grid-cols-2">
       <Field label="Expected status codes" hint="Comma-separated values">
-        <input className={formInputClass} defaultValue="200, 204" />
+        <input
+          className={formInputClass}
+          defaultValue={monitor.statusCodes.join(", ")}
+        />
       </Field>
       <Field label="HTTP method">
         <SegmentedControl
           options={editMonitorMethods}
           value={state.selectedMethod}
-          onChange={setSelectedMethod}
+          onChange={(method) =>
+            setSelectedMethod(
+              method as EditMonitorDraftState["selectedMethod"],
+            )
+          }
         />
       </Field>
     </div>
-    <ToggleRow
-      checked={state.followRedirects}
-      onChange={() => setFollowRedirects(!state.followRedirects)}
-      label="Follow redirects"
-      description="Automatically follow redirects before evaluating the response."
-    />
     {bodyMethods.includes(state.selectedMethod) && (
       <RequestBodyPanel
         bodyType={state.requestBodyType}
@@ -174,7 +175,11 @@ export const HttpRulesSection = ({
   </section>
 );
 
-export const ThresholdsSection = () => (
+export const ThresholdsSection = ({
+  monitor,
+}: {
+  monitor: IndividualOverviewStatsProps;
+}) => (
   <section className="space-y-5">
     <div>
       <h3 className="text-sm font-semibold text-sf-text">
@@ -188,32 +193,16 @@ export const ThresholdsSection = () => (
       <ThresholdField
         label="Mark down after"
         hint="Consecutive failed checks required before DOWN"
-        defaultValue={3}
+        defaultValue={monitor.failureThreshold}
         unit="failures"
       />
       <ThresholdField
         label="Mark up after"
         hint="Consecutive successful checks required before UP"
-        defaultValue={2}
+        defaultValue={monitor.recoveryThreshold}
         unit="successes"
       />
     </div>
-    <Field
-      label="Response time alert"
-      hint="Create an alert when response time exceeds this threshold"
-    >
-      <div className="relative max-w-sm">
-        <input
-          className={`${formInputClass} pr-12`}
-          type="number"
-          min={0}
-          defaultValue={5000}
-        />
-        <span className="absolute right-3 top-2.5 text-xs text-sf-text-muted">
-          ms
-        </span>
-      </div>
-    </Field>
     <div className="rounded-md border border-sf-amber-border bg-sf-amber-bg px-4 py-3">
       <div className="flex gap-2">
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-sf-amber" />

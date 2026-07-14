@@ -10,7 +10,7 @@ export const getLastLimitChecks = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const monitor_id = req.params.id as string;
+  const monitor_id = req.params.monitorId as string;
   const user_id = req.user?.user_id;
 
   try {

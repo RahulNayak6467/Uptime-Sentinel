@@ -1,14 +1,12 @@
 import { db } from "../../../db/index";
 import { ResponseObject } from "../../../shared/types/types";
-import { TIMEOUT } from "../../../constants/constants";
-import { Pool } from "pg";
 import { AppError } from "../../../shared/errors/AppError";
 import { publishSSEEvent } from "../../../sse/services/publishSSEEvent";
 import logger from "../../../config/logger";
 import { isPostgresError } from "../../../shared/errors/PostgresError";
+import { MonitorCheckConfigRow } from "../../../db/db-types";
 
 export const checkUrlHealth = async (
-  TIMEOUT: number,
   user_id: string,
   url_id: string,
 ): Promise<ResponseObject> => {
@@ -20,32 +18,77 @@ export const checkUrlHealth = async (
   };
 
   let nextCheckAt: string = "";
+  let requestTimeoutMS: number | null = null;
 
   try {
     const start = Date.now();
 
-    const getUrl = await db.query(
-      "SELECT url,next_check_at FROM monitor where id = $1",
-      [url_id],
+    const getUrl = await db.query<MonitorCheckConfigRow>(
+      `
+        SELECT url,
+        next_check_at,
+        request_timeout_ms,
+        status_code,
+        monitor_type,
+        http_method
+        FROM monitor
+        where id = $1 and user_id = $2
+      `,
+      [url_id, user_id],
     );
-    const url: string = getUrl.rows[0].url;
-    nextCheckAt = getUrl.rows[0].next_check_at;
+
+    const monitor = getUrl.rows[0];
+    if (!monitor) {
+      throw new AppError(404, "Monitor not found", "MONITOR_NOT_FOUND");
+    }
+
+    if (monitor.monitor_type !== "http" && monitor.monitor_type !== "https") {
+      throw new AppError(
+        400,
+        "Monitor type is not supported by the HTTP checker",
+        "UNSUPPORTED_MONITOR_TYPE",
+      );
+    }
+
+    if (monitor.http_method !== "GET") {
+      throw new AppError(
+        400,
+        "Only GET checks are currently supported",
+        "UNSUPPORTED_HTTP_METHOD",
+      );
+    }
+
+    const url = monitor.url;
+    nextCheckAt = monitor.next_check_at;
+    requestTimeoutMS = monitor.request_timeout_ms;
+    const acceptedStatusCode = monitor.status_code;
 
     const getUrlData = await fetch(url, {
-      signal: AbortSignal.timeout(TIMEOUT),
+      signal: AbortSignal.timeout(requestTimeoutMS),
     });
+
+    const statusCodeReceived = getUrlData.status;
+
+    const checkStatus = acceptedStatusCode.some((code) => code === statusCodeReceived);
+
+    const isCorrectStatusResponse = checkStatus ? "UP" : "DOWN";
+
     response = {
-      status: "UP",
+      status: isCorrectStatusResponse,
       responseTime: Date.now() - start,
       statusCode: getUrlData.status,
       errorMessage: null,
     };
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
     if (err instanceof Error) {
       if (err.name === "TimeoutError") {
         response = {
           status: "DOWN",
-          responseTime: TIMEOUT,
+          responseTime: null,
           statusCode: null,
           errorMessage: err.message,
         };
@@ -68,8 +111,10 @@ export const checkUrlHealth = async (
   const { status, responseTime, statusCode, errorMessage } = response;
 
   try {
-    const insert_checks_query =
-      "INSERT INTO url_checks (monitor_id,status,response_time,status_code,error_message) VALUES ($1,$2,$3,$4,$5)";
+    const insert_checks_query = `
+      INSERT INTO url_checks (monitor_id,status,response_time,status_code,error_message)
+      VALUES ($1,$2,$3,$4,$5)
+    `;
     const values_checks_query = [
       url_id,
       status,

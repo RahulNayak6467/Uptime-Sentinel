@@ -5,7 +5,7 @@ import {AppError} from "../../../shared/errors/AppError";
 import {sendResponseTimeData} from "../services/responseTime.services";
 
 export const getResponseTime = async(req:Request,res:Response,next:NextFunction) => {
-    const monitor_id = req.params.id as string
+    const monitor_id = req.params.monitorId as string
     const user_id = req.user?.user_id;
     const timeRange = req.query.range as string | undefined
 

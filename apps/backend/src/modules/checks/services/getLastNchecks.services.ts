@@ -5,7 +5,14 @@ import {lastChecksDataProps} from "../../../shared/types/types";
 import logger from "../../../config/logger";
 
 export const getLastChecksData = async(monitor_id:string,user_id:string,limit:number):Promise<{state:"CHECKED" | "UNCHECKED"; checks:lastChecksDataProps[] } > => {
-    const get_lastchecks_query = "SELECT m.status AS monitor_status,u.response_time,u.checked_at,u.status AS current_status FROM monitor m left join url_checks u on u.monitor_id = m.id where m.id=$1 and m.user_id=$2 ORDER BY u.checked_at DESC LIMIT $3"
+    const get_lastchecks_query = `
+      SELECT m.status AS monitor_status,u.response_time,u.checked_at,u.status AS current_status
+      FROM monitor m
+      left join url_checks u on u.monitor_id = m.id
+      where m.id=$1 and m.user_id=$2
+      ORDER BY u.checked_at DESC
+      LIMIT $3
+    `
 
     const get_lastchecks_values =[monitor_id,user_id,limit];
 

@@ -9,8 +9,14 @@ export const getIncidentsDataServices = async (
   offset: number,
   pageNumber: number,
 ) => {
-  const get_incidents_query =
-    "SELECT m.url_name,i.started_at,m.url,i.resolved_at,i.is_active,i.id from monitor m inner join incidents i on m.id = i.monitor_id where m.user_id = $1 order by i.started_at DESC OFFSET $2 LIMIT $3";
+  const get_incidents_query = `
+    SELECT m.monitor_name,i.started_at,m.url,i.resolved_at,i.is_active,i.id
+    from monitor m
+    inner join incidents i on m.id = i.monitor_id
+    where m.user_id = $1
+    order by i.started_at DESC
+    OFFSET $2 LIMIT $3
+  `;
   const get_incidents_value = [user_id, offset, limit];
 
   const getIncidentsData: QueryResult<IncidentsDataProps> = await db.query(
@@ -18,8 +24,12 @@ export const getIncidentsDataServices = async (
     get_incidents_value,
   );
 
-  const total_page_query =
-    "SELECT COUNT(i.id) AS total_count from incidents i inner join monitor m on i.monitor_id = m.id where m.user_id = $1";
+  const total_page_query = `
+    SELECT COUNT(i.id) AS total_count
+    from incidents i
+    inner join monitor m on i.monitor_id = m.id
+    where m.user_id = $1
+  `;
 
   const total_page_value = [user_id];
 
@@ -34,7 +44,7 @@ export const getIncidentsDataServices = async (
   const incidentsData = rows.map((el) => {
     return {
       id: el.id,
-      urlName: el.url_name,
+      monitorName: el.monitor_name,
       url: el.url,
       resolvedAt: el.resolved_at,
       startedAt: el.started_at,

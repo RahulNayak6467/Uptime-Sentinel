@@ -11,7 +11,7 @@ export const buildAverageResponseSeries = (
   sampleCount: number = RESPONSE_SAMPLE_COUNT,
 ): (number | null)[] => {
   const samples = monitors.map((monitor) =>
-    monitor.response.slice(0, sampleCount).map((point) => point.responseTime),
+    monitor.response.slice(-sampleCount).map((point) => point.responseTime),
   );
   const length = Math.max(0, ...samples.map((sample) => sample.length));
 

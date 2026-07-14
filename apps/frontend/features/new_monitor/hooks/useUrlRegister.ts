@@ -1,10 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 import { apiFetch, ApiDataResponse } from "@/lib/api";
+import { monitorInfoProps } from "../schemas/monitor-info";
 
 type urlRegisterProps = {
   url: string;
-  urlName: string;
-  intervalSeconds: string | number;
+  monitorName: string;
+  intervalSeconds: number;
+  contentType: monitorInfoProps["contentType"];
+  failureThreshold: number;
+  httpMethod: monitorInfoProps["httpMethod"];
+  requestBody: string | null;
+  requestBodyType: monitorInfoProps["requestBodyType"];
+  requestTimeoutMS: number;
+  statusCodes: monitorInfoProps["statusCodes"];
+  monitorType: monitorInfoProps["monitorType"];
+  recoveryThreshold: number;
 };
 
 export const useUrlRegister = () => {

@@ -14,6 +14,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { monitorInfoProps, monitorInfoSchema } from "../schemas/monitor-info";
 import { useUrlRegister } from "../hooks/useUrlRegister";
+import { intervalToSeconds } from "../utils/interval";
 import { ApiError } from "next/dist/server/api-utils";
 import { toast } from "sonner";
 import { CheckCircle2, Circle } from "lucide-react";
@@ -52,35 +53,61 @@ const SetupChecklist = ({ hasName, hasUrl }: { hasName: boolean; hasUrl: boolean
 const NewMonitorProperties = () => {
   const {
     register,
+    setValue,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<monitorInfoProps>({
     resolver: zodResolver(monitorInfoSchema),
+    defaultValues: {
+      httpMethod: "GET",
+      intervalSeconds: "5m",
+      monitorType: "https",
+      requestTimeoutMS: 5000,
+      requestBodyType: "none",
+      contentType: "none",
+      requestBody: null,
+      statusCodes: [200],
+      failureThreshold: 2,
+      recoveryThreshold: 2,
+    }
   });
 
   const [monitorType, setMonitorType] = useState("HTTP/HTTPS");
-  const [interval, setInterval] = useState("5m");
-  const [method, setMethod] = useState("get");
 
-  const [monitorName, url, timeout, statusCode, responseTimeAlert] = useWatch({
+  const [monitorName, url, statusCodes, httpMethod, intervalSeconds] = useWatch({
     control,
     name: [
       "monitorName",
       "url",
-      "timeout",
-      "statusCode",
-      "responseTimeAlert",
+      "statusCodes",
+      "httpMethod",
+      "intervalSeconds",
     ] as const,
   });
 
   const { mutate, isPending } = useUrlRegister();
 
   const onSubmit = (data: monitorInfoProps) => {
+    const submittedMonitorType: monitorInfoProps["monitorType"] =
+      new URL(data.url).protocol === "http:"
+      ? "http"
+      : "https";
+
     const urlDetails = {
       url: data.url,
-      urlName: data.monitorName,
-      intervalSeconds: data.responseTimeAlert,
+      monitorName: data.monitorName,
+      intervalSeconds: intervalToSeconds(data.intervalSeconds),
+      contentType: data.contentType,
+      failureThreshold: data.failureThreshold,
+      httpMethod: data.httpMethod,
+      requestBody: data.requestBody,
+      requestBodyType: data.requestBodyType,
+      requestTimeoutMS: data.requestTimeoutMS,
+      statusCodes: data.statusCodes,
+      monitorType: submittedMonitorType,
+      recoveryThreshold: data.recoveryThreshold,
     };
 
     mutate(urlDetails, {
@@ -115,7 +142,11 @@ const NewMonitorProperties = () => {
               Define the endpoint first, then review request behavior and alert delivery.
             </p>
           </div>
-          <MonitorTypeInfo selected={monitorType} onSelect={setMonitorType} />
+          <MonitorTypeInfo
+            selected={monitorType}
+            onSelect={setMonitorType}
+            error={errors.monitorType?.message}
+          />
           <MonitorInfo
             register={register}
             errors={{
@@ -124,19 +155,30 @@ const NewMonitorProperties = () => {
             }}
           />
           <RequestType
+            watch={watch}
+            control={control}
             register={register}
-            selectedMethod={method}
-            onMethodChange={setMethod}
+            setValue={setValue}
             errors={{
-              errorsTimeout: errors.timeout?.message,
-              errorsStatusCode: errors.statusCode?.message,
+              errorsStatusCodes: errors.statusCodes?.message,
+              errorsHttpMethod: errors.httpMethod?.message,
+              errorsRequestBodyType: errors.requestBodyType?.message,
+              errorsContentType: errors.contentType?.message,
+              errorsRequestBody: errors.requestBody?.message,
+              errorsRequestTimeoutMS: errors.requestTimeoutMS?.message,
             }}
           />
-          <CheckInterval selected={interval} onSelect={setInterval} />
+          <CheckInterval
+            control={control}
+            error={errors.intervalSeconds?.message}
+          />
           <MonitoringRegions />
           <AlertConditions
-            register={register}
-            errors={errors.responseTimeAlert?.message}
+            control={control}
+            errors={{
+              failureThreshold: errors.failureThreshold?.message,
+              recoveryThreshold: errors.recoveryThreshold?.message,
+            }}
           />
           <Notifications />
         </div>
@@ -151,11 +193,9 @@ const NewMonitorProperties = () => {
             monitorName={monitorName}
             url={url}
             type={monitorType}
-            interval={interval}
-            method={method}
-            timeout={timeout}
-            statusCode={statusCode}
-            responseTimeAlert={responseTimeAlert}
+            interval={intervalSeconds ?? "5m"}
+            method={(httpMethod ?? "GET").toLowerCase()}
+            statusCodes={statusCodes}
           />
           <SetupChecklist
             hasName={Boolean(monitorName?.trim())}

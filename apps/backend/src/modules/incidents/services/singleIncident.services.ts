@@ -5,7 +5,7 @@ import logger from "../../../config/logger";
 
 interface singleIncidentsTableDataProps {
   id: string;
-  urlName: string;
+  monitorName: string;
   url: string;
   startedAt: Date;
   resolvedAt: Date;
@@ -17,8 +17,12 @@ export const getSingleIncidentsDetailsById = async (
   incident_id: string,
   user_id: string,
 ) => {
-  const single_incident_query =
-    "SELECT i.resolved_at,i.started_at,i.is_active,m.url,m.url_name,m.id FROM incidents i inner join monitor m on m.id = i.monitor_id  where m.user_id = $1 and i.id = $2 ";
+  const single_incident_query = `
+    SELECT i.resolved_at,i.started_at,i.is_active,m.url,m.monitor_name,m.id
+    FROM incidents i
+    inner join monitor m on m.id = i.monitor_id
+    where m.user_id = $1 and i.id = $2
+  `;
   const single_incident_values = [user_id, incident_id];
 
   try {
@@ -35,7 +39,7 @@ export const getSingleIncidentsDetailsById = async (
     const data = getSingleDataFromIncidentTable.rows[0];
     const response: singleIncidentsTableDataProps = {
       id: data.id,
-      urlName: data.url_name,
+      monitorName: data.monitor_name,
       url: data.url,
       startedAt: data.started_at,
       resolvedAt: data.resolved_at,

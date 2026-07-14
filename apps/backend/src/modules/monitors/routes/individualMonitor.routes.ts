@@ -8,13 +8,13 @@ import {IndividualMonitorStatsData} from "../controllers/individualMonitorData.c
 
 const router: Router = express.Router();
 
-router.get("/:id/stats",authMiddleware,getIndividualMonitorStats);
+router.get("/:monitorId/stats",authMiddleware,getIndividualMonitorStats);
 
-router.get("/:id/response-time",authMiddleware,getResponseTime);
+router.get("/:monitorId/response-time",authMiddleware,getResponseTime);
 
-router.get("/:id/checks", authMiddleware,getLastLimitChecks);
+router.get("/:monitorId/checks", authMiddleware,getLastLimitChecks);
 
-router.get("/:id/info", authMiddleware,IndividualMonitorStatsData);
+router.get("/:monitorId/info", authMiddleware,IndividualMonitorStatsData);
 
 
 export default router;

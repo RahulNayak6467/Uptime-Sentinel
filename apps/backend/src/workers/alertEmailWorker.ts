@@ -58,10 +58,10 @@ const processor = async (job: Job) => {
   if (job.name === "down-alert-email") {
     const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
-      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      "SELECT u.email,m.url,m.monitor_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
       [url_id],
     );
-    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const [{ email, url, monitor_name: monitorName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
       "SELECT id,started_at from incidents where monitor_id = $1 and id = $2",
       [url_id, incident_id],
@@ -70,7 +70,7 @@ const processor = async (job: Job) => {
 
     const downAlertEmail = await sendDownAlertEmail(
       email,
-      urlName,
+      monitorName,
       url,
       startedAt,
     );
@@ -84,10 +84,10 @@ const processor = async (job: Job) => {
   } else if (job.name === "recovery-email") {
     const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
-      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      "SELECT u.email,m.url,m.monitor_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
       [url_id],
     );
-    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const [{ email, url, monitor_name: monitorName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
       "SELECT id,started_at,resolved_at from incidents where monitor_id = $1 and id = $2",
       [url_id, incident_id],
@@ -96,7 +96,7 @@ const processor = async (job: Job) => {
       getStartedAt.rows;
     const recoveryAlertEmail = await sendRecoveryEmail(
       email,
-      urlName,
+      monitorName,
       url,
       startedAt,
       resolvedAt,
@@ -114,10 +114,10 @@ const processor = async (job: Job) => {
   } else if (job.name === "reminder-email") {
     const { url_id, incident_id } = job.data;
     const getEmailAndUrlInfo = await db.query(
-      "SELECT u.email,m.url,m.url_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
+      "SELECT u.email,m.url,m.monitor_name from user_details u inner join monitor m on u.id = m.user_id where m.id = $1",
       [url_id],
     );
-    const [{ email, url, url_name: urlName }] = getEmailAndUrlInfo.rows;
+    const [{ email, url, monitor_name: monitorName }] = getEmailAndUrlInfo.rows;
     const getStartedAt = await db.query(
       "SELECT started_at,id from incidents where monitor_id = $1 and id = $2",
       [url_id, incident_id],
@@ -126,7 +126,7 @@ const processor = async (job: Job) => {
 
     const reminderEmail = await sendStillDownAlertEmail(
       email,
-      urlName,
+      monitorName,
       url,
       startedAt,
     );

@@ -5,20 +5,28 @@ import { QueryResult } from "pg";
 import logger from "../../../config/logger";
 
 export const fetchDashboardOverviewData = async (user_id: string) => {
-  const fetch_stats_query = `select count(*) FILTER (WHERE checked_at >= date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS total_checks,
+  const fetch_stats_query = `
+    select count(*) FILTER (WHERE checked_at >= date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS total_checks,
     ROUND(AVG(response_time) FILTER (WHERE u.status = 'UP')) AS avg_total_checks,
     COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'UP' and m.is_active = 'true') AS up_count,
     COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'DOWN' and m.is_active = 'true') AS down_count,
     COUNT(DISTINCT m.id ) AS total_monitors,
     COUNT(DISTINCT m.id) FILTER(where m.is_active = 'false') AS paused_monitors,
     COUNT(DISTINCT m.id) FILTER(where m.status = 'UNKNOWN' and m.is_active = true) AS unknown_count
-    from monitor m left join url_checks u on m.id = u.monitor_id where user_id = $1`;
+    from monitor m
+    left join url_checks u on m.id = u.monitor_id
+    where user_id = $1
+  `;
 
   const fetch_stats_value = [user_id];
 
-  const fetch_uptime_query = `select ROUND(COUNT(*) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(*),0),2)
-                              AS uptime_percentage from monitor m inner join url_checks u on m.id = u.monitor_id
-                              WHERE checked_at >= NOW() - INTERVAL '${UPTIME_STATS_PERIOD} days' and user_id = $1`;
+  const fetch_uptime_query = `
+    select ROUND(COUNT(*) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(*),0),2)
+      AS uptime_percentage
+    from monitor m
+    inner join url_checks u on m.id = u.monitor_id
+    WHERE checked_at >= NOW() - INTERVAL '${UPTIME_STATS_PERIOD} days' and user_id = $1
+  `;
 
   const fetch_uptime_value = [user_id];
   try {

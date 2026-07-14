@@ -32,8 +32,12 @@ export const sendEmailVerification = async (email: string, otp: string) => {
 };
 
 export const verifyEmail = async (email: string, otp: string) => {
-  const update_emailVerification_query =
-    "UPDATE user_details set email_verified = true where email = $1 and email_verified = false RETURNING id";
+  const update_emailVerification_query = `
+    UPDATE user_details
+    set email_verified = true
+    where email = $1 and email_verified = false
+    RETURNING id
+  `;
   const update_emailVerification_value = [email];
   try {
     const getOTP = await redis.get(`emailVerify-${email}`);
@@ -75,8 +79,11 @@ export const verifyEmail = async (email: string, otp: string) => {
     const updatedRow: number = updateEmailVerification.rows.length;
 
     if (updatedRow === 0) {
-      const email_exists_query =
-        "SELECT email from user_details where email = $1 ";
+      const email_exists_query = `
+        SELECT email
+        from user_details
+        where email = $1
+      `;
       const email_exists_value = [email];
       const check_email_exists = await db.query(
         email_exists_query,
@@ -124,7 +131,11 @@ export const verifyEmail = async (email: string, otp: string) => {
       );
     }
     // const user_id = updateEmailVerificationAndGetId;
-    const selectQuery = "SELECT id FROM user_details WHERE email = $1";
+    const selectQuery = `
+      SELECT id
+      FROM user_details
+      WHERE email = $1
+    `;
     const selectValues = [email];
     const requiredData = await db.query(selectQuery, selectValues);
     const user_id = requiredData.rows[0].id;
@@ -146,9 +157,12 @@ export const verifyEmail = async (email: string, otp: string) => {
 
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
     // const expiresAt = new Date(Date.now() + 5 * 1000);
-    const insert_Refresh_Query =
-      //   "INSERT INTO refresh_tokens (user_id,token,expires_at) VALUES($1, $2, $3)";
-      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at";
+    const insert_Refresh_Query = `
+      INSERT INTO refresh_tokens (user_id, token, expires_at)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id)
+      DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at
+    `;
     const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
 
     await db.query(insert_Refresh_Query, values_Refresh_Query);
@@ -193,7 +207,7 @@ export const sendDownAlertEmail = async (
 
 export const sendRecoveryEmail = async (
   email: string,
-  urlName: string,
+  monitorName: string,
   url: string,
   startedAt: Date,
   resolvedAt: Date,
@@ -202,21 +216,21 @@ export const sendRecoveryEmail = async (
   const { data, error } = await resend.emails.send({
     from: "onboarding@resend.dev",
     to: email,
-    subject: `✅ Monitor Recovered: ${urlName}`,
+    subject: `✅ Monitor Recovered: ${monitorName}`,
     html: `
       <h2>Your monitor has recovered</h2>
-      <p><strong>Monitor:</strong> ${urlName}</p>
+      <p><strong>Monitor:</strong> ${monitorName}</p>
       <p><strong>URL:</strong> ${url}</p>
       <p><strong>Recovered at:</strong> ${resolvedAt.toLocaleString()}</p>
       <p><strong>Outage duration:</strong> ${duration}</p>
     `,
   });
   if (error) {
-    logger.error({ err: error, monitorName: urlName }, "recovery email send failed");
+    logger.error({ err: error, monitorName }, "recovery email send failed");
     return null;
   }
 
-  logger.info({ emailId: data?.id, monitorName: urlName }, "recovery email sent");
+  logger.info({ emailId: data?.id, monitorName }, "recovery email sent");
   return data;
 };
 

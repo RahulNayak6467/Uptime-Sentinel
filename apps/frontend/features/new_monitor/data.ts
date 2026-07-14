@@ -4,13 +4,15 @@ import { alertConditionsProps, monitorTypeProps, notificationChannelProps } from
 export const httpMethods = ["get", "post", "put", "patch", "delete"];
 
 export const bodyTypes = [
-  { id: "none", label: "None", contentType: "" },
+  { id: "none", label: "None", contentType: "none" },
   { id: "json", label: "JSON", contentType: "application/json" },
   { id: "form-encoded", label: "Form-encoded", contentType: "application/x-www-form-urlencoded" },
   { id: "raw-text", label: "Raw text", contentType: "text/plain" },
-];
+] as const;
 
 export const checkIntervals = ["30s", "1m", "2m", "5m", "10m", "30m", "1h"];
+
+export type checkIntervalsTypeProps = "30s" | "1m" | "2m" | "5m" | "10m" | "30m" | "1h"
 
 export const monitoringRegions = [
   "US East",

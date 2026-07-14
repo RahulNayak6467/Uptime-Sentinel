@@ -1,5 +1,5 @@
 import { LucideIcon } from "lucide-react";
-import { UseFormRegister } from "react-hook-form";
+import { Control, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { monitorInfoProps } from "./schemas/monitor-info";
 
 type checkTypeProps =
@@ -9,6 +9,8 @@ type checkTypeProps =
   | "DNS"
   | "SSL Cert"
   | "Keyword";
+
+export type checkIntervalsTypeProps = "30s" | "1m" | "2m" | "5m" | "10m" | "30m" | "1h"
 
 export type monitorTypeProps = {
   icon: LucideIcon;
@@ -20,10 +22,16 @@ export type monitorTypeProps = {
 };
 
 export type alertConditionsProps = {
+  // register?:  newMonitorProps;
   alertType: string;
   alertText: string;
   alertMessage: "failures" | "success" | "ms";
 };
+
+export type alertCondition = {
+  control: controlProps;
+  error: string | undefined;
+} & alertConditionsProps
 
 export type notificationChannelProps = {
   id: string;
@@ -33,3 +41,6 @@ export type notificationChannelProps = {
 };
 
 export type newMonitorProps = UseFormRegister<monitorInfoProps>;
+export type setValueProps = UseFormSetValue<monitorInfoProps>
+export type controlProps = Control<monitorInfoProps>;
+export type watchProps = UseFormWatch<monitorInfoProps>;

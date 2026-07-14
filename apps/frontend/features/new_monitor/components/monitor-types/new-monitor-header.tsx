@@ -32,7 +32,7 @@ const NewMonitorHeader = ({
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))}
         className="flex w-full items-center gap-2 sm:w-auto"
       >
         <Link

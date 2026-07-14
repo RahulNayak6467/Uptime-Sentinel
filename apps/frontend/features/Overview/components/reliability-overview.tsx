@@ -233,7 +233,7 @@ const ReliabilityOverview = () => {
 
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           {data.data.slice(0, 6).map((monitor) => {
-            const checks = monitor.response.slice(0, RESPONSE_SAMPLE_COUNT);
+            const checks = monitor.response.slice(-RESPONSE_SAMPLE_COUNT);
             const okCount = checks.filter(
               (check) => check.responseTime !== null,
             ).length;
@@ -252,7 +252,7 @@ const ReliabilityOverview = () => {
                       className={`size-1.5 shrink-0 rounded-full ${STATUS_DOT[monitor.status] ?? STATUS_DOT.UNKNOWN}`}
                     />
                     <span className="truncate text-sm font-medium text-sf-text-sub">
-                      {monitor.urlName}
+                      {monitor.monitorName}
                     </span>
                   </span>
                   <span

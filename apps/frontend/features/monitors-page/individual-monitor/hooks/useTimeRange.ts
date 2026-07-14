@@ -11,7 +11,7 @@ export const useTimeRange = (id: string, timeRange: TimeRangeProps) => {
     queryFn: () =>
       apiFetch<ApiDataResponse<TimeRangeDataProps>>(
         `/monitors/${id}/response-time?range=${timeRange}`,
-      ).then((res) => res.data),
+      ),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: true,
     placeholderData: (prev) => prev,

@@ -46,7 +46,7 @@ export type IncidentStatsCardInfoProps = {
 export type IncidentsDataProps = {
   id: string;
   isActive: boolean;
-  urlName: string;
+  monitorName: string;
   url: string;
   resolvedAt: Date | string | null;
   startedAt: Date | string;

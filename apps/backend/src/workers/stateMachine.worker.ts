@@ -96,15 +96,15 @@ const insertIntoIncidentsTable = async (url_id: string) => {
   }
 };
 
-const hasConsecutiveFailures = async (url_id: string) => {
+const hasConsecutiveFailures = async (url_id: string,failureThresholdCount:number) => {
   let isDown: boolean = false;
   const check_down_query =
-    "SELECT status from url_checks where monitor_id = $1 ORDER BY checked_at DESC LIMIT 2";
-  const check_down_values = [url_id];
+    "SELECT status from url_checks where monitor_id = $1 ORDER BY checked_at DESC LIMIT $2";
+  const check_down_values = [url_id,failureThresholdCount];
   const getStatusValues = await db.query(check_down_query, check_down_values);
 
   const rows = getStatusValues.rows.length;
-  if (rows < 2) {
+  if (rows < failureThresholdCount) {
     return isDown;
   }
   const isDownAlert = getStatusValues.rows.every(
@@ -118,20 +118,86 @@ const hasConsecutiveFailures = async (url_id: string) => {
   return isDown;
 };
 
-export const runStateMachine = async (
-  url_id: string,
+const getThresholdValues = async(user_id: string, url_id: string) => {
+  const get_threshold_query = `SELECT
+    failure_threshold,recovery_threshold
+    FROM monitor
+    where id = $1
+    AND user_id = $2`
+
+  const get_threshold_values = [url_id, user_id]
+
+  const getThreshold = await db.query(get_threshold_query,get_threshold_values)
+
+  const failureThresholdCount = getThreshold.rows[0].failure_threshold;
+  const recoveryThresholdCount = getThreshold.rows[0].recovery_threshold
+
+  return {failureThresholdCount,recoveryThresholdCount}
+}
+
+
+
+const checkConsecutiveSuccess  = async (url_id: string, user_id: string,recoveryThreshold: number) => {
+  let isRecovered: boolean = false
+  const check_recovered_query = `SELECT u.status
+    FROM monitor m
+    JOIN url_checks u
+    ON m.id = u.monitor_id
+    WHERE m.id = $1
+    AND m.user_id = $2
+    ORDER BY u.checked_at DESC
+    LIMIT $3`;
+
+  const check_recovered_values = [url_id, user_id, recoveryThreshold];
+
+  const checkRecovered = await db.query(check_recovered_query, check_recovered_values);
+
+  const rows = checkRecovered.rows
+
+  if(rows.length < recoveryThreshold) return isRecovered
+
+  const checkConsecutiveUpStatus = rows.every((checks) => checks.status === "UP");
+
+  if (checkConsecutiveUpStatus) {
+    isRecovered = true
+  }
+
+  return isRecovered
+}
+
+
+const updateMonitorStatus = async (
   status: "UP" | "DOWN",
+  user_id: string,
+  url_id: string,
+) => {
+  const update_monitor_query =
+    "UPDATE monitor SET status = $1 where id = $2 and user_id = $3";
+  const update_monitor_values = [status, url_id, user_id];
+
+  await db.query(update_monitor_query, update_monitor_values);
+};
+
+
+export const runStateMachine = async (
+  user_id: string,
+  url_id: string,
+  status: "UP" | "DOWN"
 ) => {
   const activeIncident = await getActiveIncident(url_id);
   const currentState = activeIncident ? "INCIDENT_ACTIVE" : "NO_INCIDENT";
   const event = status === "DOWN" ? "URL_DOWN" : "URL_UP";
 
+  const {failureThresholdCount,recoveryThresholdCount} = await getThresholdValues(user_id,url_id)
+
   const transitions = {
     "NO_INCIDENT:URL_DOWN": async () => {
-      const isUrlDown = await hasConsecutiveFailures(url_id);
+      const isUrlDown = await hasConsecutiveFailures(url_id,failureThresholdCount);
       if (!isUrlDown) {
         return;
       }
+
+      await updateMonitorStatus(status, user_id, url_id);
       const incident_id = await insertIntoIncidentsTable(url_id);
       await addToDownAlertEmailQueue(url_id, incident_id);
     },
@@ -147,6 +213,11 @@ export const runStateMachine = async (
       }
     },
     "INCIDENT_ACTIVE:URL_UP": async () => {
+      const isUrlUp = await checkConsecutiveSuccess(url_id,user_id,recoveryThresholdCount)
+      if (!isUrlUp) {
+        return
+      }
+      await updateMonitorStatus(status, user_id, url_id);
       await updateResolvedAt(activeIncident.id);
       await addToRecoveryEmailQueue(url_id, activeIncident.id);
     },

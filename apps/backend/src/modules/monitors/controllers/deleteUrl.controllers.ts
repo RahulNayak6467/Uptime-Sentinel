@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { deleteUrlById } from "../services/deleteUrl.services";
 import { AppError } from "../../../shared/errors/AppError";
+import { uuidSchema } from "../../../shared/validators/uuidValidation";
 
 export const removeUrlById = async (
   req: Request,
@@ -16,6 +17,7 @@ export const removeUrlById = async (
     throw new AppError(400, "Enter valid id", "INVALID_MONITOR_ID");
   }
   try {
+    uuidSchema.parse(monitorId);
     await deleteUrlById(monitorId, userId);
     return res.status(200).json({
       data: { message: "url successfully deleted" },

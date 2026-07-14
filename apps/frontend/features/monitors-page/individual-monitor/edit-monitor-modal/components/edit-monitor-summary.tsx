@@ -9,6 +9,7 @@ import {
 import type { ComponentType } from "react";
 import type { IndividualOverviewStatsProps } from "../../types";
 import type { EditMonitorDraftState } from "../types";
+import { formatCheckInterval } from "@/utils/format-check-interval";
 
 const SummaryRow = ({
   icon: Icon,
@@ -55,12 +56,12 @@ export const EditMonitorSummary = ({
           <SummaryRow
             icon={Clock}
             label="Interval"
-            value={`${monitor.intervalSeconds}s`}
+            value={formatCheckInterval(monitor.intervalSeconds)}
           />
           <SummaryRow
             icon={BadgeCheck}
             label="HTTP"
-            value={`${draft.selectedMethod} / 200, 204`}
+            value={`${draft.selectedMethod} / ${monitor.statusCodes.join(", ")}`}
           />
           <SummaryRow
             icon={KeyRound}

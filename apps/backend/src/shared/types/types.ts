@@ -44,7 +44,7 @@ export interface lastChecksDataProps {
 
 export interface monitorDataProps {
   url: string;
-  url_name: string;
+  monitor_name: string;
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: Date;
@@ -53,10 +53,12 @@ export interface monitorDataProps {
 export interface allMonitorsDataProps {
   id: string;
   url: string;
-  url_name: string;
+  monitor_name: string;
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: string;
+  monitor_type: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+  status_code: number | null;
   response: {
     responseTime: number;
   }[];
@@ -67,7 +69,7 @@ export interface allMonitorsDataProps {
 export interface emailAlertProps {
   notificationId: string;
   type: "down" | "recovery" | "reminder";
-  url_name: string;
+  monitor_name: string;
   status: "sent" | "failed";
   created_at: Date;
 }

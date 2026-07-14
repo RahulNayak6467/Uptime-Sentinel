@@ -12,7 +12,11 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
         throw new AppError(400,"Time range not supported","TIME_RANGE_INVALID")
     }
 
-    const check_usermonitor_query = "SELECT url FROM monitor WHERE user_id=$1 and id=$2";
+    const check_usermonitor_query = `
+      SELECT url
+      FROM monitor
+      WHERE user_id=$1 and id=$2
+    `;
     const check_usermonitor_values = [user_id,monitor_id];
 
     const check_user_monitor = await db.query(check_usermonitor_query, check_usermonitor_values);

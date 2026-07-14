@@ -8,8 +8,12 @@ export const fetchUrlData = async (
   user_id: string,
 ): Promise<UrlResponseData[]> => {
   try {
-    const query =
-      "select m.url_name,m.url,m.interval_seconds,c.* from url_checks c inner join monitor m on m.id = c.monitor_id where m.user_id = $1";
+    const query = `
+      select m.monitor_name,m.url,m.interval_seconds,c.*
+      from url_checks c
+      inner join monitor m on m.id = c.monitor_id
+      where m.user_id = $1
+    `;
     const values = [user_id];
     const getAllData = await db.query(query, values);
     const rows: UrlResponseData[] = getAllData.rows;
@@ -30,8 +34,12 @@ export const fetchUrlDataByName = async (
   url: string,
   user_id: string,
 ): Promise<UrlResponseData[]> => {
-  const query =
-    "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id WHERE url = $1 and user_id = $2";
+  const query = `
+    SELECT c.*
+    from url_checks c
+    inner join monitor m on c.monitor_id = m.id
+    WHERE url = $1 and user_id = $2
+  `;
   const values = [url, user_id];
 
   try {
@@ -60,8 +68,12 @@ export const fetchUrlDataById = async (
   user_id: string,
 ): Promise<UrlResponseData[]> => {
   try {
-    const query =
-      "SELECT c.* from url_checks c inner join monitor m on c.monitor_id = m.id where m.id = $1 and m.user_id = $2";
+    const query = `
+      SELECT c.*
+      from url_checks c
+      inner join monitor m on c.monitor_id = m.id
+      where m.id = $1 and m.user_id = $2
+    `;
     const values = [id, user_id];
     const getUrlById = await db.query(query, values);
     const rows: UrlResponseData[] = getUrlById.rows;

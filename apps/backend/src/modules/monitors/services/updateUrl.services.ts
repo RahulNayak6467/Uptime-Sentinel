@@ -7,7 +7,7 @@ export const updateUrl = async (
   url_id: string,
   user_id: string,
   url?: string,
-  urlName?: string,
+  monitorName?: string,
   intervalSeconds?: number,
 ) => {
   const updates = [];
@@ -18,9 +18,9 @@ export const updateUrl = async (
     updates.push(`url = $${paramCount++}`);
     values.push(url);
   }
-  if (urlName) {
-    updates.push(`url_name = $${paramCount++}`);
-    values.push(urlName);
+  if (monitorName) {
+    updates.push(`monitor_name = $${paramCount++}`);
+    values.push(monitorName);
   }
   if (intervalSeconds) {
     updates.push(`interval_seconds = $${paramCount++}`);
@@ -36,7 +36,11 @@ export const updateUrl = async (
   // add id and user_id for WHERE clause
   values.push(url_id, user_id);
 
-  const update_url_query = `UPDATE monitor SET ${updates.join(", ")} WHERE id = $${paramCount++} AND user_id = $${paramCount}`;
+  const update_url_query = `
+    UPDATE monitor
+    SET ${updates.join(", ")}
+    WHERE id = $${paramCount++} AND user_id = $${paramCount}
+  `;
 
   try {
     const updateUrlAttributes = await db.query(update_url_query, values);

@@ -75,6 +75,8 @@ overrides the default ascending version order.
 
 ## Planned refactor (post-V6)
 
+**Status: Complete (2026-07-10).**
+
 After V6 is complete, the project enters a dedicated refactoring phase **before
 V7 feature work begins**. As the codebase has grown, the folder structure has
 drifted and needs to be reorganized for clarity and maintainability.

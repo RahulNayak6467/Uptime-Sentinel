@@ -19,7 +19,12 @@ export const addIncidentUpdatesServices = async (
   offset: number,
   pageNumber: number,
 ) => {
-  const get_time_query = `SELECT i.started_at, i.is_active FROM incidents i JOIN monitor m ON i.monitor_id = m.id where m.user_id = $1 and i.id = $2`;
+  const get_time_query = `
+    SELECT i.started_at, i.is_active
+    FROM incidents i
+    JOIN monitor m ON i.monitor_id = m.id
+    where m.user_id = $1 and i.id = $2
+  `;
   const get_time_value = [user_id, incident_id];
 
   const getTimeDetails = await db.query(get_time_query, get_time_value);
@@ -49,10 +54,11 @@ export const addIncidentUpdatesServices = async (
     throw new AppError(400, TIME_ERROR_MESSAGES[timeError], timeError);
   }
 
-  const insert_incidentUpdates_query = `INSERT INTO incident_updates (incident_id,type,message,occurred_at)
+  const insert_incidentUpdates_query = `
+    INSERT INTO incident_updates (incident_id,type,message,occurred_at)
     VALUES($1, $2, $3, COALESCE($4,NOW()))
     RETURNING *
-    `;
+  `;
 
   const insert_incidentUpdates_values = [
     incident_id,
@@ -64,8 +70,12 @@ export const addIncidentUpdatesServices = async (
   const insertIncidentUpdatesData: QueryResult<IncidentAddDataProps> =
     await db.query(insert_incidentUpdates_query, insert_incidentUpdates_values);
 
-  const update_incidents_query =
-    "UPDATE incidents SET title = COALESCE(title,$1) where id = $2 RETURNING title";
+  const update_incidents_query = `
+    UPDATE incidents
+    SET title = COALESCE(title,$1)
+    where id = $2
+    RETURNING title
+  `;
 
   const update_incidents_values = [title, incident_id];
 

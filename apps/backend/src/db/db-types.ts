@@ -20,12 +20,58 @@ export interface individualStatsProps {
 
 export interface individualStatsState {
   url: string;
-  url_name: string;
+  monitor_name: string;
   next_check_at: Date;
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   is_active: boolean;
+  status_code: number[];
+  request_timeout_ms: number;
+  failure_threshold: number;
+  recovery_threshold: number;
+  http_method: HttpMethod;
+  monitor_type: MonitorType;
 }
+
+export type MonitorType = "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+export type ContentType =
+  | "application/json"
+  | "application/x-www-form-urlencoded"
+  | "text/plain"
+  | "none";
+
+export interface MonitorConfigurationRow {
+  id: string;
+  user_id: string;
+  url: string;
+  monitor_name: string;
+  interval_seconds: number;
+  next_check_at: string;
+  request_timeout_ms: number;
+  status_code: number[];
+  monitor_type: MonitorType;
+  http_method: HttpMethod;
+  content_type: ContentType;
+  failure_threshold: number;
+  recovery_threshold: number;
+  consecutive_failure_count: number;
+  consecutive_success_count: number;
+  status: "UP" | "DOWN" | "UNKNOWN";
+  is_active: boolean;
+}
+
+export type MonitorCheckConfigRow = Pick<
+  MonitorConfigurationRow,
+  | "url"
+  | "next_check_at"
+  | "request_timeout_ms"
+  | "status_code"
+  | "monitor_type"
+  | "http_method"
+>;
 
 export interface IncidentStatsQueryResult {
   active_incidents: string;
@@ -44,7 +90,7 @@ export interface IncidentStatsCardInfo {
 export interface IncidentsDataProps {
   id: string;
   is_active: boolean;
-  url_name: string;
+  monitor_name: string;
   started_at: string;
   resolved_at: string | null;
   url: string;

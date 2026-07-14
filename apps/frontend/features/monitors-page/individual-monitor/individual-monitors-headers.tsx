@@ -94,7 +94,7 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
         <div className="flex items-center gap-2.5 min-w-0">
           <span className={`size-2 shrink-0 rounded-full ${statusMeta.dot}`} />
           <h1 className="truncate text-xl font-semibold tracking-sf-tight text-sf-text">
-            {monitorOverviewData.urlName}
+            {monitorOverviewData.monitorName}
           </h1>
           <span className={`shrink-0 rounded-sf border px-2.5 py-0.5 text-xs font-semibold ${statusMeta.badge}`}>
             {statusMeta.label}

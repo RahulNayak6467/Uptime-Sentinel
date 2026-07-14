@@ -3,6 +3,7 @@ import { getAllMonitorInfo } from "../services/allMonitorData.services";
 import { getPaginationData } from "../../../shared/utils/generatePagePagination";
 import { LIMIT_RECENT_ALERTS } from "../../../constants/constants";
 import { AppError } from "../../../shared/errors/AppError";
+import { monitorListQuerySchema } from "../validations/monitorRequestValidation";
 
 export const getAllMonitorData: RequestHandler = async (
   req: Request,
@@ -10,15 +11,16 @@ export const getAllMonitorData: RequestHandler = async (
   next: NextFunction,
 ) => {
   const userId = req.user?.user_id;
-  const monitor_status = req.query.monitorstatus as string;
-  const filter_status = monitor_status ? monitor_status : "all";
-  const page = Number(req.query.page as string) || 1;
-  const limitRange = Number(req.query.limit as string) || 2;
-
   try {
     if (!userId) {
       throw new AppError(401, "Unauthenticated", "UNAUTHENTICATED");
     }
+
+    const {
+      monitorstatus: filter_status,
+      page,
+      limit: limitRange,
+    } = monitorListQuerySchema.parse(req.query);
 
     const { pageNumber, limit, offset } = getPaginationData(page, limitRange);
 

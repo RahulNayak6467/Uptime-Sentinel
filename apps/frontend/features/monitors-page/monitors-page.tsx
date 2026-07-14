@@ -16,6 +16,7 @@ import { LIMIT } from "@/constants/constant";
 import { useSSEMonitorsData } from "./hooks/useSSEMonitorsData";
 import { useIsFetching } from "@tanstack/react-query";
 import { FetchingIndicator } from "@/components/ui/fetching-indicator";
+import { formatCheckInterval } from "@/utils/format-check-interval";
 
 type Tab = "all" | MonitorState;
 
@@ -78,17 +79,17 @@ const MonitorsPage = () => {
   const requiredData: MonitorPageData[] = monitorTableData.data.map((el) => {
     return {
       id: el.id,
-      name: el.urlName,
+      name: el.monitorName,
       url: el.url,
       uptime: el.uptimePercentage,
       responseTime:
         el.avgResponseTime !== null ? Number(el.avgResponseTime) : null,
-      type: "http",
-      interval: `${el.intervalSeconds}s`,
+      type: el.monitorType,
+      interval: formatCheckInterval(el.intervalSeconds),
       nextCheck: formatTimeUntil(el.nextCheckAt),
       state: normalizeMonitorState(el.status),
       trend: el.response
-        .slice(0, 26)
+        .slice(-26)
         .map((res) => res.responseTime)
         .filter((rt): rt is number => rt !== null),
     };

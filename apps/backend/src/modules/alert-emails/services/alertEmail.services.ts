@@ -10,22 +10,22 @@ export const getEmailAlertsServices = async (
   limit: number,
   offset: number,
 ) => {
-  const get_emailAlert_query = ` SELECT
+  const get_emailAlert_query = `
+    SELECT
       n.type,
       n.status,
       n.created_at,
-      m.url_name,
+      m.monitor_name,
       n.id AS notificationId
-  FROM notification_logs AS n
-  INNER JOIN incidents AS i
-      ON n.incident_id = i.id
-  INNER JOIN monitor AS m
-      ON m.id = i.monitor_id
-  WHERE m.user_id = $1
-    AND n.created_at >= NOW() - INTERVAL '7 days'
-  ORDER BY n.created_at DESC
-  OFFSET $2
-  LIMIT $3`;
+    FROM notification_logs AS n
+    INNER JOIN incidents AS i ON n.incident_id = i.id
+    INNER JOIN monitor AS m ON m.id = i.monitor_id
+    WHERE m.user_id = $1
+      AND n.created_at >= NOW() - INTERVAL '7 days'
+    ORDER BY n.created_at DESC
+    OFFSET $2
+    LIMIT $3
+  `;
 
   const get_emailAlert_values = [user_id, offset, limit];
 
@@ -34,13 +34,14 @@ export const getEmailAlertsServices = async (
     get_emailAlert_values,
   );
 
-  const get_totalCount_query = `SELECT COUNT(*) AS total_count  FROM notification_logs AS n
-    INNER JOIN incidents AS i
-        ON n.incident_id = i.id
-    INNER JOIN monitor AS m
-        ON m.id = i.monitor_id
+  const get_totalCount_query = `
+    SELECT COUNT(*) AS total_count
+    FROM notification_logs AS n
+    INNER JOIN incidents AS i ON n.incident_id = i.id
+    INNER JOIN monitor AS m ON m.id = i.monitor_id
     WHERE m.user_id = $1
-    AND n.created_at >= NOW() - INTERVAL '7 days'`;
+      AND n.created_at >= NOW() - INTERVAL '7 days'
+  `;
 
   const get_totalCount_value = [user_id];
 
@@ -58,7 +59,7 @@ export const getEmailAlertsServices = async (
   const emailAlertsResponse = rows.map((email) => {
     return {
       id: email.notificationId,
-      urlName: email.url_name,
+      monitorName: email.monitor_name,
       type: email.type,
       status: email.status,
       sentAt: email.created_at,

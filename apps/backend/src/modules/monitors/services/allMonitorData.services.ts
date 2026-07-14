@@ -11,12 +11,14 @@ export const getAllMonitorInfo = async (
 ) => {
   const all_monitors_query = `
         SELECT
-            m.url_name,
+            m.monitor_name,
             m.url,
             m.interval_seconds,
             m.next_check_at,
             m.status,
             m.id,
+            m.status_code,
+            m.monitor_type,
             ROUND(AVG(u.response_time), 0) AS avg_response_time,
             ROUND(COUNT(u.id) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(u.id),0),2)
                 AS uptime_percentage,
@@ -36,12 +38,14 @@ export const getAllMonitorInfo = async (
         AND ($2::text IS NULL OR m.status = $2::text)
         AND ($3::boolean IS NULL OR m.is_active = $3::boolean)
         GROUP BY
-            m.url_name,
+            m.monitor_name,
             m.id,
             m.url,
             m.interval_seconds,
             m.next_check_at,
-            m.status
+            m.status,
+            m.status_code,
+            m.monitor_type
         ORDER BY m.created_at
         OFFSET $4
         LIMIT $5
@@ -74,13 +78,15 @@ export const getAllMonitorInfo = async (
     return {
       id: data.id,
       url: data.url,
-      urlName: data.url_name,
+      monitorName: data.monitor_name,
       intervalSeconds: data.interval_seconds,
       nextCheckAt: data.next_check_at,
       status: data.status,
+      monitorType: data.monitor_type,
       avgResponseTime: data.avg_response_time,
       response: data.response,
       uptimePercentage: data.uptime_percentage,
+      // statusCode: data.status_code,
     };
   });
 

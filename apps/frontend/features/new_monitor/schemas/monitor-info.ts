@@ -1,12 +1,20 @@
 import { z } from "zod";
 
-export const monitorInfoSchema = z.object({
-  monitorName: z
+export const monitorInfoSchema = z
+  .object({
+    monitorType: z.
+      enum(["http", "https", "tcp", "ssl", "dns", "keyword"], {
+      }),
+
+    monitorName: z
     .string()
+    .trim()
     .min(2, { message: "Minimum 2 characters are required" })
     .max(50, { message: "Maximum 50 characters are required" }),
 
-  url: z.url({ message: "Invalid url" }).refine(
+  url: z
+    .url({ message: "Invalid url" })
+    .refine(
     (url) => {
       try {
         const parsedUrl = new URL(url);
@@ -23,13 +31,58 @@ export const monitorInfoSchema = z.object({
     },
   ),
 
-  timeout: z
+  statusCodes: z
+    .array(
+      z
+        .number({ error: "Status code must be a number" })
+        .int({ error: "Status code must be an integer" })
+        .min(100, { error: "Status code cannot be below 100" })
+        .max(599, { error: "Status code cannot exceed 599" }),
+    )
+    .min(1, { error: "Add at least one expected status code" })
+    .refine((codes) => new Set(codes).size === codes.length, {
+      error: "Duplicate status codes are not allowed",
+    }),
+
+  httpMethod: z
+    .enum(["GET", "POST", "PUT", "PATCH", "DELETE"], {
+      error: "Invalid http method"
+    }),
+
+  requestTimeoutMS: z
     .number()
-    .min(60, { message: "Minimum timeout should be 60 seconds" }),
+    .min(1000, { message: "Minimum request timeout should be 1000ms" })
+    .max(60000, { message: "Maximum timeout cannot exceed 60000ms" }),
 
-  statusCode: z.number().nullable(),
+  requestBodyType: z
+      .enum(["none", "json", "form-encoded", "raw-text"], {
+        error: "messaging type currently not supported"
+      }),
 
-  responseTimeAlert: z.number(),
+    contentType: z
+      .enum(["application/json", "application/x-www-form-urlencoded", "text/plain","none"], {
+        error: "Invalid content type"
+      }),
+
+  requestBody: z
+    .string()
+    .nullable(),
+
+    failureThreshold: z
+    .number()
+    .min(1, { message: "Failure threshold cannot be below 1" })
+    .max(10, { message: "Failure threshold cannot be above 10" }),
+
+  recoveryThreshold: z
+    .number()
+    .min(1, { message: "Recovery threshold cannot be below 1" })
+    .max(10, { message: "Recovery threshold cannot be above 10" }),
+
+  intervalSeconds: z
+    .enum(["30s", "1m", "2m", "5m", "10m", "30m", "1h"], {
+    error: "Choose among these check interval values"
+    })
+
 });
 
 export type monitorInfoProps = z.infer<typeof monitorInfoSchema>;

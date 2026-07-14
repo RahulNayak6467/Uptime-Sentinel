@@ -11,8 +11,11 @@ interface verifiedProps {
 
 export const resendOtpRequest = async (email: string) => {
   try {
-    const user_exist_query =
-      "SELECT email_verified FROM user_details where email = $1 ";
+    const user_exist_query = `
+      SELECT email_verified
+      FROM user_details
+      where email = $1
+    `;
     const user_exist_values = [email];
 
     const doesUserExist = await db.query(user_exist_query, user_exist_values);

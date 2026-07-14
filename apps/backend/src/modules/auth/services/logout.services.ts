@@ -1,5 +1,5 @@
 import { AppError } from "../../../shared/errors/AppError";
-import { db } from "../../../db";
+import { db } from "../../../db/index";
 import redis from "../../../redis";
 import logger from "../../../config/logger";
 

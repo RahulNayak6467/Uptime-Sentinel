@@ -351,7 +351,7 @@ const IncidentList = () => {
         id: `incidents-details-id-${el.id}`,
         incidentId: el.id,
         status: el.isActive ? "active" : "resolved",
-        service: el.urlName,
+        service: el.monitorName,
         date: started.date,
         startedAtRaw: String(el.startedAt),
         time: started.time,

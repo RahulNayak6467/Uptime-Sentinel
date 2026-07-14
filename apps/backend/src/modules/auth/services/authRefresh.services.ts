@@ -23,7 +23,11 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
       user_id: string;
     };
 
-    const query = "SELECT token FROM refresh_tokens where user_id = $1";
+    const query = `
+      SELECT token
+      FROM refresh_tokens
+      where user_id = $1
+    `;
     const values = [user_id];
     const result = await client.query(query, values);
 
@@ -58,7 +62,11 @@ export const checkValidRefreshToken = async (refreshToken: string) => {
 
     const hashedNewRefreshFreshToken = await bcrypt.hash(generateNewRefreshToken,SALT)
 
-    const generate_newRefreshToken_query = "UPDATE refresh_tokens SET token = $1,created_at = NOW(),expires_at =  NOW() + INTERVAL '7 days' where user_id = $2"
+    const generate_newRefreshToken_query = `
+      UPDATE refresh_tokens
+      SET token = $1,created_at = NOW(),expires_at =  NOW() + INTERVAL '7 days'
+      where user_id = $2
+    `
     const generate_newRefreshToken_values = [hashedNewRefreshFreshToken, user_id]
 
     const updateRefreshToken = await client.query(generate_newRefreshToken_query, generate_newRefreshToken_values)

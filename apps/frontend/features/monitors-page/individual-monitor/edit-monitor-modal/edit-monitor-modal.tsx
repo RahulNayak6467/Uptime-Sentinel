@@ -49,7 +49,6 @@ const initialDraftState: EditMonitorDraftState = {
   selectedMethod: "GET",
   requestBodyType: "none",
   contentType: "",
-  followRedirects: true,
   keywordMode: "Must contain",
   sslEnabled: true,
   dnsEnabled: false,
@@ -64,7 +63,10 @@ export const EditMonitorModal = ({
   monitor: IndividualOverviewStatsProps;
   onClose: () => void;
 }) => {
-  const [draft, setDraft] = useState<EditMonitorDraftState>(initialDraftState);
+  const [draft, setDraft] = useState<EditMonitorDraftState>(() => ({
+    ...initialDraftState,
+    selectedMethod: monitor.httpMethod,
+  }));
   const statusMeta = getMonitorStatusMeta(monitor);
 
   const updateDraft = (patch: Partial<EditMonitorDraftState>) => {
@@ -94,7 +96,7 @@ export const EditMonitorModal = ({
                 {statusMeta.label}
               </span>
               <span className="rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 text-xs font-semibold text-sf-text-muted">
-                HTTP/HTTPS
+                {monitor.monitorType.toUpperCase()}
               </span>
             </div>
             <p className="mt-1 truncate font-mono text-xs text-sf-text-muted">
@@ -125,6 +127,7 @@ export const EditMonitorModal = ({
               )}
               {draft.activeTab === "http" && (
                 <HttpRulesSection
+                  monitor={monitor}
                   state={draft}
                   setSelectedMethod={(selectedMethod) =>
                     updateDraft({
@@ -137,13 +140,12 @@ export const EditMonitorModal = ({
                     updateDraft({ requestBodyType })
                   }
                   setContentType={(contentType) => updateDraft({ contentType })}
-                  setFollowRedirects={(followRedirects) =>
-                    updateDraft({ followRedirects })
-                  }
                   setKeywordMode={(keywordMode) => updateDraft({ keywordMode })}
                 />
               )}
-              {draft.activeTab === "thresholds" && <ThresholdsSection />}
+              {draft.activeTab === "thresholds" && (
+                <ThresholdsSection monitor={monitor} />
+              )}
               {draft.activeTab === "ssl" && (
                 <SslSection
                   monitor={monitor}

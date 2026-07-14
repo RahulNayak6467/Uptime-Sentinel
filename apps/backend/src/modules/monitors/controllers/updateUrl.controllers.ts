@@ -9,15 +9,15 @@ export const updateUrlById = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = req.user?.user_id;
-    if (!userId) {
-      throw new AppError(401, "Unauthenticated", "UNAUTHENTICATED");
+    const user_id = req.user?.user_id;
+    if (!user_id) {
+      throw new AppError(401, "Unauthenticated", "UNAUTHORIZED");
     }
     const monitorId = req.params.monitorId as string;
     const validatedData = urlSchema.partial().parse(req.body);
     if (
       !validatedData.url &&
-      !validatedData.urlName &&
+      !validatedData.monitorName &&
       validatedData.intervalSeconds === undefined
     ) {
       throw new AppError(
@@ -28,14 +28,12 @@ export const updateUrlById = async (
     }
     await updateUrl(
       monitorId,
-      userId,
+      user_id,
       validatedData.url,
-      validatedData.urlName,
+      validatedData.monitorName,
       validatedData.intervalSeconds,
     );
-    return res.status(200).json({
-      data: { message: "successfully updated url" },
-    });
+    return res.status(200).json({ message: "successfully updated url" });
   } catch (err) {
     return next(err);
   }

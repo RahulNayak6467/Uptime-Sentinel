@@ -32,8 +32,11 @@ const stateBadge: Record<MonitorState, string> = {
 
 const typeBadge: Record<MonitorType, string> = {
   http: "HTTP",
+  https: "HTTPS",
   tcp: "TCP",
+  ssl: "SSL",
   dns: "DNS",
+  keyword: "Keyword",
 };
 
 export const columns: ColumnDef<MonitorPageData>[] = [

@@ -4,7 +4,10 @@ import logger from "../../../config/logger";
 import { isPostgresError } from "../../../shared/errors/PostgresError";
 
 export const deleteUrlById = async (url_id: string, user_id: string) => {
-  const remove_url_query = "DELETE FROM monitor WHERE id = $1 and user_id = $2";
+  const remove_url_query = `
+    DELETE FROM monitor
+    WHERE id = $1 and user_id = $2
+  `;
   const remove_url_value = [url_id, user_id];
   try {
     const deletedRows = await db.query(remove_url_query, remove_url_value);

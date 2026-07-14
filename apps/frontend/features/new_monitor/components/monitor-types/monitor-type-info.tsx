@@ -3,13 +3,16 @@
 import { monitorTypesData } from "../../data";
 import MonitorType from "./monitor-type";
 import SectionHeader from "../section-header";
+import ErrorMessage from "@/features/auth/error";
 
 const MonitorTypeInfo = ({
   selected,
   onSelect,
+  error,
 }: {
   selected: string;
   onSelect: (type: string) => void;
+  error: string | undefined;
 }) => {
   return (
     <div className="w-full">
@@ -27,6 +30,9 @@ const MonitorTypeInfo = ({
               comingSoon={monitor.comingSoon}
             />
           ))}
+        </div>
+        <div className="px-5 pb-5">
+          <ErrorMessage error={error} />
         </div>
       </div>
     </div>

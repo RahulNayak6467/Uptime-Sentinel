@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { urlSchema } from "../validations/urlValidation";
+import { registerUrlSchema } from "../validations/urlValidation";
 import { checkUrlRegistration } from "../services/registerUrl.services";
 import { AppError } from "../../../shared/errors/AppError";
 
@@ -9,18 +9,28 @@ export const registerUrl = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = req.user?.user_id;
-    if (!userId) {
-      throw new AppError(401, "Unauthenticated", "UNAUTHENTICATED");
+    const user_id = req.user?.user_id;
+    if (!user_id) {
+      throw new AppError(401, "Unauthenticated", "UNAUTHORIZED");
     }
-    const validatedData = urlSchema.parse(req.body);
+
+    const validatedData = registerUrlSchema.parse(req.body);
     const isUrlRegistered = await checkUrlRegistration(
       validatedData.url,
-      validatedData.urlName,
+      validatedData.monitorName,
       validatedData.intervalSeconds,
-      userId,
+      validatedData.contentType,
+      validatedData.failureThreshold,
+      validatedData.httpMethod,
+      validatedData.requestBody,
+      validatedData.requestBodyType,
+      validatedData.requestTimeoutMS,
+      validatedData.statusCodes,
+      validatedData.monitorType,
+      validatedData.recoveryThreshold,
+      user_id,
     );
-    return res.status(201).json({ data: { message: isUrlRegistered } });
+    return res.status(201).json({ message: isUrlRegistered });
   } catch (err) {
     return next(err);
   }

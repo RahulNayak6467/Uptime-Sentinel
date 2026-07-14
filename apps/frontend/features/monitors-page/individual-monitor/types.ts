@@ -50,11 +50,17 @@ export type TimeRangeProps = "1h" | "24h" | "7d" | "30d";
 
 export type IndividualOverviewStatsProps = {
   url: string;
-  urlName: string;
+  monitorName: string;
   status: "UP" | "DOWN" | "UNKNOWN";
   nextCheckAt: Date;
   intervalSeconds: number;
   isActive: boolean;
+  statusCodes: number[];
+  requestTimeoutMS: number;
+  failureThreshold: number;
+  recoveryThreshold: number;
+  httpMethod: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  monitorType: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
 };
 
 export type LastFiveIncidentDataProps = {

@@ -1,8 +1,6 @@
 import express, { Router } from "express";
 import {
   monitorUrlById,
-  pauseUrlById,
-  resumeUrlById,
   updateMonitorStatusById,
 } from "../controllers/monitorUrl.controllers";
 import { authMiddleware } from "../../../shared/middleware/auth.middleware";

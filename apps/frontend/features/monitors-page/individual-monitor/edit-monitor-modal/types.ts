@@ -16,10 +16,9 @@ export type EditMonitorTab = {
 
 export type EditMonitorDraftState = {
   activeTab: EditMonitorTabKey;
-  selectedMethod: string;
+  selectedMethod: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   requestBodyType: string;
   contentType: string;
-  followRedirects: boolean;
   keywordMode: string;
   sslEnabled: boolean;
   dnsEnabled: boolean;

@@ -39,7 +39,7 @@ const IncidentAlert = () => {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-[14px] font-semibold tracking-sf-tight text-sf-text">
-                {incident.urlName} is unavailable
+                {incident.monitorName} is unavailable
               </h2>
               <span className="rounded-sf border border-sf-red-border bg-sf-red-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sf-red">
                 HTTP {incident.httpStatus}
