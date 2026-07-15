@@ -84,6 +84,7 @@ const MonitorsPage = () => {
       uptime: el.uptimePercentage,
       responseTime:
         el.avgResponseTime !== null ? Number(el.avgResponseTime) : null,
+      statusCode: el.statusCode,
       type: el.monitorType,
       interval: formatCheckInterval(el.intervalSeconds),
       nextCheck: formatTimeUntil(el.nextCheckAt),

@@ -18,7 +18,8 @@ export const updateUrlById = async (
     if (
       !validatedData.url &&
       !validatedData.monitorName &&
-      validatedData.intervalSeconds === undefined
+      validatedData.intervalSeconds === undefined &&
+      validatedData.responseTimeThresholdMS === undefined
     ) {
       throw new AppError(
         400,
@@ -32,6 +33,7 @@ export const updateUrlById = async (
       validatedData.url,
       validatedData.monitorName,
       validatedData.intervalSeconds,
+      validatedData.responseTimeThresholdMS,
     );
     return res.status(200).json({ message: "successfully updated url" });
   } catch (err) {

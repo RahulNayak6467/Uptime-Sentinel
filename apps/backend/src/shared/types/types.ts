@@ -58,7 +58,7 @@ export interface allMonitorsDataProps {
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: string;
   monitor_type: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
-  status_code: number | null;
+  last_status_code: number | null;
   response: {
     responseTime: number;
   }[];

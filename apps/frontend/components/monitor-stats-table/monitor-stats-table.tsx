@@ -49,7 +49,7 @@ const MonitorStatsTable = () => {
       uptime: el.uptimePercentage,
       responseTime:
         el.avgResponseTime !== null ? Number(el.avgResponseTime) : null,
-      statusCode: 200, // hardcoded until backend returns per-monitor last status code
+      statusCode: el.statusCode,
       interval_seconds: el.intervalSeconds,
       next_check_at: formatTimeUntil(el.nextCheckAt),
       status: el.status,

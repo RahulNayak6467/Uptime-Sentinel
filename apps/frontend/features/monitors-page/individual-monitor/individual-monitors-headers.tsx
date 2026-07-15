@@ -124,7 +124,8 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
       </div>
     </header>
     {isEditModalOpen && (
-      <EditMonitorModal
+        <EditMonitorModal
+          id={id}
         monitor={monitorOverviewData}
         onClose={() => setIsEditModalOpen(false)}
       />

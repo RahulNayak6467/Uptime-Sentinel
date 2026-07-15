@@ -189,6 +189,19 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     },
   },
   {
+    accessorKey: "statusCode",
+    header: () => <span className="block text-center">STATUS CODE</span>,
+    cell: ({ row }) => {
+      const statusCode = row.getValue<number | null>("statusCode");
+
+      return (
+        <span className="block text-center font-mono text-[12px] tabular-nums text-sf-text-sub">
+          {statusCode ?? "No HTTP response"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "interval",
     header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (

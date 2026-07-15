@@ -128,7 +128,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
       if (code === null)
         return (
           <span className="block text-center text-[12px] text-sf-text-muted">
-            —
+            No HTTP response
           </span>
         );
       const isOk = row.original.status === "UP";

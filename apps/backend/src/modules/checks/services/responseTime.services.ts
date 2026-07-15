@@ -13,7 +13,7 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
     }
 
     const check_usermonitor_query = `
-      SELECT url
+      SELECT url, response_time_threshold_ms
       FROM monitor
       WHERE user_id=$1 and id=$2
     `;
@@ -60,6 +60,7 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
 
     const data = {
         range: timeRange,
+        responseTimeThresholdMS: rows[0].response_time_threshold_ms,
         series: formatedData,
     }
 

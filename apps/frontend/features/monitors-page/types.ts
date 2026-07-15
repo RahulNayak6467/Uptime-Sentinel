@@ -8,6 +8,7 @@ export type MonitorPageData = {
   type: MonitorType;
   uptime: number | null;
   responseTime: number | null;
+  statusCode: number | null;
   interval: string;
   nextCheck: string;
   state: MonitorState;

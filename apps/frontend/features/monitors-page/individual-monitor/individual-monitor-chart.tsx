@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { ResponseTimeTrend } from "./monitor-info-stats";
+import { useParams } from "next/navigation";
+import { useTimeRange } from "./hooks/useTimeRange";
 
 const RANGES = ["1h", "24h", "7d", "30d"] as const;
 const REGIONS = ["Global", "US", "EU", "Asia"] as const;
 
 const IndividualMonitorCharts = () => {
   const [range, setRange] = useState<(typeof RANGES)[number]>("1h");
+  const params = useParams<{ id: string }>();
+  const { data } = useTimeRange(params.id, range);
 
   return (
     <section id="response-time" className="scroll-mt-16 overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
@@ -84,7 +88,9 @@ const IndividualMonitorCharts = () => {
             className="w-6 border-t border-dashed"
           />
           <p className="font-sans text-xs font-semibold text-sf-text-muted">
-            1000ms threshold
+            {data
+              ? `${data.responseTimeThresholdMS}ms threshold`
+              : "Loading threshold…"}
           </p>
         </div>
       </div>

@@ -17,7 +17,7 @@ export const getAllMonitorInfo = async (
             m.next_check_at,
             m.status,
             m.id,
-            m.status_code,
+            m.last_status_code,
             m.monitor_type,
             ROUND(AVG(u.response_time), 0) AS avg_response_time,
             ROUND(COUNT(u.id) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(u.id),0),2)
@@ -44,7 +44,7 @@ export const getAllMonitorInfo = async (
             m.interval_seconds,
             m.next_check_at,
             m.status,
-            m.status_code,
+            m.last_status_code,
             m.monitor_type
         ORDER BY m.created_at
         OFFSET $4
@@ -86,7 +86,7 @@ export const getAllMonitorInfo = async (
       avgResponseTime: data.avg_response_time,
       response: data.response,
       uptimePercentage: data.uptime_percentage,
-      // statusCode: data.status_code,
+      statusCode: data.last_status_code,
     };
   });
 

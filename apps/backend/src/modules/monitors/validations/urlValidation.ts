@@ -12,6 +12,20 @@ const urlField = z.url({
   },
 );
 
+const responseTimeThresholdField = z
+  .number({
+    error: "Response-time threshold must be a number",
+  })
+  .int({
+    error: "Response-time threshold must be an integer",
+  })
+  .min(1, {
+    error: "Minimum response-time threshold is 1ms",
+  })
+  .max(60000, {
+    error: "Maximum response-time threshold is 60000ms",
+  });
+
 export const urlSchema = z.object({
   url: urlField,
   monitorName: z
@@ -36,6 +50,7 @@ export const urlSchema = z.object({
     .min(30, {
       error: "Minimum interval time should be 30 seconds",
     }),
+  responseTimeThresholdMS: responseTimeThresholdField,
 });
 
 export const registerUrlSchema = z.object({
@@ -113,6 +128,7 @@ export const registerUrlSchema = z.object({
     .max(60000, {
       error: "Maximum request timeout is 60000ms",
     }),
+  responseTimeThresholdMS: responseTimeThresholdField,
   statusCodes: z
     .array(
       z
@@ -151,6 +167,12 @@ export const registerUrlSchema = z.object({
     .max(10, {
       error: "Recovery threshold cannot exceed 10",
     }),
-});
+}).refine(
+  (data) => data.responseTimeThresholdMS <= data.requestTimeoutMS,
+  {
+    path: ["responseTimeThresholdMS"],
+    error: "Response-time threshold cannot exceed the request timeout",
+  },
+);
 
 export type RegisterUrlInput = z.infer<typeof registerUrlSchema>;

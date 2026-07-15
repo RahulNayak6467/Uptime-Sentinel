@@ -5,6 +5,7 @@ import {getIndividualMonitorStats} from "../controllers/individualMonitor.contro
 import {getResponseTime} from "../../checks/controllers/responseTime.controllers";
 import {getLastLimitChecks} from "../../checks/controllers/lastNchecks.controllers";
 import {IndividualMonitorStatsData} from "../controllers/individualMonitorData.controllers";
+import { currentMonitorConfig } from '../controllers/currentMonitorConfig.controllers';
 
 const router: Router = express.Router();
 
@@ -16,5 +17,6 @@ router.get("/:monitorId/checks", authMiddleware,getLastLimitChecks);
 
 router.get("/:monitorId/info", authMiddleware,IndividualMonitorStatsData);
 
+router.get("/:monitorId/edit-options", authMiddleware, currentMonitorConfig);
 
 export default router;

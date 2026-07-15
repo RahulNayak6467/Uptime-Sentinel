@@ -51,6 +51,8 @@ export interface MonitorConfigurationRow {
   interval_seconds: number;
   next_check_at: string;
   request_timeout_ms: number;
+  response_time_threshold_ms: number;
+  last_status_code: number | null;
   status_code: number[];
   monitor_type: MonitorType;
   http_method: HttpMethod;

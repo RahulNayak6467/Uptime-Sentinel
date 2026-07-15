@@ -9,6 +9,7 @@ export const updateUrl = async (
   url?: string,
   monitorName?: string,
   intervalSeconds?: number,
+  responseTimeThresholdMS?: number,
 ) => {
   const updates = [];
   const values = [];
@@ -25,6 +26,10 @@ export const updateUrl = async (
   if (intervalSeconds) {
     updates.push(`interval_seconds = $${paramCount++}`);
     values.push(intervalSeconds);
+  }
+  if (responseTimeThresholdMS !== undefined) {
+    updates.push(`response_time_threshold_ms = $${paramCount++}`);
+    values.push(responseTimeThresholdMS);
   }
   if (intervalSeconds) {
     updates.push(

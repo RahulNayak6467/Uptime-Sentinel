@@ -65,6 +65,7 @@ const NewMonitorProperties = () => {
       intervalSeconds: "5m",
       monitorType: "https",
       requestTimeoutMS: 5000,
+      responseTimeThresholdMS: 1000,
       requestBodyType: "none",
       contentType: "none",
       requestBody: null,
@@ -105,6 +106,7 @@ const NewMonitorProperties = () => {
       requestBody: data.requestBody,
       requestBodyType: data.requestBodyType,
       requestTimeoutMS: data.requestTimeoutMS,
+      responseTimeThresholdMS: data.responseTimeThresholdMS,
       statusCodes: data.statusCodes,
       monitorType: submittedMonitorType,
       recoveryThreshold: data.recoveryThreshold,
@@ -178,6 +180,8 @@ const NewMonitorProperties = () => {
             errors={{
               failureThreshold: errors.failureThreshold?.message,
               recoveryThreshold: errors.recoveryThreshold?.message,
+              responseTimeThresholdMS:
+                errors.responseTimeThresholdMS?.message,
             }}
           />
           <Notifications />

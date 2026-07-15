@@ -255,16 +255,23 @@ const ReliabilityOverview = () => {
                       {monitor.monitorName}
                     </span>
                   </span>
-                  <span
-                    className={`shrink-0 text-xs font-semibold tabular-nums ${
-                      okRate === null || okRate === 100
-                        ? "text-sf-text-sub"
-                        : okRate >= 90
-                          ? "text-sf-amber"
-                          : "text-sf-red"
-                    }`}
-                  >
-                    {okRate === null ? "No checks" : `${okRate}% OK`}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="font-mono text-xs tabular-nums text-sf-text-muted">
+                      {monitor.statusCode === null
+                        ? "No HTTP response"
+                        : `HTTP ${monitor.statusCode}`}
+                    </span>
+                    <span
+                      className={`text-xs font-semibold tabular-nums ${
+                        okRate === null || okRate === 100
+                          ? "text-sf-text-sub"
+                          : okRate >= 90
+                            ? "text-sf-amber"
+                            : "text-sf-red"
+                      }`}
+                    >
+                      {okRate === null ? "No checks" : `${okRate}% OK`}
+                    </span>
                   </span>
                 </div>
                 <div className="mt-3 grid max-w-[620px] grid-cols-[repeat(26,minmax(3px,1fr))] gap-0.5 sm:grid-cols-[repeat(26,minmax(5px,1fr))] sm:gap-1">

@@ -28,6 +28,7 @@ export const registerUrl = async (
       validatedData.statusCodes,
       validatedData.monitorType,
       validatedData.recoveryThreshold,
+      validatedData.responseTimeThresholdMS,
       user_id,
     );
     return res.status(201).json({ message: isUrlRegistered });

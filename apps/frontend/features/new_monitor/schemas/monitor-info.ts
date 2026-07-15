@@ -54,6 +54,12 @@ export const monitorInfoSchema = z
     .min(1000, { message: "Minimum request timeout should be 1000ms" })
     .max(60000, { message: "Maximum timeout cannot exceed 60000ms" }),
 
+  responseTimeThresholdMS: z
+    .number({ error: "Response-time threshold must be a number" })
+    .int({ error: "Response-time threshold must be an integer" })
+    .min(1, { error: "Response-time threshold cannot be below 1ms" })
+    .max(60000, { error: "Response-time threshold cannot exceed 60000ms" }),
+
   requestBodyType: z
       .enum(["none", "json", "form-encoded", "raw-text"], {
         error: "messaging type currently not supported"
@@ -83,6 +89,12 @@ export const monitorInfoSchema = z
     error: "Choose among these check interval values"
     })
 
-});
+}).refine(
+  (data) => data.responseTimeThresholdMS <= data.requestTimeoutMS,
+  {
+    path: ["responseTimeThresholdMS"],
+    error: "Response-time threshold cannot exceed the request timeout",
+  },
+);
 
 export type monitorInfoProps = z.infer<typeof monitorInfoSchema>;

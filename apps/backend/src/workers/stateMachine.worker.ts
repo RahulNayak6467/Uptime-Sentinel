@@ -166,14 +166,15 @@ const checkConsecutiveSuccess  = async (url_id: string, user_id: string,recovery
 }
 
 
-const updateMonitorStatus = async (
+export const updateMonitorStatus = async (
   status: "UP" | "DOWN",
+  statusCode: number | null,
   user_id: string,
   url_id: string,
 ) => {
   const update_monitor_query =
-    "UPDATE monitor SET status = $1 where id = $2 and user_id = $3";
-  const update_monitor_values = [status, url_id, user_id];
+    "UPDATE monitor SET status = $1, last_status_code = $2 where id = $3 and user_id = $4";
+  const update_monitor_values = [status, statusCode, url_id, user_id];
 
   await db.query(update_monitor_query, update_monitor_values);
 };
@@ -193,19 +194,22 @@ export const runStateMachine = async (
   const transitions = {
     "NO_INCIDENT:URL_DOWN": async () => {
       const isUrlDown = await hasConsecutiveFailures(url_id,failureThresholdCount);
+      // await updateMonitorStatus(status, user_id, url_id);
       if (!isUrlDown) {
         return;
       }
 
-      await updateMonitorStatus(status, user_id, url_id);
       const incident_id = await insertIntoIncidentsTable(url_id);
       await addToDownAlertEmailQueue(url_id, incident_id);
     },
-    "NO_INCIDENT:URL_UP": async () => {},
+    "NO_INCIDENT:URL_UP": async () => {
+      // await updateMonitorStatus(status, user_id, url_id);
+    },
     "INCIDENT_ACTIVE:URL_DOWN": async () => {
       const reminderEmailTime = getMinutesDifference(
         activeIncident.last_alert_sent_at,
       );
+        // await updateMonitorStatus(status, user_id, url_id);
       if (reminderEmailTime > 2) {
         await addReminderEmailQueue(url_id, activeIncident.id);
       } else {
@@ -214,10 +218,10 @@ export const runStateMachine = async (
     },
     "INCIDENT_ACTIVE:URL_UP": async () => {
       const isUrlUp = await checkConsecutiveSuccess(url_id,user_id,recoveryThresholdCount)
+      // await updateMonitorStatus(status, user_id, url_id);
       if (!isUrlUp) {
         return
       }
-      await updateMonitorStatus(status, user_id, url_id);
       await updateResolvedAt(activeIncident.id);
       await addToRecoveryEmailQueue(url_id, activeIncident.id);
     },

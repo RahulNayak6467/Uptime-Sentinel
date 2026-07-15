@@ -16,6 +16,7 @@ export const checkUrlRegistration = async (
   statusCodes: RegisterUrlInput["statusCodes"],
   monitorType: RegisterUrlInput["monitorType"],
   recoveryThreshold: RegisterUrlInput["recoveryThreshold"],
+  responseTimeThresholdMS: RegisterUrlInput["responseTimeThresholdMS"],
   user_id: string,
 ) => {
   try {
@@ -50,9 +51,10 @@ export const checkUrlRegistration = async (
         status_code,
         monitor_type,
         recovery_threshold,
+        response_time_threshold_ms,
         user_id
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
     `;
     const values_monitor_url = [
       url,
@@ -67,6 +69,7 @@ export const checkUrlRegistration = async (
       statusCodes,
       monitorType,
       recoveryThreshold,
+      responseTimeThresholdMS,
       user_id,
     ];
     await db.query(insert_monitor_url, values_monitor_url);

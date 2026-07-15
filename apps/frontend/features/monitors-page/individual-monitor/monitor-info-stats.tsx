@@ -263,7 +263,7 @@ export const ResponseTimeTrend = ({
   const red = isDark ? "#f87171" : "#dc2626";
   const axisLine = isDark ? "#333333" : "#cbd5e1";
 
-  const threshold = 1000;
+  const threshold = data.responseTimeThresholdMS;
 
   // Latency is a magnitude, so keep the baseline at 0 and only grow the top.
   // Drop gap (null) buckets. `threshold` is always included so the threshold line

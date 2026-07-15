@@ -12,6 +12,7 @@ type urlRegisterProps = {
   requestBody: string | null;
   requestBodyType: monitorInfoProps["requestBodyType"];
   requestTimeoutMS: number;
+  responseTimeThresholdMS: number;
   statusCodes: monitorInfoProps["statusCodes"];
   monitorType: monitorInfoProps["monitorType"];
   recoveryThreshold: number;

@@ -27,6 +27,7 @@ export type IndividualStatsCardState = {
 
 export type TimeRangeDataProps = {
   range: string;
+  responseTimeThresholdMS: number;
   series: {
     p50: number | null;
     p95: number | null;
@@ -74,3 +75,15 @@ export type LastFiveIncidentDataProps = {
   activeCount: number;
   resolvedCount: number;
 };
+
+export type editConfigMonitorProps = {
+  url: string;
+  montiorName: string;
+  intervalSeconds: number;
+  requestTimeoutMs: number;
+  responseTimeThresholdMS: number;
+  httpMethod: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  statusCode: number[];
+  failureThreshold: number;
+  recoveryThreshold: number;
+}
