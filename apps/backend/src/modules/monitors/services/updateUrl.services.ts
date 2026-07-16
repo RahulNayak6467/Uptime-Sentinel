@@ -2,6 +2,7 @@ import { db } from "../../../db/index";
 import { AppError } from "../../../shared/errors/AppError";
 import logger from "../../../config/logger";
 import { isPostgresError } from "../../../shared/errors/PostgresError";
+import { httpMethodProps } from "../types";
 
 export const updateUrl = async (
   url_id: string,
@@ -10,6 +11,11 @@ export const updateUrl = async (
   monitorName?: string,
   intervalSeconds?: number,
   responseTimeThresholdMS?: number,
+  failureThreshold?: number,
+  recoveryThreshold?: number,
+  requestTimeoutMS?: number,
+  httpMethod?: httpMethodProps,
+  statusCodes?: number[],
 ) => {
   const updates = [];
   const values = [];
@@ -37,8 +43,27 @@ export const updateUrl = async (
     );
     values.push(intervalSeconds);
   }
+  if (failureThreshold) {
+    updates.push(`failure_threshold = $${paramCount++}`);
+    values.push(failureThreshold)
+  }
+  if (recoveryThreshold) {
+    updates.push(`recovery_threshold = $${paramCount++}`);
+    values.push(recoveryThreshold)
+  }
+  if (requestTimeoutMS) {
+    updates.push(`request_timeout_ms = $${paramCount++}`);
+    values.push(requestTimeoutMS)
+  }
+  if (httpMethod) {
+    updates.push(`http_method = $${paramCount++}`)
+    values.push(httpMethod)
+  }
+  if (statusCodes) {
+    updates.push(`status_code = $${paramCount++}`)
+    values.push(statusCodes)
+  }
 
-  // add id and user_id for WHERE clause
   values.push(url_id, user_id);
 
   const update_url_query = `

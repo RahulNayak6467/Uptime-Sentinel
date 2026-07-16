@@ -14,12 +14,17 @@ export const updateUrlById = async (
       throw new AppError(401, "Unauthenticated", "UNAUTHORIZED");
     }
     const monitorId = req.params.monitorId as string;
-    const validatedData = urlSchema.partial().parse(req.body);
+    const validatedData = urlSchema.parse(req.body);
     if (
       !validatedData.url &&
       !validatedData.monitorName &&
       validatedData.intervalSeconds === undefined &&
-      validatedData.responseTimeThresholdMS === undefined
+      validatedData.responseTimeThresholdMS === undefined &&
+      validatedData.failureThreshold === undefined &&
+      validatedData.httpMethod === undefined &&
+      validatedData.recoveryThreshold === undefined &&
+      validatedData.requestTimeoutMS === undefined &&
+      validatedData.statusCodes === undefined
     ) {
       throw new AppError(
         400,
@@ -34,6 +39,11 @@ export const updateUrlById = async (
       validatedData.monitorName,
       validatedData.intervalSeconds,
       validatedData.responseTimeThresholdMS,
+      validatedData.failureThreshold,
+      validatedData.recoveryThreshold,
+      validatedData.requestTimeoutMS,
+      validatedData.httpMethod,
+      validatedData.statusCodes
     );
     return res.status(200).json({ message: "successfully updated url" });
   } catch (err) {

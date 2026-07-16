@@ -19,6 +19,10 @@ import {
   type editSchemaProps,
 } from "../schema/editSchema";
 import ErrorMessage from "@/features/auth/error";
+import { useEditMonitorConfig } from "../hooks/useEditMonitorConfig";
+import { toast } from "sonner";
+import { ApiError } from "next/dist/server/api-utils";
+import { intervalToSeconds } from "@/features/new_monitor/utils/interval";
 
 const getMonitorStatusMeta = (monitor: IndividualOverviewStatsProps) => {
   if (!monitor.isActive) {
@@ -62,10 +66,12 @@ const SectionHeading = ({
 );
 
 const EditMonitorForm = ({
+  id,
   monitor,
   config,
   onClose,
 }: {
+    id: string;
   monitor: IndividualOverviewStatsProps;
   config: editConfigMonitorProps;
   onClose: () => void;
@@ -77,7 +83,7 @@ const EditMonitorForm = ({
       register,
       control,
       handleSubmit,
-      formState: { errors },
+      formState: { errors, dirtyFields },
     } = useForm<editSchemaInputProps, unknown, editSchemaProps>({
       resolver: zodResolver(editSchema),
     });
@@ -91,17 +97,45 @@ const EditMonitorForm = ({
 
   // const handleSubmit = () => {
   // }
-  const onSubmit = (data:editSchemaProps) => {
-    console.log(data)
+  //
+  const { mutate, isPending } = useEditMonitorConfig(id);
+  const onSubmit = (data: editSchemaProps) => {
+    const keys = Object.keys(dirtyFields);
+    const editMonitorData = keys.reduce((acc, el) => {
+      if (el === "intervalSeconds") {
+        acc[el] = intervalToSeconds(data[el]);
+      }
+      else {
+      acc[el] = data[el]
+      }
+      return acc
+    }, {})
+    console.log(editMonitorData);
+    mutate(editMonitorData, {
+      onSuccess: () => {
+        toast.success("Monitor successfully updated")
+        onClose()
+      },
+      onError: (err) => {
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error("Something went wrong. Please try again.");
+        }
+      },
+    }
+    )
+  console.log(data)
   }
 
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-3 py-4 backdrop-blur-sm">
+    <div className="animate-sf-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-3 py-4 backdrop-blur-sm motion-reduce:animate-none">
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-monitor-title"
-        className="flex max-h-[90dvh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-sf-border bg-sf-surface shadow-sf-card"
+        className="animate-sf-modal-enter flex max-h-[90dvh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-sf-border bg-sf-surface shadow-sf-card motion-reduce:animate-none"
       >
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-sf-border px-5 py-3.5 sm:px-6">
           <div className="min-w-0">
@@ -154,7 +188,7 @@ const EditMonitorForm = ({
                       minLength={2}
                       maxLength={50}
                       className={formInputClass}
-                      defaultValue={config.montiorName}
+                      defaultValue={config.monitorName}
                     />
                     <ErrorMessage error={errors.monitorName?.message} />
                   </>
@@ -215,7 +249,7 @@ const EditMonitorForm = ({
                         max={60000}
                         step={1000}
                         className={`${formInputClass} pr-12`}
-                        defaultValue={config.requestTimeoutMs}
+                        defaultValue={config.requestTimeoutMS}
                       />
                       <span className="pointer-events-none absolute right-3 top-2.5 text-xs text-sf-text-muted">
                         ms
@@ -467,5 +501,5 @@ export const EditMonitorModal = ({
     );
   }
 
-  return <EditMonitorForm monitor={monitor} config={data} onClose={onClose} />;
+  return <EditMonitorForm id={id} monitor={monitor} config={data} onClose={onClose} />;
 };

@@ -32,9 +32,9 @@ export const currentEditMonitorConfig = async (user_id: string, montiorId: strin
 
   const data = {
     url: requiredData.url,
-    montiorName: requiredData.monitor_name,
+    monitorName: requiredData.monitor_name,
     intervalSeconds: requiredData.interval_seconds,
-    requestTimeoutMs: requiredData.request_timeout_ms,
+    requestTimeoutMS: requiredData.request_timeout_ms,
     responseTimeThresholdMS: requiredData.response_time_threshold_ms,
     httpMethod: requiredData.http_method,
     statusCode: requiredData.status_code,

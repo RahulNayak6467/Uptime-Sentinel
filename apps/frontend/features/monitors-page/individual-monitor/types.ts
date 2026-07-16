@@ -77,13 +77,13 @@ export type LastFiveIncidentDataProps = {
 };
 
 export type editConfigMonitorProps = {
-  url: string;
-  montiorName: string;
-  intervalSeconds: number;
-  requestTimeoutMs: number;
-  responseTimeThresholdMS: number;
-  httpMethod: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  statusCode: number[];
-  failureThreshold: number;
-  recoveryThreshold: number;
+  url?: string;
+  monitorName?: string;
+  intervalSeconds?: number;
+  requestTimeoutMS?: number;
+  responseTimeThresholdMS?: number;
+  httpMethod?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  statusCode?: number[];
+  failureThreshold?: number;
+  recoveryThreshold?: number;
 }

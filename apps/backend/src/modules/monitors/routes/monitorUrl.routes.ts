@@ -4,23 +4,23 @@ import {
   updateMonitorStatusById,
 } from "../controllers/monitorUrl.controllers";
 import { authMiddleware } from "../../../shared/middleware/auth.middleware";
-import { removeUrlById } from "../controllers/deleteUrl.controllers";
-import { updateUrlById } from "../controllers/updateUrl.controllers";
-import { getLastFiveIncidentsData } from "../../incidents/controllers/lastFiveIncidentsData";
-import { getAllMonitorData } from "../controllers/allMonitorData.controllers";
+import { removeUrlById } from "../../monitors/controllers/deleteUrl.controllers";
+import { updateUrlById } from "../../monitors/controllers/updateUrl.controllers";
+import { sendIncidentsById } from "../../incidents/controllers/sendIncidents.controllers";
+import { getAllMonitorData } from "../../monitors/controllers/allMonitorData.controllers";
 
 const router: Router = express.Router();
 
-router.get("/", authMiddleware, getAllMonitorData);
-
-router.post("/:monitorId/checks", authMiddleware, monitorUrlById);
+router.post("/:id/check", authMiddleware, monitorUrlById);
 
 router.patch("/:monitorId/status", authMiddleware, updateMonitorStatusById);
 
-router.delete("/:monitorId", authMiddleware, removeUrlById);
+router.delete("/:id/delete", authMiddleware, removeUrlById);
 
-router.patch("/:monitorId", authMiddleware, updateUrlById);
+router.patch("/:monitorId/update", authMiddleware, updateUrlById);
 
-router.get("/:monitorId/incidents", authMiddleware, getLastFiveIncidentsData);
+router.get("/:id/incidents", authMiddleware, sendIncidentsById);
+
+router.get("/data", authMiddleware, getAllMonitorData);
 
 export default router;
