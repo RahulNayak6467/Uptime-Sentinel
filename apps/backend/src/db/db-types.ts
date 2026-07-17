@@ -43,6 +43,8 @@ export type ContentType =
   | "text/plain"
   | "none";
 
+export type RequestBodyType = "none" | "json" | "form-encoded" | "raw-text";
+
 export interface MonitorConfigurationRow {
   id: string;
   user_id: string;
@@ -56,13 +58,15 @@ export interface MonitorConfigurationRow {
   status_code: number[];
   monitor_type: MonitorType;
   http_method: HttpMethod;
-  content_type: ContentType;
+  content_type?: ContentType;
   failure_threshold: number;
   recovery_threshold: number;
   consecutive_failure_count: number;
   consecutive_success_count: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   is_active: boolean;
+  request_body_type?: RequestBodyType;
+  request_body?: string | null;
 }
 
 export type MonitorCheckConfigRow = Pick<
@@ -73,6 +77,9 @@ export type MonitorCheckConfigRow = Pick<
   | "status_code"
   | "monitor_type"
   | "http_method"
+  | "content_type"
+  | "request_body_type"
+  |"request_body"
 >;
 
 export interface IncidentStatsQueryResult {

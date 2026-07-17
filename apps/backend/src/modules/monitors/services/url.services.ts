@@ -5,6 +5,7 @@ import { publishSSEEvent } from "../../../sse/services/publishSSEEvent";
 import logger from "../../../config/logger";
 import { isPostgresError } from "../../../shared/errors/PostgresError";
 import { MonitorCheckConfigRow } from "../../../db/db-types";
+import { httpsFetcher } from "../../../checkers/https/httpsFetcher";
 
 export const checkUrlHealth = async (
   user_id: string,
@@ -17,17 +18,21 @@ export const checkUrlHealth = async (
     errorMessage: null,
   };
 
+
   let nextCheckAt: string = "";
   let requestTimeoutMS: number | null = null;
 
   try {
-    const start = Date.now();
+    // const start = Date.now();
 
     const getUrl = await db.query<MonitorCheckConfigRow>(
       `
         SELECT url,
         next_check_at,
         request_timeout_ms,
+        content_type,
+        request_body,
+        request_body_type,
         status_code,
         monitor_type,
         http_method
@@ -50,35 +55,42 @@ export const checkUrlHealth = async (
       );
     }
 
-    if (monitor.http_method !== "GET") {
-      throw new AppError(
-        400,
-        "Only GET checks are currently supported",
-        "UNSUPPORTED_HTTP_METHOD",
-      );
-    }
+    // if (monitor.http_method !== "GET") {
+    //   throw new AppError(
+    //     400,
+    //     "Only GET checks are currently supported",
+    //     "UNSUPPORTED_HTTP_METHOD",
+    //   );
+    // }
 
     const url = monitor.url;
     nextCheckAt = monitor.next_check_at;
     requestTimeoutMS = monitor.request_timeout_ms;
     const acceptedStatusCode = monitor.status_code;
+    const requestBodyType = monitor.request_body_type;
+    const requestBody = monitor.request_body;
+    const contentType = monitor.content_type;
+    const httpMethod = monitor.http_method
 
-    const getUrlData = await fetch(url, {
-      signal: AbortSignal.timeout(requestTimeoutMS),
-    });
+    const  responseObject = await httpsFetcher(url, requestTimeoutMS, acceptedStatusCode,httpMethod,contentType,requestBody,requestBodyType);
 
-    const statusCodeReceived = getUrlData.status;
+    // const getUrlData = await fetch(url, {
+    //   signal: AbortSignal.timeout(requestTimeoutMS),
+    // });
 
-    const checkStatus = acceptedStatusCode.some((code) => code === statusCodeReceived);
+    // const statusCodeReceived = getUrlData.status;
 
-    const isCorrectStatusResponse = checkStatus ? "UP" : "DOWN";
+    // const checkStatus = acceptedStatusCode.some((code) => code === statusCodeReceived);
 
-    response = {
-      status: isCorrectStatusResponse,
-      responseTime: Date.now() - start,
-      statusCode: getUrlData.status,
-      errorMessage: null,
-    };
+    // const isCorrectStatusResponse = checkStatus ? "UP" : "DOWN";
+
+    // response = {
+    //   status: isCorrectStatusResponse,
+    //   responseTime: Date.now() - start,
+    //   statusCode: getUrlData.status,
+    //   errorMessage: null,
+    // };
+    response = responseObject;
   } catch (err) {
     if (err instanceof AppError) {
       throw err;
@@ -86,19 +98,19 @@ export const checkUrlHealth = async (
 
     if (err instanceof Error) {
       if (err.name === "TimeoutError") {
-        response = {
-          status: "DOWN",
-          responseTime: null,
-          statusCode: null,
-          errorMessage: err.message,
-        };
+        // response = {
+        //   status: "DOWN",
+        //   responseTime: null,
+        //   statusCode: null,
+        //   errorMessage: err.message,
+        // };
       } else if (err.name === "TypeError") {
-        response = {
-          status: "DOWN",
-          responseTime: null,
-          statusCode: null,
-          errorMessage: err.message,
-        };
+        // response = {
+        //   status: "DOWN",
+        //   responseTime: null,
+        //   statusCode: null,
+        //   errorMessage: err.message,
+        // };
       } else if (isPostgresError(err) && err.code === "22P02") {
         throw new AppError(400, "Invalid uuid format", "INVALID_UUID");
       } else {

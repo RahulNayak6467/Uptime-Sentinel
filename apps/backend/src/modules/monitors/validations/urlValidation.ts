@@ -78,8 +78,8 @@ export const registerUrlSchema = z.object({
     .max(10, {
       error: "Failure threshold cannot exceed 10",
     }),
-  httpMethod: z.literal("GET", {
-    error: "Only GET checks are currently supported",
+  httpMethod: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"], {
+    error: "Invalid HTTP method",
   }),
   requestBody: z
     .string({
@@ -155,7 +155,8 @@ export const urlSchema =z.object({
   //   .enum(["http", "https"], {
   //   error: "Invalid monitor type",
   // }),
-  url: urlField.optional(),
+  url: urlField
+    .optional(),
   monitorName: z
     .string({
       error: "Monitor name must be a string",
@@ -180,17 +181,19 @@ export const urlSchema =z.object({
     })
     .optional()
   ,
-  // contentType: z.enum(
-  //   [
-  //     "application/json",
-  //     "application/x-www-form-urlencoded",
-  //     "text/plain",
-  //     "none",
-  //   ],
-  //   {
-  //     error: "Invalid content type",
-  //   },
-  // ),
+  contentType: z
+    .enum(
+      [
+        "application/json",
+        "application/x-www-form-urlencoded",
+        "text/plain",
+        "none",
+      ],
+      {
+        error: "Invalid content type",
+      },
+    )
+    .optional(),
   failureThreshold: z
     .number({
       error: "Failure threshold must be a number",
@@ -206,19 +209,22 @@ export const urlSchema =z.object({
     })
     .optional()
   ,
-  httpMethod: z.literal("GET", {
-    error: "Only GET checks are currently supported",
+  httpMethod: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"], {
+    error: "Invalid HTTP method",
   })
   .optional()
   ,
-  // requestBody: z
-  //   .string({
-  //     error: "Request body must be a string",
-  //   })
-  //   .nullable(),
-  // requestBodyType: z.enum(["none", "json", "form-encoded", "raw-text"], {
-  //   error: "Invalid request body type",
-  // }),
+  requestBody: z
+    .string({
+      error: "Request body must be a string",
+    })
+    .nullable()
+    .optional(),
+  requestBodyType: z
+    .enum(["none", "json", "form-encoded", "raw-text"], {
+      error: "Invalid request body type",
+    })
+    .optional(),
   requestTimeoutMS: z
     .number({
       error: "Request timeout must be a number",

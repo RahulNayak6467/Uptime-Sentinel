@@ -13,7 +13,10 @@ export const currentEditMonitorConfig = async (user_id: string, montiorId: strin
     http_method,
     status_code,
     failure_threshold,
-    recovery_threshold
+    recovery_threshold,
+    content_type,
+    request_body_type,
+    request_body
     FROM monitor
     WHERE id = $1
     AND user_id = $2`;
@@ -40,6 +43,9 @@ export const currentEditMonitorConfig = async (user_id: string, montiorId: strin
     statusCode: requiredData.status_code,
     failureThreshold: requiredData.failure_threshold,
     recoveryThreshold: requiredData.recovery_threshold,
+    contentType: requiredData.content_type,
+    requestBodyType: requiredData.request_body_type,
+    requestBody: requiredData.request_body
   }
 
   return data;

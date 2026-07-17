@@ -2,7 +2,7 @@ import { db } from "../../../db/index";
 import { AppError } from "../../../shared/errors/AppError";
 import logger from "../../../config/logger";
 import { isPostgresError } from "../../../shared/errors/PostgresError";
-import { httpMethodProps } from "../types";
+import { contentTypeProps, httpMethodProps, requestBodyProps, requestBodyTypeProps } from "../types";
 
 export const updateUrl = async (
   url_id: string,
@@ -16,6 +16,9 @@ export const updateUrl = async (
   requestTimeoutMS?: number,
   httpMethod?: httpMethodProps,
   statusCodes?: number[],
+  contentType?: contentTypeProps,
+  requestBodyType?: requestBodyTypeProps,
+  requestBody?: requestBodyProps
 ) => {
   const updates = [];
   const values = [];
@@ -58,6 +61,18 @@ export const updateUrl = async (
   if (httpMethod) {
     updates.push(`http_method = $${paramCount++}`)
     values.push(httpMethod)
+  }
+  if (contentType) {
+    updates.push(`content_type = $${paramCount++}`);
+    values.push(contentType);
+  }
+  if (requestBodyType) {
+    updates.push(`request_body_type = $${paramCount++}`);
+    values.push(requestBodyType);
+  }
+  if (requestBody) {
+    updates.push(`request_body = $${paramCount++}`);
+    values.push(requestBody)
   }
   if (statusCodes) {
     updates.push(`status_code = $${paramCount++}`)

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../../shared/errors/AppError";
 import { updateUrl } from "../services/updateUrl.services";
 import { urlSchema } from "../validations/urlValidation";
+import { validateOccurredAt } from "../../../shared/utils/validateOccurredAt";
 
 export const updateUrlById = async (
   req: Request,
@@ -24,7 +25,10 @@ export const updateUrlById = async (
       validatedData.httpMethod === undefined &&
       validatedData.recoveryThreshold === undefined &&
       validatedData.requestTimeoutMS === undefined &&
-      validatedData.statusCodes === undefined
+      validatedData.statusCodes === undefined &&
+      validatedData.contentType === undefined &&
+      validatedData.requestBodyType === undefined &&
+      validatedData.requestBody === undefined
     ) {
       throw new AppError(
         400,
@@ -43,7 +47,10 @@ export const updateUrlById = async (
       validatedData.recoveryThreshold,
       validatedData.requestTimeoutMS,
       validatedData.httpMethod,
-      validatedData.statusCodes
+      validatedData.statusCodes,
+      validatedData.contentType,
+      validatedData.requestBodyType,
+      validatedData.requestBody
     );
     return res.status(200).json({ message: "successfully updated url" });
   } catch (err) {

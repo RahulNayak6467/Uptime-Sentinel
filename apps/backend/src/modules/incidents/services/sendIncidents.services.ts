@@ -18,10 +18,11 @@ export const getIncidentsDetailsById = async (
   url_id: string,
   user_id: string,
 ) => {
+  console.log(url_id);
   const incidents_info_query = `
     SELECT i.id,i.resolved_at,i.started_at,i.is_active,m.url,m.monitor_name
     FROM incidents i
-    inner join monitor m on m.id = i.monitor_id
+    left join monitor m on m.id = i.monitor_id
     where m.user_id = $1 and m.id = $2
     ORDER BY i.started_at DESC
   `;
@@ -32,11 +33,30 @@ export const getIncidentsDetailsById = async (
       incidents_info_values,
     );
 
+    console.log(getFromIncidentTable);
+
+    const get_monitorId_query = `
+      SELECT id
+      FROM monitor
+      where user_id = $1
+      AND id = $2`
+
+    const get_monitorId_values = [user_id,url_id]
+
+    const getMonitorId = await db.query(get_monitorId_query, get_monitorId_values);
+
+    console.log(getMonitorId.rows.length)
+
     const rows = getFromIncidentTable.rows.length;
+
+    if (getMonitorId.rows.length !== 0) {
+      return getFromIncidentTable.rows
+    }
 
     if (rows === 0) {
       throw new AppError(404, "No incidents exist", "INCIDENTS_NOT_FOUND");
     }
+
 
     const response: incidentsTableDataProps[] = getFromIncidentTable.rows.map(
       (url) => {
