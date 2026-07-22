@@ -59,6 +59,7 @@ const IncidentHistory = ({ id }: { id: string }) => {
     );
   }
 
+  console.log(lastFiveIncidents)
   const requiredData = lastFiveIncidents.data.map((data) => {
     return {
       id: data.id,

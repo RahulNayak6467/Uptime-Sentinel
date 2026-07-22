@@ -23,6 +23,10 @@ import { useEditMonitorConfig } from "../hooks/useEditMonitorConfig";
 import { toast } from "sonner";
 import { ApiError } from "next/dist/server/api-utils";
 import { intervalToSeconds } from "@/features/new_monitor/utils/interval";
+import { bodyTypes } from "@/features/new_monitor/data";
+import { useWatch } from "react-hook-form";
+
+const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 
 const getMonitorStatusMeta = (monitor: IndividualOverviewStatsProps) => {
   if (!monitor.isActive) {
@@ -79,27 +83,50 @@ const EditMonitorForm = ({
   const [statusCodeInput, setStatusCodeInput] = useState("");
   const [statusCodeInputError, setStatusCodeInputError] = useState<string>();
 
-    const {
-      register,
-      control,
-      handleSubmit,
-      formState: { errors, dirtyFields },
-    } = useForm<editSchemaInputProps, unknown, editSchemaProps>({
-      resolver: zodResolver(editSchema),
-    });
-
-  const statusMeta = getMonitorStatusMeta(monitor);
-
   const defaultInterval =
     editMonitorIntervals.find(
       (interval) => interval.seconds === config.intervalSeconds,
     )?.value ?? "1h";
 
-  // const handleSubmit = () => {
-  // }
-  //
+    const {
+      register,
+      control,
+      setValue,
+      handleSubmit,
+      formState: { errors, dirtyFields },
+    } = useForm<editSchemaInputProps, unknown, editSchemaProps>({
+      resolver: zodResolver(editSchema),
+      defaultValues: {
+        monitorName: config.monitorName,
+        url: config.url,
+        intervalSeconds: defaultInterval,
+        requestTimeoutMS: config.requestTimeoutMS,
+        responseTimeThresholdMS: config.responseTimeThresholdMS,
+        httpMethod: config.httpMethod ?? "GET",
+        statusCodes: config.statusCode ?? [200],
+        failureThreshold: config.failureThreshold,
+        recoveryThreshold: config.recoveryThreshold,
+        contentType: config.contentType ?? "none",
+        requestBodyType: config.requestBodyType ?? "none",
+        requestBody: config.requestBody ?? null,
+      },
+    });
+
+  const statusMeta = getMonitorStatusMeta(monitor);
+  const selectedHttpMethod = useWatch({
+    control,
+    name: "httpMethod",
+    defaultValue: config.httpMethod ?? "GET",
+  });
+  const selectedRequestBodyType = useWatch({
+    control,
+    name: "requestBodyType",
+    defaultValue: config.requestBodyType ?? "none",
+  });
+
   const { mutate, isPending } = useEditMonitorConfig(id);
   const onSubmit = (data: editSchemaProps) => {
+    console.log(data);
     const keys = Object.keys(dirtyFields);
     const editMonitorData = keys.reduce((acc, el) => {
       if (el === "intervalSeconds") {
@@ -263,10 +290,37 @@ const EditMonitorForm = ({
                     <Controller
                       name="httpMethod"
                       control={control}
-                      defaultValue={config.httpMethod}
+                      defaultValue={config.httpMethod ?? "GET"}
                       render={({ field }) => (
-                        <div className="flex h-9 items-center rounded-md border border-sf-border bg-sf-bg/35 px-3 font-mono text-[13px] font-semibold text-sf-text-muted">
-                          {field.value}
+                        <div className="flex flex-wrap gap-1.5">
+                          {HTTP_METHODS.map((method) => (
+                            <button
+                              key={method}
+                              type="button"
+                              onClick={() => {
+                                field.onChange(method);
+
+                                if (method === "GET") {
+                                  setValue("requestBodyType", "none", {
+                                    shouldDirty: true,
+                                  });
+                                  setValue("contentType", "none", {
+                                    shouldDirty: true,
+                                  });
+                                  setValue("requestBody", null, {
+                                    shouldDirty: true,
+                                  });
+                                }
+                              }}
+                              className={`h-8 cursor-pointer rounded-md border px-2.5 font-mono text-xs font-semibold transition-colors ${
+                                field.value === method
+                                  ? "border-sf-blue bg-sf-blue text-white"
+                                  : "border-sf-border bg-sf-surface text-sf-text hover:border-sf-text-muted"
+                              }`}
+                            >
+                              {method}
+                            </button>
+                          ))}
                         </div>
                       )}
                     />
@@ -274,6 +328,95 @@ const EditMonitorForm = ({
                   </>
                 </Field>
                 </div>
+
+                {selectedHttpMethod !== "GET" && (
+                  <div className="space-y-4 rounded-lg border border-sf-border bg-sf-bg p-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-sf-text">
+                        Request body
+                      </h3>
+                      <p className="mt-0.5 text-xs text-sf-text-muted">
+                        Configure the optional payload sent with the {selectedHttpMethod} request.
+                      </p>
+                    </div>
+
+                    <Controller
+                      name="requestBodyType"
+                      control={control}
+                      render={({ field }) => (
+                        <div>
+                          <div className="flex flex-wrap gap-2">
+                            {bodyTypes.map((bodyType) => (
+                              <button
+                                key={bodyType.id}
+                                type="button"
+                                onClick={() => {
+                                  field.onChange(bodyType.id);
+                                  setValue("contentType", bodyType.contentType, {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                  });
+
+                                  if (bodyType.id === "none") {
+                                    setValue("requestBody", null, {
+                                      shouldDirty: true,
+                                      shouldValidate: true,
+                                    });
+                                  }
+                                }}
+                                className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                                  field.value === bodyType.id
+                                    ? "border-sf-text bg-sf-text text-sf-btn-text"
+                                    : "cursor-pointer border-sf-border bg-sf-surface text-sf-text-sub hover:border-sf-text-muted hover:text-sf-text"
+                                }`}
+                              >
+                                {bodyType.label}
+                              </button>
+                            ))}
+                          </div>
+                          <ErrorMessage error={errors.requestBodyType?.message} />
+                        </div>
+                      )}
+                    />
+
+                    {selectedRequestBodyType !== "none" && (
+                      <div className="grid gap-3.5 sm:grid-cols-2">
+                        <Field label="Content-Type" hint="Set from the selected body format">
+                          <>
+                            <Controller
+                              name="contentType"
+                              control={control}
+                              render={({ field }) => (
+                                <div className="flex h-9 items-center rounded-md border border-sf-border bg-sf-bg/35 px-3 font-mono text-[13px] text-sf-text-muted">
+                                  {field.value}
+                                </div>
+                              )}
+                            />
+                            <ErrorMessage error={errors.contentType?.message} />
+                          </>
+                        </Field>
+
+                        <div className="sm:col-span-2">
+                          <Field label="Body content">
+                            <>
+                              <textarea
+                                {...register("requestBody")}
+                                rows={6}
+                                placeholder={
+                                  selectedRequestBodyType === "json"
+                                    ? '{"example":true}'
+                                    : "Enter the request body"
+                                }
+                                className="w-full resize-y rounded-md border border-sf-border bg-sf-surface px-3 py-2.5 font-mono text-[13px] text-sf-text outline-none transition-colors placeholder:text-sf-text-muted focus:border-sf-text-sub focus:shadow-sf-focus"
+                              />
+                              <ErrorMessage error={errors.requestBody?.message} />
+                            </>
+                          </Field>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </section>
 
@@ -458,10 +601,11 @@ const EditMonitorForm = ({
             </button>
             <button
               type="submit"
-              className="flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[4px] bg-sf-text px-5 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-blue hover:text-white"
+              disabled={isPending}
+              className="flex h-9 cursor-pointer items-center justify-center gap-2 rounded-[4px] bg-sf-text px-5 text-xs font-semibold text-sf-btn-text shadow-sm transition-colors hover:bg-sf-blue hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Save className="size-3.5" />
-              Save changes
+              {isPending ? "Saving…" : "Save changes"}
             </button>
           </footer>
         </form>

@@ -83,7 +83,15 @@ export type editConfigMonitorProps = {
   requestTimeoutMS?: number;
   responseTimeThresholdMS?: number;
   httpMethod?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  requestBodyType?: "none" | "json" | "form-encoded" | "raw-text";
+  contentType?:
+    | "application/json"
+    | "application/x-www-form-urlencoded"
+    | "text/plain"
+    | "none";
+  requestBody?: string | null;
   statusCode?: number[];
+  statusCodes?: number[];
   failureThreshold?: number;
   recoveryThreshold?: number;
 }

@@ -24,7 +24,7 @@ export const getLastLimitChecks = async (
       user_id,
       LIMIT_CHECKS,
     );
-    return res.status(200).json(getLastLimitChecksData);
+    return res.status(200).json({ data: getLastLimitChecksData });
   } catch (err) {
     if (err instanceof ZodError) {
       return next(
