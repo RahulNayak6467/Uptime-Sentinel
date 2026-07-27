@@ -8,7 +8,7 @@ import {
   ListChecks,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type MonitorSection = {
   id: string;
@@ -16,7 +16,7 @@ type MonitorSection = {
   icon: LucideIcon;
 };
 
-const sections: MonitorSection[] = [
+const baseSections: MonitorSection[] = [
   { id: "overview", label: "Overview", icon: Gauge },
   {
     id: "response-time",
@@ -24,11 +24,20 @@ const sections: MonitorSection[] = [
     icon: ChartNoAxesCombined,
   },
   { id: "recent-checks", label: "Recent checks", icon: ListChecks },
-  { id: "infrastructure", label: "Infrastructure", icon: Activity },
   { id: "incidents", label: "Incidents", icon: CircleAlert },
 ];
 
-const MonitorSectionNav = () => {
+const tlsSection: MonitorSection = {
+  id: "infrastructure",
+  label: "TLS",
+  icon: Activity,
+};
+
+const MonitorSectionNav = ({ showTls = false }: { showTls?: boolean }) => {
+  const sections = useMemo(
+    () => (showTls ? [...baseSections, tlsSection] : baseSections),
+    [showTls],
+  );
   const [activeSection, setActiveSection] = useState(sections[0].id);
 
   useEffect(() => {
@@ -53,7 +62,7 @@ const MonitorSectionNav = () => {
     sectionElements.forEach((element) => observer.observe(element));
 
     return () => observer.disconnect();
-  }, []);
+  }, [sections]);
 
   return (
     <div className="sticky top-3 z-20 mx-auto w-full max-w-full sm:w-fit">

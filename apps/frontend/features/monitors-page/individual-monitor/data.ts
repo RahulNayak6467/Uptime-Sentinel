@@ -121,6 +121,11 @@ export const mockTlsCertificate = {
   handshakeTimeMs: 118,
   averageHandshakeTimeMs: 124,
   p95HandshakeTimeMs: 171,
+  // Recent TLS handshake samples (oldest → newest, ms).
+  handshakeTrend: [
+    121, 118, 126, 119, 130, 122, 117, 171, 128, 120, 124, 119, 133, 121, 118,
+    125, 122, 116, 129, 123, 120, 126, 119, 118,
+  ] as (number | null)[],
   lastSuccessfulValidation: "2 minutes ago",
   nextExpiryAlert: {
     thresholdDays: 30,
@@ -193,10 +198,90 @@ export const mockTlsCertificate = {
       description: "Fingerprint or serial number changes",
     },
     {
+      label: "Revocation detected",
+      description: "OCSP or CRL reports the certificate as revoked",
+    },
+    {
+      label: "Weak TLS configuration",
+      description: "A deprecated protocol or weak cipher becomes reachable",
+    },
+    {
+      label: "Fingerprint pin broken",
+      description: "The live certificate no longer matches the pinned fingerprint",
+    },
+    {
       label: "Recovery",
       description: "Certificate becomes valid again after a failure",
     },
   ],
+  // Revocation status — answers "is this certificate revoked?", which system
+  // trust alone does not cover.
+  revocation: {
+    ocspStatus: "Good",
+    ocspStapled: true,
+    ocspResponder: "http://r11.o.lencr.org",
+    ocspCheckedAt: "2 minutes ago",
+    ocspNextUpdate: "in 3 days",
+    crlStatus: "Not listed",
+    crlDistribution: "http://r11.c.lencr.org/12.crl",
+    revokedAt: null as string | null,
+  },
+  // Result of probing which protocols/ciphers the server will actually accept,
+  // not just what the latest handshake negotiated.
+  offeredProtocols: [
+    { name: "TLS 1.3", enabled: true, secure: true },
+    { name: "TLS 1.2", enabled: true, secure: true },
+    { name: "TLS 1.1", enabled: false, secure: false },
+    { name: "TLS 1.0", enabled: false, secure: false },
+    { name: "SSL 3.0", enabled: false, secure: false },
+  ],
+  configFindings: [
+    {
+      label: "No deprecated protocols",
+      description: "TLS 1.0/1.1 and SSLv3 are refused",
+      status: "Pass",
+    },
+    {
+      label: "Strong signature",
+      description: "SHA-256 with ECDSA; no SHA-1 in the chain",
+      status: "Pass",
+    },
+    {
+      label: "Key strength",
+      description: "ECDSA P-256 meets the 128-bit security floor",
+      status: "Pass",
+    },
+    {
+      label: "Cipher order",
+      description: "Server enforces its own strong cipher preference",
+      status: "Warn",
+    },
+  ],
+  // Expected-fingerprint pin — alerts on any unexpected certificate change
+  // (MITM / misissuance), beyond just logging renewals.
+  pinning: {
+    enabled: true,
+    matches: true,
+    pinnedFingerprint:
+      "7A:10:8F:7D:31:42:AC:8E:56:90:BD:A9:05:79:2F:44:8C:2A:EE:6D:17:3A:CF:91:5E:29:70:B1:46:CC:85:02",
+    currentFingerprint:
+      "7A:10:8F:7D:31:42:AC:8E:56:90:BD:A9:05:79:2F:44:8C:2A:EE:6D:17:3A:CF:91:5E:29:70:B1:46:CC:85:02",
+    pinnedAt: "Jul 18, 2026 · 03:20 IST",
+    lastVerified: "2 minutes ago",
+    autoRepinOnRenewal: true,
+  },
+  // Certificate Transparency — presence in public CT logs helps detect certs
+  // issued for this domain that you did not request.
+  certificateTransparency: {
+    status: "Logged",
+    sctCount: 3,
+    deliveryMethod: "Embedded SCTs",
+    logs: [
+      { operator: "Google 'Argon2026h2'", timestamp: "Jun 23, 2026 · 05:30 IST" },
+      { operator: "Cloudflare 'Nimbus2026'", timestamp: "Jun 23, 2026 · 05:30 IST" },
+      { operator: "Sectigo 'Sabre'", timestamp: "Jun 23, 2026 · 05:31 IST" },
+    ],
+  },
   error: null,
 } as const;
 
