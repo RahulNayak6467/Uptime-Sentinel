@@ -4,3 +4,4 @@ export const CHECKS_DATA_PERIOD = 1;
 export const LIMIT_CHECKS = 90;
 export const LIMIT_RECENT_ALERTS = 2;
 export const HEART_BEAT = 20000;
+export const LIMIT_RECENT_INCIDENTS = 10;

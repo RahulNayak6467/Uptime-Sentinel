@@ -258,10 +258,10 @@ export const ResponseTimeTrend = ({
     (item) => item.p50Data !== null || item.p95Data !== null,
   ).length;
 
-  const green = isDark ? "#4ade80" : "#16a34a";
-  const amber = isDark ? "#fbbf24" : "#d97706";
-  const red = isDark ? "#f87171" : "#dc2626";
-  const axisLine = isDark ? "#333333" : "#cbd5e1";
+  const green = isDark ? "#4cb782" : "#269765";
+  const amber = isDark ? "#d7a453" : "#b7791f";
+  const red = isDark ? "#e96b72" : "#d14d56";
+  const axisLine = isDark ? "#1e1e22" : "#e2e2e5";
 
   const threshold = data.responseTimeThresholdMS;
 

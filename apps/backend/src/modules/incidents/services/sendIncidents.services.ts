@@ -3,6 +3,7 @@ import { db } from "../../../db";
 import { AppError } from "../../../shared/errors/AppError";
 import { formatDuration } from "../../../shared/utils/formatDate";
 import logger from "../../../config/logger";
+import { LIMIT_RECENT_INCIDENTS } from "../../../constants/constants";
 
 interface incidentsTableDataProps {
   id: string;
@@ -25,8 +26,9 @@ export const getIncidentsDetailsById = async (
     left join monitor m on m.id = i.monitor_id
     where m.user_id = $1 and m.id = $2
     ORDER BY i.started_at DESC
+    LIMIT LIMIT_RECENT_INCIDENTS
   `;
-  const incidents_info_values = [user_id, url_id];
+  const incidents_info_values = [user_id, url_id, LIMIT_RECENT_INCIDENTS];
   try {
     const getFromIncidentTable = await db.query(
       incidents_info_query,

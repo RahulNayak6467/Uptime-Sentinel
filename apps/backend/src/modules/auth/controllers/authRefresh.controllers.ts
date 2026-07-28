@@ -11,13 +11,14 @@ export const generateAccessToken = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // console.log(req);
   const refreshTokens = req.cookies.refreshToken;
   if (!refreshTokens) {
-    throw new AppError(400, "Missing Tokens", "MISSING_REFRESH_TOKEN");
+    return res.status(400).json({ message: "Missing Tokens" });
   }
   const refreshSecretKey = env.JWT_REFRESH_SECRET;
   if (!refreshSecretKey) {
-    throw new AppError(500, "Internal server error", "AUTH_CONFIG_ERROR");
+    return res.status(500).json({ message: "Internal server error" });
   }
   try {
     const { message, token: accessToken, refreshToken } =
@@ -26,7 +27,7 @@ export const generateAccessToken = async (
     res.cookie("accessToken", accessToken, accessTokenCookieOptions);
     res.cookie("refreshToken", refreshToken,refreshTokenCookieOptions)
 
-    return res.status(201).json({ data: { message } });
+    return res.status(201).json({ message });
   } catch (err) {
     return next(err);
   }
