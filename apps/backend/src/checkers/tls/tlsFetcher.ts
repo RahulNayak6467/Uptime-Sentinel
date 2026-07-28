@@ -9,14 +9,14 @@ let handshake_time_ms: number;
 let error_messages: string | null = null;
 let error_code: string | null = null;
 
-  const start = performance.now();
+const start = performance.now();
 
 const socket = tls.connect({
   host: host,
   port: 443,
   servername: host,
   timeout: connection_timeout,
-  rejectUnauthorized: true,
+  rejectUnauthorized: false,
   minVersion: "TLSv1.2",
   ALPNProtocols: ["h2", "http/1.1"],
   requestOCSP: true
@@ -95,11 +95,18 @@ socket.on("secureConnect", () => {
     asymmetricKeyType: x509Certificate?.publicKey?.asymmetricKeyType,
   }
 
-  // console.log(certificate);
+  if (x509Certificate) {
+    console.log(getDaysRemaining(x509Certificate.validToDate));
+    console.log(getCertificateLifetime(x509Certificate.validFromDate, x509Certificate.validToDate));
+    console.log(getElapsedDays(x509Certificate.validFromDate));
+    console.log(parseSanNames(certificateInformation.san_names));
+    console.log(getCipherName(certificateInformation.cipher_suite));
+    console.log(getForwardSecrecy(certificateInformation.keyExchange));
+    console.log(getOcspResponder(certificateInformation.revocation.info_access));
+  }
+    socket.destroy();
 
-  console.log(certificateInformation);
-
-  socket.destroy();
+  return certificateInformation;
 })
 
 socket.on("OCSPResponse", (response) => {
@@ -113,7 +120,85 @@ socket.once("error", (error) => {
   error_messages = error.message;
 
 })
+}
+tlsFetcher("www.youtube.com", 10_000);
+
+type TimeRemaining = {
+  totalMs: number;   // signed: negative when expired
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  isExpired: boolean;
+};
+
+const getDaysRemaining = ( endDate: Date):TimeRemaining => {
+
+  const start = new Date()
+  const end = endDate;
+
+  const diffMs = end.getTime() - start.getTime();
+
+  const absDiffMs = Math.abs(diffMs);
+
+  const diffSeconds = Math.floor(absDiffMs / 1000) % 60;
+  const diffMinutes = Math.floor(absDiffMs / (1000 * 60)) % 60;
+  const diffHours = Math.floor(absDiffMs / (1000 * 60 * 60)) % 24;
+  const diffDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24));
+
+  return {
+    totalMs: absDiffMs,
+    days: diffDays,
+    hours: diffHours,
+    minutes: diffMinutes,
+    seconds: diffSeconds,
+    isExpired: diffMs <= 0
+  }
 
 }
 
-tlsFetcher("www.youtube.com", 10_000);
+const getCertificateLifetime = (startDate: Date, endDate: Date) => {
+  const start = startDate
+  const end = endDate
+
+  const diffMs = end.getTime() - start.getTime();
+
+  const absDiffMs = Math.abs(diffMs);
+  const diffDays = Math.floor(absDiffMs / (1000 * 60 * 60 * 24))
+
+  console.log(diffDays);
+
+  return {
+    lifetimeDays: diffDays,
+    isExpired: diffMs <= 0,
+  };
+}
+
+const getElapsedDays = (startDate: Date) => {
+  const start = startDate;
+  const end = new Date();
+
+  const diffMs = end.getTime() - start.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  console.log(diffDays);
+
+  return {
+    elapsedDays: diffDays
+  }
+}
+
+const parseSanNames = (sanString: string) => {
+  if (sanString.length === 0) return [];
+  const sanArr = sanString.split(", ").map((el) => el.replace("DNS:", ""));
+  return sanArr
+}
+
+const getCipherName = (cipher: tls.CipherNameAndProtocol): string => cipher.name;
+
+const getForwardSecrecy = (keyExchange: { type: string | null }): boolean =>
+  keyExchange.type !== null;
+
+const getOcspResponder = (
+  infoAccess: Record<string, string[]> | undefined,
+): string | null => infoAccess?.["OCSP - URI"]?.[0] ?? null;
