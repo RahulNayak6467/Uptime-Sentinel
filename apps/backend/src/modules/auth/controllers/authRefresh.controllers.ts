@@ -1,4 +1,6 @@
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 import { AppError, PostgresError } from "../../../shared/errors/AppError";
 import { UrlResponseData } from "../../../shared/types/types";
 import { NextFunction, Request, Response } from "express";
