@@ -1,5 +1,6 @@
 import { CipherNameAndProtocol } from "node:tls";
 import { CertificateLifetime, ElapsedDays, keyStrengthLevels, NextTlsExpiry, TimeRemaining, TlsStatus, ValidationChecks } from "./tls.types";
+import { checkConnections } from "./probeProtocols";
 
 export const getDaysRemaining = ( endDate: Date):TimeRemaining => {
 
@@ -153,4 +154,58 @@ export const computeNextExpiryAlert = (days: number): NextTlsExpiry  => {
     estimatedAt: new Date(Date.now() + (days - maxThresholds) * 24 * 60 * 60 * 1000),
   }
 
+}
+
+const checkDeprecatedProtocol = async (host: string, connection_timeout: number) => {
+  const res = await checkConnections(host, connection_timeout);
+
+  for (const check of res) {
+    if (check.name === "TLSv1.1" && check.enabled === true) return "Fail";
+    if (check.name === "TLSv1" && check.enabled === true) return "Fail";
+    if (check.name === "TLSv1.2" && check.enabled === true) return "Pass";
+    if (check.name === "TLSv1.3" && check.enabled === true) return "Pass";
+    return "Pass";
+  }
+}
+
+export const signatureStrength = (
+  signatureAlgorithm: string | undefined,
+): "Pass" | "Warn" | "Fail" => {
+  if (!signatureAlgorithm) return "Warn";
+
+  const algo = signatureAlgorithm.toLowerCase();
+
+  if (algo.includes("md5") || algo.includes("sha1")) return "Fail";
+  if (
+
+    algo.includes("sha256") ||
+    algo.includes("sha384") ||
+    algo.includes("sha512")
+  ) {
+    return "Pass";
+  }
+  return "Warn";
+}
+
+export const protocolAndCipherScan = async (host: string, connection_timeout: number, signatureAlgorithm:string | undefined,inferKeyType: string | null, nist: string | undefined, bits: number | undefined) => {
+  const connectedProtocols = await checkDeprecatedProtocol(host, connection_timeout);
+  const isStrongSignature = signatureStrength(signatureAlgorithm);
+  const checkKeyStrength = keyStrength(inferKeyType,nist,bits)
+
+  return {
+    configFindings: {
+      noDeprcatedProtocols: connectedProtocols ?? "Fail",
+      strongSignature: isStrongSignature,
+      keyStrength: checkKeyStrength,
+
+    }
+  }
+}
+const normalizeSerial = (s: string) => s.toLowerCase().replace(/[^0-9a-f]/g, "");
+
+export const checkCipherOrder = async (serialNumber: string, crlUrl: string) => {
+  const normalizedSerialNumber = normalizeSerial(serialNumber);
+  const normalizedCrlUrl = normalizeSerial(crlUrl);
+
+  const crl = new x509.X509Crl(crlBytes);
 }

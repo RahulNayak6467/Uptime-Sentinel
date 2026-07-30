@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { initSentry } from "./config/sentry";
 initSentry();
 import express, { Application } from "express";

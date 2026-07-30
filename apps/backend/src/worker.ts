@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "./config/env";
 import { urlCheckWorker } from "./workers/monitorWorkers";
 import { emailVerificationWorker } from "./workers/emailVerificationWorker";

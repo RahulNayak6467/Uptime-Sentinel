@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import tls from "node:tls";
 import {
   computeNextExpiryAlert,
@@ -14,8 +15,12 @@ import {
   parseSanNames,
   validationChecks,
 } from "./deriveTls";
+import { checkConnections } from "./probeProtocols";
+import { getCertStatus, getCertStatusByDomain } from "easy-ocsp";
+import { parseSCTExtensions, checkCrlRevocation } from "./ocspParset";
+import { getCrlUrl } from "./parseCertExtensions";
 
-export const tlsFetcher = (host: string, connection_timeout: number) => {
+export const tlsFetcher = async (host: string, connection_timeout: number) => {
   let ocspResponse: Buffer | null = null;
   let handshake_time_ms: number;
   let error_messages: string | null = null;
@@ -38,7 +43,7 @@ export const tlsFetcher = (host: string, connection_timeout: number) => {
     socket.destroy(new Error("TLS connection timed out"));
   });
 
-  socket.on("secureConnect", () => {
+  socket.on("secureConnect", async () => {
     handshake_time_ms = Math.ceil(performance.now() - start);
 
     const certificate = socket.getPeerCertificate(true);
@@ -147,6 +152,20 @@ export const tlsFetcher = (host: string, connection_timeout: number) => {
       computeNextExpiryAlert(days);
     }
 
+    // const checkValidConnections = await checkConnections(host, connection_timeout);
+    checkConnections(host, connection_timeout);
+
+    const res = await parseSCTExtensions(x509Certificate);
+    console.log(res);
+
+    if (x509Certificate) {
+      const crlUrl = getCrlUrl(x509Certificate.toString());
+      if (crlUrl) {
+        const crlStatus = await checkCrlRevocation(certificate.serialNumber, crlUrl);
+        console.log(crlStatus);
+      }
+    }
+
     socket.destroy();
     return certificateInformation;
   });
@@ -163,4 +182,4 @@ export const tlsFetcher = (host: string, connection_timeout: number) => {
   });
 };
 
-tlsFetcher("www.reddit.com", 10_000);
+tlsFetcher("www.x.com", 10_000);

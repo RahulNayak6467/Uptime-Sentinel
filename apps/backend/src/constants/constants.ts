@@ -5,3 +5,4 @@ export const LIMIT_CHECKS = 90;
 export const LIMIT_RECENT_ALERTS = 2;
 export const HEART_BEAT = 20000;
 export const LIMIT_RECENT_INCIDENTS = 10;
+export const REFRESH_MS = 24 * 60 * 60 * 1000;

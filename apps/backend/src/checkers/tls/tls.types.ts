@@ -1,3 +1,5 @@
+import { SecureVersion } from "node:tls";
+
 export interface TimeRemaining  {
   totalMs: number;   // signed: negative when expired
   days: number;
@@ -35,4 +37,18 @@ export interface NextTlsExpiry {
   thresholdDays:number |  null;
   dueInDays: number | null;
   estimatedAt: Date | null;
+}
+
+export interface TlsAcceptedConnections {
+  name: SecureVersion,
+  enabled: boolean
+}
+
+export type CtLogMap = Map<string, string>;
+
+export interface LogListResponse {
+  operators: {
+    name: string;
+    logs: { description?: string; log_id: string }[];
+  }[];
 }
