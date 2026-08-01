@@ -6,3 +6,4 @@ export const LIMIT_RECENT_ALERTS = 2;
 export const HEART_BEAT = 20000;
 export const LIMIT_RECENT_INCIDENTS = 10;
 export const REFRESH_MS = 24 * 60 * 60 * 1000;
+export const SCT_EXTENSION_OID = "1.3.6.1.4.1.11129.2.4.2";

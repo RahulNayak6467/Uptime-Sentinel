@@ -1,11 +1,9 @@
 import { SecureVersion } from "tls";
 import tls from "node:tls"
 import { TlsAcceptedConnections } from "./tls.types";
-import { getCertStatusByDomain } from "easy-ocsp";
 
 export const probeProtocols = (host: string, version: SecureVersion, connection_timeout: number): Promise<TlsAcceptedConnections> => {
   return new Promise((resolve, reject) => {
-
   const socket = tls.connect({
     host,
     port: 443,
@@ -20,7 +18,7 @@ export const probeProtocols = (host: string, version: SecureVersion, connection_
   });
 
   socket.once("error", (error) => {
-    console.log("An error occurred while connecting with tls");
+    // console.log("An error occurred while connecting with tls");
     resolve({ name: version, enabled: false });
   });
 
@@ -42,10 +40,3 @@ export const checkConnections = async (host: string, connection_timeout: number)
 
   return connectedChecks;
 }
-
-// export const check = async (host: string, connection_timeout: number) => {
-//   const res = await checkConnections(host, connection_timeout);
-//   console.log(res)
-// }
-
-// check("www.youtube.com", 10000);

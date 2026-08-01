@@ -1,5 +1,5 @@
 import { CipherNameAndProtocol } from "node:tls";
-import { CertificateLifetime, ElapsedDays, keyStrengthLevels, NextTlsExpiry, TimeRemaining, TlsStatus, ValidationChecks } from "./tls.types";
+import { CertificateLifetime, DeprecatedProtocols, ElapsedDays, keyStrengthLevels, NextTlsExpiry, ProtocolCipherScan, TimeRemaining, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 
 export const getDaysRemaining = ( endDate: Date):TimeRemaining => {
@@ -156,16 +156,12 @@ export const computeNextExpiryAlert = (days: number): NextTlsExpiry  => {
 
 }
 
-const checkDeprecatedProtocol = async (host: string, connection_timeout: number) => {
+export const checkDeprecatedProtocol = async (host: string, connection_timeout: number) => {
   const res = await checkConnections(host, connection_timeout);
 
-  for (const check of res) {
-    if (check.name === "TLSv1.1" && check.enabled === true) return "Fail";
-    if (check.name === "TLSv1" && check.enabled === true) return "Fail";
-    if (check.name === "TLSv1.2" && check.enabled === true) return "Pass";
-    if (check.name === "TLSv1.3" && check.enabled === true) return "Pass";
-    return "Pass";
-  }
+  const isDeprecated = res.some((protocol) => protocol.name === "TLSv1" && protocol.enabled === true || protocol.name === "TLSv1.1" && protocol.enabled === true)
+
+  return isDeprecated ? "Fail" : "Pass";
 }
 
 export const signatureStrength = (
@@ -187,25 +183,30 @@ export const signatureStrength = (
   return "Warn";
 }
 
-export const protocolAndCipherScan = async (host: string, connection_timeout: number, signatureAlgorithm:string | undefined,inferKeyType: string | null, nist: string | undefined, bits: number | undefined) => {
-  const connectedProtocols = await checkDeprecatedProtocol(host, connection_timeout);
-  const isStrongSignature = signatureStrength(signatureAlgorithm);
-  const checkKeyStrength = keyStrength(inferKeyType,nist,bits)
 
-  return {
-    configFindings: {
-      noDeprcatedProtocols: connectedProtocols ?? "Fail",
-      strongSignature: isStrongSignature,
-      keyStrength: checkKeyStrength,
 
+export const protocolAndCipherScan = async (host: string, connection_timeout: number, signatureAlgorithm:string | undefined,inferKeyType: string | null, nist: string | undefined, bits: number | undefined): Promise<ProtocolCipherScan> => {
+  try {
+    const connectedProtocols = await checkDeprecatedProtocol(host, connection_timeout);
+    const isStrongSignature = signatureStrength(signatureAlgorithm);
+    const checkKeyStrength = keyStrength(inferKeyType,nist,bits)
+
+    return {
+      configFindings: {
+        noDeprcatedProtocols: connectedProtocols ?? "Fail",
+        strongSignature: isStrongSignature,
+        keyStrength: checkKeyStrength,
+      }
     }
   }
-}
-const normalizeSerial = (s: string) => s.toLowerCase().replace(/[^0-9a-f]/g, "");
+  catch (err) {
+    return {
+      configFindings: {
+        noDeprcatedProtocols: "Unknown",
+        strongSignature:  signatureStrength(signatureAlgorithm),
+        keyStrength: keyStrength(inferKeyType,nist,bits),
 
-export const checkCipherOrder = async (serialNumber: string, crlUrl: string) => {
-  const normalizedSerialNumber = normalizeSerial(serialNumber);
-  const normalizedCrlUrl = normalizeSerial(crlUrl);
-
-  const crl = new x509.X509Crl(crlBytes);
+      }
+   }
+  }
 }

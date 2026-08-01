@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import tls from "node:tls";
 import {
+  checkDeprecatedProtocol,
   computeNextExpiryAlert,
   computeStatus,
   getCertificateLifetime,
@@ -13,14 +14,17 @@ import {
   keyLabel,
   keyStrength,
   parseSanNames,
+  protocolAndCipherScan,
   validationChecks,
 } from "./deriveTls";
 import { checkConnections } from "./probeProtocols";
-import { getCertStatus, getCertStatusByDomain } from "easy-ocsp";
-import { parseSCTExtensions, checkCrlRevocation } from "./ocspParset";
+import { parseSCTExtensions, checkCrlRevocation, getOcspStatus } from "./ocspParset";
 import { getCrlUrl } from "./parseCertExtensions";
+import { CrlRevocation, TlsCertificateInfo, TlsResult } from "./tls.types";
 
-export const tlsFetcher = async (host: string, connection_timeout: number) => {
+export const tlsFetcher = async (host: string, connection_timeout: number): Promise<TlsResult> => {
+  return new Promise((resolve, reject) => {
+
   let ocspResponse: Buffer | null = null;
   let handshake_time_ms: number;
   let error_messages: string | null = null;
@@ -40,10 +44,13 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
   });
 
   socket.once("timeout", () => {
+    error_code = "ETIMEDOUT";
+    error_messages = "TLS connection timed out";
     socket.destroy(new Error("TLS connection timed out"));
   });
 
   socket.on("secureConnect", async () => {
+  try {
     handshake_time_ms = Math.ceil(performance.now() - start);
 
     const certificate = socket.getPeerCertificate(true);
@@ -53,7 +60,30 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
     const publicKeyBase64 = certificate.pubkey?.toString("base64");
     const identityError = tls.checkServerIdentity(host, certificate);
 
-    const certificateInformation = {
+    if (x509Certificate === undefined) {
+      const certificateError: TlsResult =  {
+        status: "Invalid",
+        error: {
+          code: "NO_CERTIFICATE",
+          message: "No certificate presented by the server",
+        },
+        checkedAt: new Date(),
+        host,
+        port: 443,
+        certificate: null,
+        derived: null,
+        offeredProtocols: null,
+        configFindings: null,
+        ocsp: null,
+        crl: null,
+        certificateTransparency: null
+      }
+
+      resolve(certificateError);
+      return;
+    }
+
+    const certificateInformation: TlsCertificateInfo = {
       common_name: certificate.subject.CN,
       san_names: certificate?.subjectaltname ?? "",
       subject: certificate.subject.CN,
@@ -111,7 +141,6 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
       asymmetricKeyType: x509Certificate?.publicKey?.asymmetricKeyType,
     };
 
-    if (x509Certificate) {
       const type = inferKeyType(
         certificateInformation.asymmetricKeyType,
         certificateInformation.nist,
@@ -121,18 +150,18 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
       const daysRemaining = getDaysRemaining(x509Certificate.validToDate);
       const { days, isExpired } = daysRemaining;
 
-      getCertificateLifetime(
+      const certificateLifetime = getCertificateLifetime(
         x509Certificate.validFromDate,
         x509Certificate.validToDate
       );
-      getElapsedDays(x509Certificate.validFromDate);
-      parseSanNames(certificateInformation.san_names);
-      getCipherName(certificateInformation.cipher_suite);
-      getForwardSecrecy(certificateInformation.keyExchange);
-      getOcspResponder(certificateInformation.revocation.info_access);
-      keyLabel(type, certificateInformation.nist, certificate.bits);
-      keyStrength(type, certificateInformation.nist, certificate.bits);
-      validationChecks(
+      const elapsedDays = getElapsedDays(x509Certificate.validFromDate);
+      const parsedSanNames = parseSanNames(certificateInformation.san_names);
+      const cipherName = getCipherName(certificateInformation.cipher_suite);
+      const forwardSecrecy = getForwardSecrecy(certificateInformation.keyExchange);
+      const ocspResponder = getOcspResponder(certificateInformation.revocation.info_access);
+      const keyLabelCheck = keyLabel(type, certificateInformation.nist, certificate.bits);
+      const keyStrengthCheck = keyStrength(type, certificateInformation.nist, certificate.bits);
+      const validations = validationChecks(
         certificateInformation.authorization,
         isExpired,
         x509Certificate.validFromDate,
@@ -140,7 +169,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
         certificate.subject.CN,
         certificate.issuer.CN
       );
-      computeStatus(
+      const status = computeStatus(
         certificateInformation.hostname_match,
         isExpired,
         certificate.subject.CN,
@@ -149,37 +178,103 @@ export const tlsFetcher = async (host: string, connection_timeout: number) => {
         x509Certificate.validToDate,
         30
       );
-      computeNextExpiryAlert(days);
+     const nextExpiryAlert =  computeNextExpiryAlert(days);
+
+    const crlUrl = getCrlUrl(x509Certificate.toString());
+
+    const crl = crlUrl ?  await checkCrlRevocation(certificate.serialNumber, crlUrl): null;
+    const offeredProtocols = await checkConnections(host, connection_timeout);
+    const certificateTransparency = await parseSCTExtensions(x509Certificate);
+    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits)
+    const ocsp = await getOcspStatus(x509Certificate);
+
+
+    const tlsFetchData: TlsResult =  {
+      status,
+      error: null,
+      checkedAt: new Date(),
+      host,
+      port: 443,
+
+      certificate: certificateInformation,
+
+      derived: {
+        daysRemaining,
+        certificateLifetime,
+        elapsedDays,
+        subjectAlternativeNames: parsedSanNames,
+        publicKey: keyLabelCheck,
+        keyStrength: keyStrengthCheck,
+        forwardSecrecy,
+        cipherName,
+        ocspResponder,
+        validationChecks: validations,
+        nextExpiryAlert,
+      },
+
+      offeredProtocols,
+      configFindings,
+      ocsp,
+      crl,
+      certificateTransparency
     }
-
-    // const checkValidConnections = await checkConnections(host, connection_timeout);
-    checkConnections(host, connection_timeout);
-
-    const res = await parseSCTExtensions(x509Certificate);
-    console.log(res);
-
-    if (x509Certificate) {
-      const crlUrl = getCrlUrl(x509Certificate.toString());
-      if (crlUrl) {
-        const crlStatus = await checkCrlRevocation(certificate.serialNumber, crlUrl);
-        console.log(crlStatus);
-      }
+    resolve(tlsFetchData);
+    return;
+  }
+  catch (err) {
+    const tlsErrorProcessing: TlsResult = {
+      status: "Invalid",
+      error: {
+        code: "TLS_PROCESSING_ERROR",
+        message: (err as Error).message
+      },
+      checkedAt: new Date(),
+      host,
+      port: 443,
+      certificate: null,
+      derived: null,
+      offeredProtocols: null,
+      configFindings: null,
+      ocsp: null,
+      crl: null,
+      certificateTransparency: null
     }
-
-    socket.destroy();
-    return certificateInformation;
+    resolve(tlsErrorProcessing);
+    return;
+  }
+  finally{
+    socket.destroy()
+  }
   });
 
   socket.on("OCSPResponse", (response) => {
     ocspResponse = response;
   });
 
+
   socket.once("error", (error) => {
-    console.log("An error occurred while connecting with tls");
-
-    error_code = (error as NodeJS.ErrnoException).code ?? null;
+    error_code = (error as NodeJS.ErrnoException).code ?? error_code ??  null;
     error_messages = error.message;
-  });
-};
 
-tlsFetcher("www.x.com", 10_000);
+    const connectionError: TlsResult = {
+      status: "Unreachable",
+      error: {
+        code: error_code,
+        message: error_messages
+      },
+      checkedAt: new Date(),
+      host,
+      port: 443,
+      certificate: null,
+      derived: null,
+      offeredProtocols: null,
+      configFindings: null,
+      ocsp: null,
+      crl: null,
+      certificateTransparency: null
+    }
+    resolve(connectionError);
+    return;
+  });
+ })
+};
