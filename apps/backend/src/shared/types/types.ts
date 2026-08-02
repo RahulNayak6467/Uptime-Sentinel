@@ -57,7 +57,7 @@ export interface allMonitorsDataProps {
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: string;
-  monitor_type: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+  monitor_type: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
   last_status_code: number | null;
   response: {
     responseTime: number;

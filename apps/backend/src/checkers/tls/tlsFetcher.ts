@@ -131,7 +131,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       error_code,
       asn1: certificate.asn1Curve,
       nist: certificate.nistCurve,
-      handshake_timeout_ms: handshake_time_ms,
+      handshake_time_ms: handshake_time_ms,
       revocation: {
         info_access: certificate.infoAccess,
       },
@@ -218,6 +218,8 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       crl,
       certificateTransparency
     }
+
+    console.log(tlsFetchData);
     resolve(tlsFetchData);
     return;
   }
@@ -278,3 +280,5 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
   });
  })
 };
+
+tlsFetcher("www.x.com", 10000);

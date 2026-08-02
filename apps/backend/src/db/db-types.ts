@@ -33,7 +33,7 @@ export interface individualStatsState {
   monitor_type: MonitorType;
 }
 
-export type MonitorType = "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+export type MonitorType = "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

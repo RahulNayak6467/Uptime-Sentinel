@@ -132,7 +132,7 @@ export interface TlsCertificateInfo {
   error_code: string | null;
   asn1: string | undefined;
   nist: string | undefined;
-  handshake_timeout_ms: number;
+  handshake_time_ms: number;
   revocation: { info_access: NodeJS.Dict<string[]> | undefined };
   hostname_match: boolean;
   hostname_match_error: string | null;

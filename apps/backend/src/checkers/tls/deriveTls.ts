@@ -1,5 +1,5 @@
 import { CipherNameAndProtocol } from "node:tls";
-import { CertificateLifetime, DeprecatedProtocols, ElapsedDays, keyStrengthLevels, NextTlsExpiry, ProtocolCipherScan, TimeRemaining, TlsStatus, ValidationChecks } from "./tls.types";
+import { CertificateLifetime, ElapsedDays, keyStrengthLevels, NextTlsExpiry, ProtocolCipherScan, TimeRemaining, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 
 export const getDaysRemaining = ( endDate: Date):TimeRemaining => {
@@ -205,7 +205,6 @@ export const protocolAndCipherScan = async (host: string, connection_timeout: nu
         noDeprcatedProtocols: "Unknown",
         strongSignature:  signatureStrength(signatureAlgorithm),
         keyStrength: keyStrength(inferKeyType,nist,bits),
-
       }
    }
   }
