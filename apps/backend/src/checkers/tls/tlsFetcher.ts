@@ -5,6 +5,7 @@ import {
   computeNextExpiryAlert,
   computeStatus,
   getCertificateLifetime,
+  cipherSummary,
   getCipherName,
   getDaysRemaining,
   getElapsedDays,
@@ -157,6 +158,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       const elapsedDays = getElapsedDays(x509Certificate.validFromDate);
       const parsedSanNames = parseSanNames(certificateInformation.san_names);
       const cipherName = getCipherName(certificateInformation.cipher_suite);
+      const cipherSummaryLabel = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
       const forwardSecrecy = getForwardSecrecy(certificateInformation.keyExchange);
       const ocspResponder = getOcspResponder(certificateInformation.revocation.info_access);
       const keyLabelCheck = keyLabel(type, certificateInformation.nist, certificate.bits);
@@ -207,6 +209,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
         keyStrength: keyStrengthCheck,
         forwardSecrecy,
         cipherName,
+        cipherSummary: cipherSummaryLabel,
         ocspResponder,
         validationChecks: validations,
         nextExpiryAlert,

@@ -149,6 +149,7 @@ export interface TlsDerived {
   keyStrength: keyStrengthLevels,
   forwardSecrecy: boolean,
   cipherName: string,
+  cipherSummary: string,
   ocspResponder: string | null,
   validationChecks: ValidationChecks,
   nextExpiryAlert: NextTlsExpiry,
@@ -170,4 +171,24 @@ export interface TlsResult {
   ocsp: OCSPStatus | null,
   crl: CrlRevocation | null,
   certificateTransparency: ParseSCTExtension | null
+}
+
+export interface SecurityGrade {
+  grade: "A+" | "A" | "B" | "C" | "D" | "F";
+  overall: number;
+  scores: { label: string; value: number }[];
+}
+
+export interface RevocationShaper {
+  overall: "Good" | "Warn" | "Revoked";
+  checks: { label: string; description: string; status: "Pass" | "Warn" | "Fail" }[];
+  footer: {
+    ocspResponder: string | null;
+    nextOcspUpdate: Date | null;
+    ctLogs: {
+      operator: string;
+      timestamp: Date;
+    }[];
+    mustStaple: boolean;
+  }
 }

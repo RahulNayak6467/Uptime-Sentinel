@@ -1,11 +1,11 @@
 import * as x509 from "@peculiar/x509";
-import { AsnConvert } from "@peculiar/asn1-schema";
+import { AsnConvert, AsnParser, AsnProp, AsnPropTypes } from "@peculiar/asn1-schema";
 import { CertificateTransparency } from "@peculiar/asn1-cert-transparency";
 import { SignedCertificateTimestamp } from "@peculiar/asn1-cert-transparency";
 import { getCertStatus } from "easy-ocsp";
 import { getCtLogMap } from "./ctLogList";
 import { CrlRevocation, OCSPStatus, ParseSCTExtension } from "./tls.types";
-import { SCT_EXTENSION_OID } from "../../constants/constants";
+import { MUST_STAPLE_OID, SCT_EXTENSION_OID } from "../../constants/constants";
 
 export const getOcspStatus = async (x509Certificate: any): Promise<OCSPStatus> => {
   try {
