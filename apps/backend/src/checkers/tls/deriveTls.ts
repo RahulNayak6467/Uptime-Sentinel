@@ -1,7 +1,8 @@
-import { CipherNameAndProtocol } from "node:tls";
-import { CertificateLifetime, CrlRevocation, ElapsedDays, keyStrengthLevels, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsStatus, ValidationChecks } from "./tls.types";
+import tls,{ CipherNameAndProtocol } from "node:tls";
+import { CertificateLifetime, ChainCertificate, ChainOfTrust, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
+import { Certificate } from "node:crypto";
 export const getDaysRemaining = ( endDate: Date):TimeRemaining => {
 
   const start = new Date()
@@ -383,4 +384,84 @@ ocspResponder: string | null,
   }
 
   return revocationCard;
+}
+
+export const computeConnectionLatency = (dns_lookup_time_ms: number, tcp_handshake_ms: number | null,tls_time: number | null, handshake_time_ms: number): LatencyShaper => {
+
+  const computedLatency = {
+    dnsMs: dns_lookup_time_ms,
+    tcpMs: tcp_handshake_ms,
+    tlsMs: tls_time,
+    totalMs: handshake_time_ms
+  }
+
+  return computedLatency;
+}
+
+export const chainOfTrust = (certificate: tls.DetailedPeerCertificate) => {
+  const leafCertificate: ChainCertificate = {
+    role: certificate.subject.CN !== certificate.issuer.CN ? "Leaf" : "Root",
+    subject: certificate.subject,
+    issuer: certificate.issuer,
+    valid_from: certificate.valid_from,
+    valid_to: certificate.valid_to,
+    fingerprint256: certificate.fingerprint256,
+    serialNumber: certificate.serialNumber,
+  }
+
+  let cert  = certificate;
+  let arr: ChainCertificate[] = [];
+
+  arr.push(leafCertificate);
+
+  if (!certificate.issuerCertificate) return arr;
+  const seen = new Set<string>();
+
+ while (cert.issuerCertificate && cert.issuerCertificate.fingerprint256 !== cert.fingerprint256) {
+    seen.add(cert.fingerprint256);
+    const res: Record<string,any> = {};
+    for (const i in cert.issuerCertificate) {
+      if (i === "issuerCertificate") break;
+      res[i] = cert.issuerCertificate[i];
+    }
+    if ((res as tls.DetailedPeerCertificate)?.subject?.CN === (res as tls.DetailedPeerCertificate)?.issuer?.CN) {
+      arr.push({role: "Root",...res} as ChainCertificate);
+    }
+    else {
+      arr.push(({role: "Intermediate",...res} as ChainCertificate));
+    }
+    cert = cert.issuerCertificate
+ }
+
+  // console.log(arr);
+
+  return arr;
+}
+
+export const buildChainOfTrust = (certificate: tls.DetailedPeerCertificate, isAuthorized:boolean, authorizationError:string | undefined, hostnameMisMatch: boolean,  bytesLength: number | undefined): ChainOfTrust => {
+  const getCertificatesInfo = chainOfTrust(certificate);
+  const getRootName = getCertificatesInfo.filter((cert: ChainCertificate) => cert.role === "Intermediate").at(-1);
+  const getRootInfo = getCertificatesInfo.find((cert: ChainCertificate) => cert.role === "Root");
+  const selfSignedCheck = getRootInfo ? true : false
+  const getLeafCertificate = getCertificatesInfo.filter((cert: ChainCertificate) => cert.role === "Leaf");
+
+  const isSelfSigned = getCertificatesInfo.length === 1 && getRootInfo;
+
+  const rootInfo = {
+    name: !isSelfSigned ? getRootName?.issuer.CN ??  'Missing Intermediate CA' : getRootInfo?.issuer.CN,
+    inTrustStore: isAuthorized,
+    status: isAuthorized ? "In OS / browser trust store" : "Not a trusted root",
+  }
+
+  const chainTrust = {
+    links: getCertificatesInfo,
+    root: rootInfo,
+    verified: isAuthorized,
+    pathValidation: isAuthorized ? "Verified to a trusted root" : authorizationError ?? "Chain could not be verified",
+    hostnameMatch: hostnameMisMatch,
+    certsSent:getCertificatesInfo.length,
+    bytesSent:bytesLength ?? 0,
+  }
+
+  return chainTrust;
 }

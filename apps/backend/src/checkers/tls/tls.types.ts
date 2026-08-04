@@ -1,4 +1,4 @@
-import { CipherNameAndProtocol, SecureVersion } from "node:tls";
+import tls, { CipherNameAndProtocol, SecureVersion } from "node:tls";
 
 export interface TimeRemaining  {
   totalMs: number;   // signed: negative when expired
@@ -153,6 +153,9 @@ export interface TlsDerived {
   ocspResponder: string | null,
   validationChecks: ValidationChecks,
   nextExpiryAlert: NextTlsExpiry,
+  chainOfTrustCertificate: ChainOfTrust,
+  securityGrade: SecurityGrade,
+  revocation: RevocationShaper,
 }
 
 export interface TlsResult {
@@ -191,4 +194,37 @@ export interface RevocationShaper {
     }[];
     mustStaple: boolean;
   }
+}
+
+export interface LatencyShaper {
+  dnsMs: number;
+  tcpMs: number | null;
+  tlsMs: number | null;
+  totalMs: number;
+}
+
+type ChainRole = "Leaf" | "Intermediate" | "Root";
+
+export interface ChainCertificate {
+  role: ChainRole;
+  subject: tls.PeerCertificate["subject"];
+  issuer: tls.PeerCertificate["issuer"];
+  valid_from: string;
+  valid_to: string;
+  fingerprint256: string;
+  serialNumber: string;
+}
+
+export interface ChainOfTrust {
+  links: ChainCertificate[];
+  root: {
+    name: string | string[] | undefined;
+    inTrustStore: boolean;
+    status: string;
+  }
+  verified: boolean;
+  pathValidation: string;
+  hostnameMatch: boolean;
+  certsSent: number;
+  bytesSent: number
 }

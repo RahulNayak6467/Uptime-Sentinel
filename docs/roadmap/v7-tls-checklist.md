@@ -25,7 +25,7 @@
 | 12 | Derive | Renewal comparison — `compareRenewal` | ❌ Left | |
 | 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ❌ Left | Needs #6 |
 | 14 | Derive | Handshake trend / avg / p95 | ❌ Left | Aggregate over `tls_checks` |
-| ★15 | Derive | **`computeSecurityGrade`, `classifyWeakCiphers`, `parseMustStaple`** | ❌ Left | Parse-only, no network |
+| ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done | Group A complete + tests; `keyLabel` EC-bits + `cipherSummary` also done. `classifyWeakCiphers` **dropped** (misleading on negotiated-only data → rides with #2 matrix) |
 | 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left | **Gated on #5, #7, #10** |
 | 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
@@ -46,9 +46,12 @@
 
 ## Summary
 
-- **Done:** 5 of 32 (all base schema + the frontend redesign)
-- **Left:** 25
+- **Done:** 6 of 32 (base schema + frontend redesign + all Group A derive fns)
+- **Left:** 24
 - **Deferred / V12:** 2 (cipher-order, per-region)
+- **Group A derive complete** (2026-08-03): computeSecurityGrade, parseMustStaple,
+  revocation shaper, keyLabel/cipherSummary. Only no-persistence derive fn left is
+  #6 chain-of-trust (dev revisiting exclude-root first). Rest gated on #5/#7 schema.
 
 ## Critical path
 

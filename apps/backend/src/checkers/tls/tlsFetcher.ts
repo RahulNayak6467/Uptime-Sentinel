@@ -1,11 +1,16 @@
 import "reflect-metadata";
 import tls from "node:tls";
 import {
+  buildChainOfTrust,
+  chainOfTrust,
   checkDeprecatedProtocol,
+  cipherSummary,
+  computeConnectionLatency,
   computeNextExpiryAlert,
+  computeRevocationShaper,
+  computeSecurityGrade,
   computeStatus,
   getCertificateLifetime,
-  cipherSummary,
   getCipherName,
   getDaysRemaining,
   getElapsedDays,
@@ -20,14 +25,17 @@ import {
 } from "./deriveTls";
 import { checkConnections } from "./probeProtocols";
 import { parseSCTExtensions, checkCrlRevocation, getOcspStatus } from "./ocspParset";
-import { getCrlUrl } from "./parseCertExtensions";
+import { getCrlUrl, parseMustStaple } from "./parseCertExtensions";
 import { CrlRevocation, TlsCertificateInfo, TlsResult } from "./tls.types";
+import { hostname } from "zod/v4/core/regexes.cjs";
 
 export const tlsFetcher = async (host: string, connection_timeout: number): Promise<TlsResult> => {
   return new Promise((resolve, reject) => {
 
   let ocspResponse: Buffer | null = null;
-  let handshake_time_ms: number;
+  let handshake_time_ms: number | null;
+  let dnsDoneAt: number | null = null;
+  let tcpDoneAt: number | null = null;
   let error_messages: string | null = null;
   let error_code: string | null = null;
 
@@ -44,6 +52,14 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     requestOCSP: true,
   });
 
+  socket.on("lookup", () => {
+    dnsDoneAt = performance.now();
+  })
+
+  socket.on("connect", () => {
+    tcpDoneAt = performance.now();
+  })
+
   socket.once("timeout", () => {
     error_code = "ETIMEDOUT";
     error_messages = "TLS connection timed out";
@@ -51,8 +67,15 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
   });
 
   socket.on("secureConnect", async () => {
-  try {
-    handshake_time_ms = Math.ceil(performance.now() - start);
+    try {
+
+    const secureAt = performance.now();
+    const dns_lookup_time_ms = dnsDoneAt ? Math.round(dnsDoneAt - start) : 0;
+    const tcp_handshake_time_ms = dnsDoneAt && tcpDoneAt ? Math.round(tcpDoneAt - dnsDoneAt) : null;
+    const tls_ms = tcpDoneAt ? Math.round(secureAt - tcpDoneAt) : null;
+    handshake_time_ms = Math.floor(performance.now() - start);
+
+    computeConnectionLatency(dns_lookup_time_ms, tcp_handshake_time_ms, tls_ms, handshake_time_ms);
 
     const certificate = socket.getPeerCertificate(true);
     const x509Certificate = socket.getPeerX509Certificate();
@@ -60,6 +83,8 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     const keyExchange = socket.getEphemeralKeyInfo() as tls.EphemeralKeyInfo;
     const publicKeyBase64 = certificate.pubkey?.toString("base64");
     const identityError = tls.checkServerIdentity(host, certificate);
+
+    // chainOfTrust(certificate);
 
     if (x509Certificate === undefined) {
       const certificateError: TlsResult =  {
@@ -158,7 +183,6 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       const elapsedDays = getElapsedDays(x509Certificate.validFromDate);
       const parsedSanNames = parseSanNames(certificateInformation.san_names);
       const cipherName = getCipherName(certificateInformation.cipher_suite);
-      const cipherSummaryLabel = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
       const forwardSecrecy = getForwardSecrecy(certificateInformation.keyExchange);
       const ocspResponder = getOcspResponder(certificateInformation.revocation.info_access);
       const keyLabelCheck = keyLabel(type, certificateInformation.nist, certificate.bits);
@@ -187,10 +211,14 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     const crl = crlUrl ?  await checkCrlRevocation(certificate.serialNumber, crlUrl): null;
     const offeredProtocols = await checkConnections(host, connection_timeout);
     const certificateTransparency = await parseSCTExtensions(x509Certificate);
-    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits)
+    const summaryCipher = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
+    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
     const ocsp = await getOcspStatus(x509Certificate);
-
-
+      const hostnameMatch = certificateInformation.hostname_match;
+    const chainOfTrustCertificate = buildChainOfTrust(certificate, certificateInformation.authorization, certificateInformation.authorizationError?.message, hostnameMatch, certificate.pubkey?.length);
+    const securityGrade = computeSecurityGrade(validations, certificateInformation.signature_algorithm, offeredProtocols, type, certificateInformation.nist, certificate.bits);
+    const mustStaple = parseMustStaple(x509Certificate.toString());
+    const revocation = computeRevocationShaper(ocsp, crl, certificateTransparency, certificateInformation.ocsp_stapled, ocspResponder, mustStaple);
     const tlsFetchData: TlsResult =  {
       status,
       error: null,
@@ -200,7 +228,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
 
       certificate: certificateInformation,
 
-      derived: {
+      derived:{
         daysRemaining,
         certificateLifetime,
         elapsedDays,
@@ -209,10 +237,13 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
         keyStrength: keyStrengthCheck,
         forwardSecrecy,
         cipherName,
-        cipherSummary: cipherSummaryLabel,
+        cipherSummary: summaryCipher,
         ocspResponder,
         validationChecks: validations,
         nextExpiryAlert,
+        chainOfTrustCertificate,
+        securityGrade,
+        revocation,
       },
 
       offeredProtocols,
@@ -255,8 +286,6 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
   socket.on("OCSPResponse", (response) => {
     ocspResponse = response;
   });
-
-
   socket.once("error", (error) => {
     error_code = (error as NodeJS.ErrnoException).code ?? error_code ??  null;
     error_messages = error.message;
