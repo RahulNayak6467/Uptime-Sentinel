@@ -1,4 +1,4 @@
-import tls,{ CipherNameAndProtocol } from "node:tls";
+import tls,{ CipherNameAndProtocol, SecureVersion } from "node:tls";
 import { CertificateLifetime, ChainCertificate, ChainOfTrust, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
@@ -165,8 +165,8 @@ export const computeNextExpiryAlert = (days: number): NextTlsExpiry  => {
 
 }
 
-export const checkDeprecatedProtocol = async (host: string, connection_timeout: number) => {
-  const res = await checkConnections(host, connection_timeout);
+export const checkDeprecatedProtocol = async (host: string, connection_timeout: number, tlsVersion: SecureVersion) => {
+  const res = await checkConnections(host, connection_timeout,tlsVersion);
 
   const isDeprecated = res.some((protocol) => protocol.name === "TLSv1" && protocol.enabled === true || protocol.name === "TLSv1.1" && protocol.enabled === true)
 
@@ -194,9 +194,9 @@ export const signatureStrength = (
 
 
 
-export const protocolAndCipherScan = async (host: string, connection_timeout: number, signatureAlgorithm:string | undefined,inferKeyType: string | null, nist: string | undefined, bits: number | undefined): Promise<ProtocolCipherScan> => {
+export const protocolAndCipherScan = async (host: string, connection_timeout: number, tlsVersion: SecureVersion, signatureAlgorithm:string | undefined,inferKeyType: string | null, nist: string | undefined, bits: number | undefined): Promise<ProtocolCipherScan> => {
   try {
-    const connectedProtocols = await checkDeprecatedProtocol(host, connection_timeout);
+    const connectedProtocols = await checkDeprecatedProtocol(host, connection_timeout, tlsVersion);
     const isStrongSignature = signatureStrength(signatureAlgorithm);
     const checkKeyStrength = keyStrength(inferKeyType,nist,bits)
 

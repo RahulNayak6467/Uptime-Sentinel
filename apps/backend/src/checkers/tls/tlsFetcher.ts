@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import tls from "node:tls";
+import tls, { SecureVersion } from "node:tls";
 import {
   buildChainOfTrust,
   chainOfTrust,
@@ -75,7 +75,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     const tls_ms = tcpDoneAt ? Math.round(secureAt - tcpDoneAt) : null;
     handshake_time_ms = Math.floor(performance.now() - start);
 
-    computeConnectionLatency(dns_lookup_time_ms, tcp_handshake_time_ms, tls_ms, handshake_time_ms);
+    const connectionLatency = computeConnectionLatency(dns_lookup_time_ms, tcp_handshake_time_ms, tls_ms, handshake_time_ms);
 
     const certificate = socket.getPeerCertificate(true);
     const x509Certificate = socket.getPeerX509Certificate();
@@ -209,10 +209,10 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     const crlUrl = getCrlUrl(x509Certificate.toString());
 
     const crl = crlUrl ?  await checkCrlRevocation(certificate.serialNumber, crlUrl): null;
-    const offeredProtocols = await checkConnections(host, connection_timeout);
+    const offeredProtocols = await checkConnections(host, connection_timeout,(certificateInformation.tls_version as SecureVersion));
     const certificateTransparency = await parseSCTExtensions(x509Certificate);
     const summaryCipher = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
-    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
+    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.tls_version as SecureVersion, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
     const ocsp = await getOcspStatus(x509Certificate);
       const hostnameMatch = certificateInformation.hostname_match;
     const chainOfTrustCertificate = buildChainOfTrust(certificate, certificateInformation.authorization, certificateInformation.authorizationError?.message, hostnameMatch, certificate.pubkey?.length);
@@ -240,6 +240,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
         cipherSummary: summaryCipher,
         ocspResponder,
         validationChecks: validations,
+        connectionLatency,
         nextExpiryAlert,
         chainOfTrustCertificate,
         securityGrade,
@@ -254,6 +255,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     }
 
     console.log(tlsFetchData);
+      // console.log(offeredProtocols);
     resolve(tlsFetchData);
     return;
   }

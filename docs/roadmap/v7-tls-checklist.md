@@ -24,8 +24,10 @@
 | 11 | Derive | Fingerprint pinning — `comparePin` | ❌ Left | Pin is a setting, not a snapshot field |
 | 12 | Derive | Renewal comparison — `compareRenewal` | ❌ Left | |
 | 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ❌ Left | Needs #6 |
-| 14 | Derive | Handshake trend / avg / p95 | ❌ Left | Aggregate over `tls_checks` |
-| ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done | Group A complete + tests; `keyLabel` EC-bits + `cipherSummary` also done. `classifyWeakCiphers` **dropped** (misleading on negotiated-only data → rides with #2 matrix) |
+| 14 | Derive | Handshake trend / avg / p95 | 🟡 Partial | DNS/TCP/TLS **phase split done + wired** (`computeConnectionLatency`); avg/p95 trend needs `tls_checks` |
+| 14b | Derive | **Chain of trust** (`chainOfTrust`/`buildChainOfTrust`) | ✅ Done + wired | Recurse sent chain, named status-only root; 2026-08-05 |
+| 14c | Derive | **Protocol & cipher matrix** (per-version suite/status/rating + ALPN) | ✅ Done + wired | `probeProtocols` returns rating; frontend mock updated; 2026-08-05 |
+| ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done + wired | + `keyLabel` EC-bits + `cipherSummary`; all Group A wired into `tlsFetcher`. `classifyWeakCiphers` **dropped** (`rating` covers it) |
 | 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left | **Gated on #5, #7, #10** |
 | 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
@@ -46,12 +48,20 @@
 
 ## Summary
 
-- **Done:** 6 of 32 (base schema + frontend redesign + all Group A derive fns)
-- **Left:** 24
-- **Deferred / V12:** 2 (cipher-order, per-region)
-- **Group A derive complete** (2026-08-03): computeSecurityGrade, parseMustStaple,
-  revocation shaper, keyLabel/cipherSummary. Only no-persistence derive fn left is
-  #6 chain-of-trust (dev revisiting exclude-root first). Rest gated on #5/#7 schema.
+- **Done:** base schema (1–4) + frontend redesign (24) + **all no-persistence derive**
+  (grade, must-staple, revocation shaper, chain of trust, protocol matrix, handshake
+  phase-split, keyLabel/cipherSummary) — **all wired into `tlsFetcher`**.
+- **All derivation that can run without persistence is complete (2026-08-05).**
+- **No-schema runway left:** only 2 backend cleanups — **#10 fix build + result
+  envelope** (tsc errors, remove console.logs) and **dedupe `checkConnections`**
+  double-probe. Plus frontend presentation glue (grade summary/chips, chain fill
+  bars, SAN "+N more", protocol summary headline). Everything else needs schema.
+- **Extreme-hard / off-track (both already deferred, not in scope):** multi-region
+  per-region card (→V12, needs distributed probe infra); CT **unexpected-issuance**
+  monitoring (needs an external CT-log follower). No other extreme item is hiding
+  as in-scope.
+- **Cut/avoided (do not re-suggest):** HSTS + HTTP→HTTPS redirect (validation card),
+  `classifyWeakCiphers`, downgrade-24h / renegotiation / session-resumption footers.
 
 ## Critical path
 

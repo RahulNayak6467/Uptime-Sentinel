@@ -41,8 +41,11 @@ export interface NextTlsExpiry {
 }
 
 export interface TlsAcceptedConnections {
-  name: SecureVersion,
-  enabled: boolean
+  status?: string,
+  name: SecureVersion | "SSLv3",
+  enabled: boolean,
+  rating: "Pass" | "Warn" | "Fail",
+  cipherSuite: string | null,
 }
 
 export type CtLogMap = Map<string, string>;
@@ -152,6 +155,7 @@ export interface TlsDerived {
   cipherSummary: string,
   ocspResponder: string | null,
   validationChecks: ValidationChecks,
+  connectionLatency: LatencyShaper,
   nextExpiryAlert: NextTlsExpiry,
   chainOfTrustCertificate: ChainOfTrust,
   securityGrade: SecurityGrade,
