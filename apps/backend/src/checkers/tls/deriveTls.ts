@@ -1,5 +1,5 @@
 import tls,{ CipherNameAndProtocol, SecureVersion } from "node:tls";
-import { CertificateLifetime, ChainCertificate, ChainOfTrust, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, ValidationChecks } from "./tls.types";
+import { CertHistoryInfo, CertificateEvents, CertificateLifetime, CertLifetimeInfo, CertLifetimeStats, ChainCertificate, ChainOfTrust, ComparePin, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
 import { Certificate } from "node:crypto";
@@ -580,4 +580,85 @@ export const connectionInfo = (configInput: TlsConfigInput): TlsConfigOnput => {
   }
 
   return connectedInfo;
+}
+
+export const computeComparePin = (currentFingerPrint: string, pinnedFingerPrint: string | null, lastVerified: Date, autoRepin: boolean): ComparePin => {
+
+  if (pinnedFingerPrint === null) {
+    return {
+      status: null,
+      lastVerified,
+      autoRepin,
+      currentFingerPrint,
+      pinnedFingerPrint,
+      isPinned: false,
+    }
+  }
+
+  const isCorrectFingerPrint = pinnedFingerPrint.trim().replaceAll(":","").toUpperCase() === currentFingerPrint.trim().replaceAll(":","").toUpperCase();
+
+  const computePin: ComparePin = {
+    status: isCorrectFingerPrint ? "match" : "broken",
+    lastVerified,
+    autoRepin,
+    currentFingerPrint,
+    pinnedFingerPrint,
+    isPinned: true,
+  }
+
+  return computePin;
+}
+
+export const lifetimeHistoryStats = (lifetimeStatsArray: CertLifetimeStats[]): CertLifetimeInfo | null => {
+
+  if (lifetimeStatsArray.length === 0) return null;
+
+  const certs = lifetimeStatsArray.map((stat, index) => {
+    return {
+      seenAt: new Date(stat.first_seen_at),
+      fingerprint: stat.fingerprint_sha256,
+      current: index === 0 ? true : false,
+    }
+  })
+
+  let computeAvgRenewalLead = 0;
+
+  for (let i = 0; i < lifetimeStatsArray.length - 1; i++){
+    const getDifferenceMs = new Date(lifetimeStatsArray[i + 1].valid_to).getTime() - new Date(lifetimeStatsArray[i].first_seen_at).getTime();
+    const getDaysDifference = (getDifferenceMs / (1000 * 60 * 60 * 24));
+
+    computeAvgRenewalLead += getDaysDifference;
+  }
+
+  const lifetimeStats: CertLifetimeInfo = {
+    certs,
+    currentValidFrom: new Date(lifetimeStatsArray[0].valid_from),
+    currentValidTo: new Date(lifetimeStatsArray[0].valid_to),
+    avgRenewalLead: lifetimeStatsArray.length !== 1 ? Math.round(computeAvgRenewalLead / (lifetimeStatsArray.length - 1)) : null,
+  }
+
+  return lifetimeStats;
+}
+
+export const computeCertificateHistory = (certHistory: CertHistoryInfo[]) => {
+
+  if (certHistory.length === 0) return [];
+
+  const certificateHistory = certHistory.map((certInfo) => {
+    return {
+      id: certInfo.id,
+      type: certInfo.type,
+      occurred_at: new Date(certInfo.occurred_at),
+      tone: computeTone(certInfo.type),
+      metadata: certInfo.metadata,
+    };
+  });
+
+  return certificateHistory;
+}
+
+const computeTone = (type: CertificateEvents): "positive" | "negative" | "neutral" => {
+  if (type === "renewed" || type === "recovered") return "positive";
+  if (type === "protocol_change" || type === "first_snapshot") return "neutral";
+  else return "negative";
 }

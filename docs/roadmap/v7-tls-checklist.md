@@ -5,7 +5,9 @@
 > security-grade derivations, per-region cards). Items marked **★** are additions
 > beyond the original 23-row scope.
 
-**Status:** In progress — 9 of 32 done. **All 5 tables migrated + applied 2026-08-05.**
+**Status:** In progress — 12 of 32 done (+ ★15b/c/d). **Pure-derive layer COMPLETE
+(2026-08-07)** — all remaining work is pipeline/persistence + 2 service SQL queries.
+All 5 tables migrated + applied 2026-08-05.
 
 ## Checklist
 
@@ -21,13 +23,16 @@
 | 8 | Persistence | Store check results + handshake timing → `tls_checks` | ❌ Left | Needs #7, #16 |
 | 9 | Persistence | Append cert snapshot on fingerprint/serial change (+prune) | ❌ Left | Needs #6, #16 |
 | ★10 | Backend | **`tlsFetcher` result envelope** (`status`/`certificate`/`error`) | ❌ Left | Fix 4 tsc errors; prereq for #16, #23 |
-| 11 | Derive | Fingerprint pinning — `comparePin` | ❌ Left | Pin is a setting, not a snapshot field |
-| 12 | Derive | Renewal comparison — `compareRenewal` | ❌ Left | |
-| 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ❌ Left | Needs #6 |
-| 14 | Derive | Handshake trend / avg / p95 | 🟡 Partial | DNS/TCP/TLS **phase split done + wired** (`computeConnectionLatency`); avg/p95 trend needs `tls_checks` |
+| 11 | Derive | Fingerprint pinning — `comparePin` | ✅ Done + tested | `computeComparePin` (status/isPinned/normalize) 2026-08-07; auto-repin write deferred to #9/#11 |
+| 12 | Derive | Renewal comparison — `computeRenewalComparison` | ✅ Done + tested | + `compareSan` 2026-08-06; runs once ≥2 snapshots persist |
+| 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ✅ Done + tested | 2026-08-07; runs once snapshots persist |
+| 14 | Derive | Handshake trend / avg / p95 | 🟡 Partial | phase split done + wired (`computeConnectionLatency`); **avg/p95/trend = service SQL, not a fn** (`AVG`/`percentile_cont`/`date_trunc`; DB tests) |
 | 14b | Derive | **Chain of trust** (`chainOfTrust`/`buildChainOfTrust`) | ✅ Done + wired | Recurse sent chain, named status-only root; 2026-08-05 |
 | 14c | Derive | **Protocol & cipher matrix** (per-version suite/status/rating + ALPN) | ✅ Done + wired | `probeProtocols` returns rating; frontend mock updated; 2026-08-05 |
-| ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done + wired | + `keyLabel` EC-bits + `cipherSummary`; all Group A wired into `tlsFetcher`. `classifyWeakCiphers` **dropped** (`rating` covers it) |
+| ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done + wired | + `keyLabel` EC-bits + `cipherSummary`; all Group A wired. `classifyWeakCiphers` **dropped**. **`signals` block done + tested 2026-08-06** |
+| ★15b | Derive | **CAA policy lookup — `computeCaa`** | ✅ Done + tested | 2026-08-07, injectable resolver; persist to `tls_state` pending — amend `caa_iodef → TEXT[]` |
+| ★15c | Derive | **Certificate history builder — `computeCertificateHistory`** (+ `computeTone`) | ✅ Done + tested | 2026-08-07; runs once `tls_events` persist; per-type metadata locked at #17 |
+| ★15d | Derive | **Connection & schedule — `connectionInfo`** | ✅ Done + tested | 2026-08-06 (return + field mapping fix) |
 | 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left | **Gated on #5, #7, #10** |
 | 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
@@ -41,7 +46,7 @@
 | 26 | Frontend | Status pill + gauge → bind to `computeStatus` | ❌ Left | |
 | 27 | Frontend | SAN "+N more" capped-chip display | ❌ Left | Backend already sends all SANs |
 | ★28 | Frontend | **Per-region cert card** (blurred coming-soon) | ⏸️ V12 | Not removed; multi-region infra |
-| 29 | Tests | Derive unit tests (test tables → real assertions) | ❌ Left | |
+| 29 | Tests | Derive unit tests (test tables → real assertions) | 🟡 Partial | Scaffolds written + green for all pure-derive fns done this session (signals, renewal, comparePin, CAA, lifetime, history, connectionInfo); remainder as fns land |
 | 30 | Tests | Checker integration tests (envelope + persistence) | ❌ Left | |
 | ★31 | Tests | **DB integration tests** for TLS SQL queries | ❌ Left | Discuss after monitors review |
 | 32 | Deferred | Cipher-order finding (two-connection probe) | ⏸️ Deferred | High effort, moot on TLS 1.3 |
@@ -180,20 +185,20 @@ it gets a separate frontend table once all backend work is done.
 
 | Card heading (UI) | Component | What's missing | Function(s) to derive | % done |
 |---|---|---|---|---|
-| "Certificate valid" (status + grade banner) | `TlsStatusSummary` | renewals counter, p95, last-scan time | renewals counter, p95/trend | 85% |
-| "Certificate lifetime" | `TlsLifetimeCard` | cert timeline, avg renewal lead | `lifetimeHistoryStats` | 30% |
+| "Certificate valid" (status + grade banner) | `TlsStatusSummary` | last-scan time *(renewals + p95 = service SQL, no fn)* | — | 85% |
+| "Certificate lifetime" | `TlsLifetimeCard` | — (backend done + tested 2026-08-07; runs once snapshots persist) | ✅ `lifetimeHistoryStats` done + tested | 85% |
 | "Handshake" | `TlsHandshakeCard` | — | — | 100% |
-| "Handshake latency" | `TlsHandshakeLatencyCard` | avg, p95, trend — **per window (24h/7d/30d)** | avg / p95 / trend (window-parameterized) | 25% |
+| "Handshake latency" | `TlsHandshakeLatencyCard` | SQL query + persistence *(avg/p95/trend = service SQL, no fn)* | ❌ **Not a function** — SQL: `AVG`, `percentile_cont(0.95)`, `date_trunc`+`GROUP BY` per window; optional JS gap-fill shaper. DB integration tests | 40% |
 | "Security grade" | `TlsSecurityGradeCard` | — (backend done) | ✅ `signals` block done + tested (2026-08-06) | 100% |
 | "Leaf certificate" | `TlsLeafCard` | — (backend done; Raw button **dropped** 2026-08-06) | — (all fields assembled in `tlsFetcher`) | 100% |
 | "Chain of trust" | `TlsChainCard` | — | — | 100% |
 | "Protocol & cipher support" | `TlsProtocolCipherCard` | — | — | 100% |
 | "Certificate served per region" | `TlsRegionCard` | deferred V12 (multi-region infra) | — | out of scope |
 | "Validation" | `TlsValidationCard` | — | — | 100% |
-| "Revocation, CT & issuance policy" | `TlsRevocationCard` | OCSP status, CAA, SCTs *(unexpected-issuance = deferred CT follower)* | OCSP query, CAA lookup, SCT/CT parse | 45% |
-| "Certificate history" | `TlsHistoryCard` | all events | history-event builder | 10% |
+| "Revocation, CT & issuance policy" | `TlsRevocationCard` | persistence only *(OCSP/CRL/SCT/CAA all derived; unexpected-issuance = deferred CT follower)* | ✅ `computeCaa` done + tested 2026-08-07 | 85% |
+| "Certificate history" | `TlsHistoryCard` | — (backend done + tested 2026-08-07; runs once `tls_events` persist) | ✅ `computeCertificateHistory` (+ `computeTone`) done + tested | 85% |
 | "Latest renewal comparison" | `TlsRenewalComparisonCard` | — (backend done + tested 2026-08-06; runs once ≥2 snapshots persist) | ✅ `computeRenewalComparison` + `compareSan` done + tested | 100% |
-| "Fingerprint pin" | `TlsPinningCard` | entire card | `comparePin` | 0% |
+| "Fingerprint pin" | `TlsPinningCard` | auto-repin write (deferred to #9/#11 worker) | ✅ `computeComparePin` (status) done + tested 2026-08-06 | 85% |
 | "Connection & schedule" | `TlsConfigCard` | — (backend done + tested 2026-08-06) | ✅ `connectionInfo` fixed (return + field mapping) + tested | 100% |
 | "Alert rules" | `TlsAlertRulesCard` | reads config, not derive | none (needs config API) | presentation |
 
@@ -201,14 +206,14 @@ it gets a separate frontend table once all backend work is done.
 
 | Function | Serves card | Blocked on |
 |---|---|---|
-| `lifetimeHistoryStats` | Certificate lifetime | raised snapshot cap (#6) |
-| avg / p95 / trend (per 24h/7d/30d) | Handshake latency, banner | stored `tls_checks` rows |
-| `comparePin` | Fingerprint pin | `tls_config.pinned_*` |
-| renewals counter | Certificate valid (banner) | snapshot history |
-| history-event builder | Certificate history | `tls_events` rows |
-| OCSP query probe | Revocation | `tls_state` + network call |
-| CAA DNS lookup | Revocation | `tls_state` + DNS call |
-| SCT / CT-log parse | Revocation | **pure — writeable now** |
+| ~~`lifetimeHistoryStats`~~ | Certificate lifetime | ✅ **Done + tested 2026-08-07**; runs once snapshots persist |
+| ~~avg / p95 / trend~~ | Handshake latency, banner | ❌ **Not a function** — service SQL (`AVG` / `percentile_cont(0.95)` / `date_trunc`+`GROUP BY` per window over `tls_checks`); optional JS gap-fill; DB integration tests |
+| ~~`comparePin` (status)~~ | Fingerprint pin | ✅ **Done + tested 2026-08-06** (`computeComparePin`); auto-repin write deferred to #9/#11 |
+| ~~renewals counter~~ | Certificate valid (banner) | ❌ **Not a function** — service SQL `COUNT(*) WHERE type='renewed' AND occurred_at >= now-windowDays` (default 365d) over `tls_events` |
+| ~~history-event builder~~ | Certificate history | ✅ **Done + tested 2026-08-07** (`computeCertificateHistory` + `computeTone`); runs once `tls_events` persist. Per-type `metadata` shapes locked at write-side (#17) |
+| ~~OCSP query probe~~ | Revocation | ✅ **Already written** (`getOcspStatus`, `ocspParset.ts`) — persist to `tls_state` still pending |
+| ~~CAA DNS lookup~~ | Revocation | ✅ **Done + tested 2026-08-07** (`computeCaa`, injectable resolver); persist to `tls_state` pending — amend `caa_iodef → TEXT[]` |
+| ~~SCT / CT-log parse~~ | Revocation | ✅ **Already written** (`parseSCTExtensions` + `getCtLogMap`) — persist pending |
 | ~~grade summary / chip flags~~ | Security grade + banner | ✅ **Done + tested 2026-08-06** (`signals` block in `computeSecurityGrade`) |
 | ~~fix `connectionInfo`~~ | Connection & schedule | ✅ **Done + tested 2026-08-06** (return + field mapping + casing) |
 

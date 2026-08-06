@@ -298,3 +298,55 @@ export interface TlsConfigOnput {
   checkIntervalSeconds: number;
   nextCheckAt: Date
 }
+
+export interface ComparePin {
+  status: "match" | "broken" | null;
+  lastVerified: Date | null;
+  autoRepin: boolean;
+  currentFingerPrint: string,
+  pinnedFingerPrint: string | null,
+  isPinned: boolean,
+}
+
+export interface ComputeCaa {
+  status: "Pass" | "Warn" | "Unknown",
+  caaPresent: boolean,
+  allowedIssuers: string[],
+  iodef: string[],
+}
+
+export interface CertLifetimeStats {
+  fingerprint_sha256: string;
+  valid_from: Date;
+  valid_to: Date;
+  first_seen_at: Date;
+}
+
+export interface CertsInfoField {
+  seenAt: Date;
+  fingerprint: string;
+  current: boolean;
+}
+
+export interface CertLifetimeInfo {
+  certs: CertsInfoField[];
+  currentValidFrom: Date;
+  currentValidTo: Date;
+  avgRenewalLead: number | null;
+}
+
+export type CertificateEvents = "renewed" | "went_down" | "recovered" | "protocol_change" | "first_snapshot";
+
+export interface CertHistoryInfo {
+  id: string,
+  type: CertificateEvents,
+  occurred_at: Date,
+  metadata: any
+}
+
+export interface CertHistoryInfoOutput {
+  id: string,
+  type: CertificateEvents,
+  occurred_at: Date,
+  metadata: any
+}
