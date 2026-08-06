@@ -114,7 +114,7 @@ export interface TlsCertificateInfo {
   signature_algorithm: string | undefined;
   authorization: boolean;
   authorizationError: Error | null;
-  tls_version: string | null;
+  tls_version: SecureVersion | null;
   cipher_suite: CipherNameAndProtocol;
   alpn_protocol: string | false | null;
   publicKey: string | undefined;
@@ -184,6 +184,15 @@ export interface SecurityGrade {
   grade: "A+" | "A" | "B" | "C" | "D" | "F";
   overall: number;
   scores: { label: string; value: number }[];
+  signals: Signals
+}
+
+export interface Signals {
+  forwardSecrecySignal: boolean;
+  ocspStapledSignal: boolean;
+  tlsVersionPrefferedSignal: boolean;
+  strongKeySignal: boolean;
+  mustStapleSignal: boolean;
 }
 
 export interface RevocationShaper {
@@ -231,4 +240,61 @@ export interface ChainOfTrust {
   hostnameMatch: boolean;
   certsSent: number;
   bytesSent: number
+}
+
+export interface TlsCertRenewal {
+  fingerprint_sha256: string;
+  serial_number: string;
+  issuer: string;
+  valid_from: Date;
+  valid_to: Date;
+  first_seen_at: Date;
+  asymmetric_key_type: string | null;
+  nist_curve: string | null
+  key_bits: number | null;
+  san: string[];
+}
+
+interface RenewalChanges {
+  field: string;
+  detail: string;
+}
+
+export interface RenewalComparison {
+  detectedAt: Date;
+  previous: {
+    issuer: string;
+    expiresAt: Date;
+    key: string;
+    fingerprint: string;
+  }
+  current: {
+    issuer: string;
+    expiresAt: Date;
+    key: string;
+    fingerprint: string;
+  }
+changes: RenewalChanges[];
+}
+
+export interface TlsConfigInput {
+  url: string;
+  host: string;
+  interval_seconds: number;
+  next_check_at: Date,
+  request_time_out_ms: number;
+  warning_threshold_days: number,
+  expiry_alert_thresholds: number[],
+  min_tls_version: string
+}
+
+
+export interface TlsConfigOnput {
+  warningThresholdDays: number;
+  expiryAlertThresholds: number[];
+  connectionTimeoutMs: number;
+  minTlsVersion: string;
+  serverName: string;
+  checkIntervalSeconds: number;
+  nextCheckAt: Date
 }

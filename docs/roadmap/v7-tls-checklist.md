@@ -5,7 +5,7 @@
 > security-grade derivations, per-region cards). Items marked **★** are additions
 > beyond the original 23-row scope.
 
-**Status:** In progress — 5 of 32 done.
+**Status:** In progress — 9 of 32 done. **All 5 tables migrated + applied 2026-08-05.**
 
 ## Checklist
 
@@ -15,9 +15,9 @@
 | 2 | Schema | `tls_config` columns (warning_threshold_days, expiry_alert_thresholds) | ✅ Done | Migrated |
 | 3 | Schema | `tls_cert_snapshots` table | ✅ Done | Migrated; `chain jsonb` kept |
 | 4 | Schema | `tls_checks` table (per-check + timing) | ✅ Done | Migrated |
-| ★5 | Schema | **`tls_state` table** (OCSP/CRL/CT/protocol-scan, 1:1, overwrite) | ❌ Left | Columns not yet listed — **GATE** |
-| ★6 | Schema | **Raise snapshot cap** (cap-2 → bounded ~10–20) | ❌ Left | Unblocks #13, #14 |
-| ★7 | Decision | **monitor_type semantics** (add-on vs. standalone non-HTTP) | ❌ Left | Gates #16 worker dispatch |
+| ★5 | Schema | **`tls_state` table** (protocol-scan/OCSP/CAA, 1:1, overwrite) | ✅ Done | 15 cols, migrated 2026-08-05 |
+| ★6 | Schema | **Raise snapshot cap** (cap-2 → **10**) | 🟡 Decided | cap=10 locked; prune is worker logic (#9) |
+| ★7 | Decision | **monitor_type semantics** → **standalone** (`type='tls'` → tlsFetcher only) | ✅ Decided | 2026-08-05; shared monitor table keeps inert HTTP cols for tls rows |
 | 8 | Persistence | Store check results + handshake timing → `tls_checks` | ❌ Left | Needs #7, #16 |
 | 9 | Persistence | Append cert snapshot on fingerprint/serial change (+prune) | ❌ Left | Needs #6, #16 |
 | ★10 | Backend | **`tlsFetcher` result envelope** (`status`/`certificate`/`error`) | ❌ Left | Fix 4 tsc errors; prereq for #16, #23 |
@@ -78,7 +78,8 @@ cheapest and unblocks the most** — it is a design decision, not code.
 
 Driven by a card-by-card store-vs-derive walk of `certificates-monitor.tsx`.
 Column names **and data types / CHECKs / defaults LOCKED** for all 5 tables
-(2026-08-05). Migrations not yet written. Snapshot cap raised 2 → **10** (prune
+(2026-08-05). **Migrations written + applied 2026-08-05** (5 files in
+`apps/backend/migrations/`; verified against the DB). Snapshot cap raised 2 → **10** (prune
 is worker logic, not schema).
 
 **Non-obvious type decisions (so the migration writer has them):**
@@ -165,3 +166,80 @@ and history-event builder previously had no home here).
 | SCT / CT-log parse from embedded SCTs | Revocation |
 | Security-grade summary-string builder (frontend) | Security grade |
 | `daysRemaining` + `renewals` count | Summary |
+
+## Frontend card ↔ derive-function status (finalized 2026-08-06)
+
+Card-by-card scan of `certificates-monitor.tsx` (the **only** TLS card surface;
+dns/tcp/multi-region are separate monitor types). Heading column = the visible
+`TlsPanelHeader` title so it's findable in the UI.
+
+**Scope of this table: BACKEND only.** `% done` and "What's missing" track the
+derive/persistence work that feeds the card. Frontend rendering/wiring (replace
+`mockTlsCertificate`, compose sentences, render chips) is **not** counted here —
+it gets a separate frontend table once all backend work is done.
+
+| Card heading (UI) | Component | What's missing | Function(s) to derive | % done |
+|---|---|---|---|---|
+| "Certificate valid" (status + grade banner) | `TlsStatusSummary` | renewals counter, p95, last-scan time | renewals counter, p95/trend | 85% |
+| "Certificate lifetime" | `TlsLifetimeCard` | cert timeline, avg renewal lead | `lifetimeHistoryStats` | 30% |
+| "Handshake" | `TlsHandshakeCard` | — | — | 100% |
+| "Handshake latency" | `TlsHandshakeLatencyCard` | avg, p95, trend — **per window (24h/7d/30d)** | avg / p95 / trend (window-parameterized) | 25% |
+| "Security grade" | `TlsSecurityGradeCard` | — (backend done) | ✅ `signals` block done + tested (2026-08-06) | 100% |
+| "Leaf certificate" | `TlsLeafCard` | — (backend done; Raw button **dropped** 2026-08-06) | — (all fields assembled in `tlsFetcher`) | 100% |
+| "Chain of trust" | `TlsChainCard` | — | — | 100% |
+| "Protocol & cipher support" | `TlsProtocolCipherCard` | — | — | 100% |
+| "Certificate served per region" | `TlsRegionCard` | deferred V12 (multi-region infra) | — | out of scope |
+| "Validation" | `TlsValidationCard` | — | — | 100% |
+| "Revocation, CT & issuance policy" | `TlsRevocationCard` | OCSP status, CAA, SCTs *(unexpected-issuance = deferred CT follower)* | OCSP query, CAA lookup, SCT/CT parse | 45% |
+| "Certificate history" | `TlsHistoryCard` | all events | history-event builder | 10% |
+| "Latest renewal comparison" | `TlsRenewalComparisonCard` | — (backend done + tested 2026-08-06; runs once ≥2 snapshots persist) | ✅ `computeRenewalComparison` + `compareSan` done + tested | 100% |
+| "Fingerprint pin" | `TlsPinningCard` | entire card | `comparePin` | 0% |
+| "Connection & schedule" | `TlsConfigCard` | — (backend done + tested 2026-08-06) | ✅ `connectionInfo` fixed (return + field mapping) + tested | 100% |
+| "Alert rules" | `TlsAlertRulesCard` | reads config, not derive | none (needs config API) | presentation |
+
+### Functions still to derive (consolidated)
+
+| Function | Serves card | Blocked on |
+|---|---|---|
+| `lifetimeHistoryStats` | Certificate lifetime | raised snapshot cap (#6) |
+| avg / p95 / trend (per 24h/7d/30d) | Handshake latency, banner | stored `tls_checks` rows |
+| `comparePin` | Fingerprint pin | `tls_config.pinned_*` |
+| renewals counter | Certificate valid (banner) | snapshot history |
+| history-event builder | Certificate history | `tls_events` rows |
+| OCSP query probe | Revocation | `tls_state` + network call |
+| CAA DNS lookup | Revocation | `tls_state` + DNS call |
+| SCT / CT-log parse | Revocation | **pure — writeable now** |
+| ~~grade summary / chip flags~~ | Security grade + banner | ✅ **Done + tested 2026-08-06** (`signals` block in `computeSecurityGrade`) |
+| ~~fix `connectionInfo`~~ | Connection & schedule | ✅ **Done + tested 2026-08-06** (return + field mapping + casing) |
+
+**Deferred (not counted as missing functions):** per-region card (V12),
+"unexpected issuance" CT-log follower. **Leaf "Raw" fetch: DROPPED 2026-08-06** —
+no PEM endpoint; remove the Raw button during frontend wiring.
+
+**Drift corrected from earlier rows:** `computeRenewalComparison` (#12) and
+`getForwardSecrecy` are **already written** — reclassify from ❌ to written
+(renewal comparison is runtime-blocked on ≥2 snapshots, not missing).
+
+### Overall
+
+- Derive functions **~64% complete** across the 14 scored cards (region +
+  alert-rules excluded).
+- Fully backed (100%): Handshake, Chain of trust, Protocol & cipher support,
+  Validation. Leaf is 95% (only the Raw button).
+- Writeable now, no schema: SCT/CT parse, grade summary/chip flags,
+  `connectionInfo` fix — so "no-persistence derive" is **~90%, not 100%**.
+- Everything else is persistence-gated on the snapshot cap (#6), `tls_checks`,
+  `tls_state`, and `tls_events`.
+
+## Working agreement — test-per-function
+
+For every derive function from the "still to derive" list, in order:
+
+1. **Dev writes the function.**
+2. **Claude writes the test file** for it — Arrange-Act-Assert cases covering the
+   happy path, boundaries, empty/error inputs, and important side effects. Tests
+   assert correct behavior only; no spoilers on which case fails until the dev
+   asks (see [[test-first-no-spoilers]]).
+3. **Run the tests. All cases must pass** before moving on.
+4. Only then start the **next function**. Do not batch-write functions ahead of
+   their tests.

@@ -214,10 +214,10 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
     const summaryCipher = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
     const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.tls_version as SecureVersion, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
     const ocsp = await getOcspStatus(x509Certificate);
-      const hostnameMatch = certificateInformation.hostname_match;
+    const hostnameMatch = certificateInformation.hostname_match;
     const chainOfTrustCertificate = buildChainOfTrust(certificate, certificateInformation.authorization, certificateInformation.authorizationError?.message, hostnameMatch, certificate.pubkey?.length);
-    const securityGrade = computeSecurityGrade(validations, certificateInformation.signature_algorithm, offeredProtocols, type, certificateInformation.nist, certificate.bits);
     const mustStaple = parseMustStaple(x509Certificate.toString());
+    const securityGrade = computeSecurityGrade(validations, certificateInformation.signature_algorithm, offeredProtocols, type, certificateInformation.nist, certificate.bits,forwardSecrecy,mustStaple,certificateInformation.tls_version,certificateInformation.ocsp_stapled);
     const revocation = computeRevocationShaper(ocsp, crl, certificateTransparency, certificateInformation.ocsp_stapled, ocspResponder, mustStaple);
     const tlsFetchData: TlsResult =  {
       status,
@@ -254,7 +254,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       certificateTransparency
     }
 
-    console.log(tlsFetchData);
+    console.dir(tlsFetchData, {depth: 10});
       // console.log(offeredProtocols);
     resolve(tlsFetchData);
     return;
@@ -315,4 +315,4 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
  })
 };
 
-tlsFetcher("www.x.com", 10000);
+tlsFetcher("www.reddit.com", 10000);

@@ -1,5 +1,5 @@
 import tls,{ CipherNameAndProtocol, SecureVersion } from "node:tls";
-import { CertificateLifetime, ChainCertificate, ChainOfTrust, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsStatus, ValidationChecks } from "./tls.types";
+import { CertificateLifetime, ChainCertificate, ChainOfTrust, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
 import { Certificate } from "node:crypto";
@@ -219,7 +219,7 @@ export const protocolAndCipherScan = async (host: string, connection_timeout: nu
   }
 }
 
-export const computeSecurityGrade = (validations: ValidationChecks,signatureAlgorithm:string | undefined, protocolSupported: TlsAcceptedConnections[],inferKeyType: string | null, nist: string | undefined, bits: number | undefined): SecurityGrade => {
+export const computeSecurityGrade = (validations: ValidationChecks,signatureAlgorithm:string | undefined, protocolSupported: TlsAcceptedConnections[],inferKeyType: string | null, nist: string | undefined, bits: number | undefined, checkForwardSecrecy: boolean, checkMustStaple: boolean, tlsVersion: SecureVersion | null, checkOcspStapled: boolean): SecurityGrade => {
   const isStrongSignature = signatureStrength(signatureAlgorithm);
   const checkKeyStrength = keyStrength(inferKeyType, nist, bits);
   const checkValidationsPerformance = validations;
@@ -251,7 +251,14 @@ export const computeSecurityGrade = (validations: ValidationChecks,signatureAlgo
       },{
       label: "KEY_STRENGTH_SCORE",
       value: keyStrengthScore,
-    }]
+      }],
+    signals: {
+      forwardSecrecySignal: checkForwardSecrecy,
+      ocspStapledSignal: checkOcspStapled,
+      tlsVersionPrefferedSignal: tlsVersion === "TLSv1.3",
+      strongKeySignal: computedKeyStrength.level === "Pass",
+      mustStapleSignal: checkMustStaple,
+    }
   }
 
   return securityGradeResult;
@@ -464,4 +471,113 @@ export const buildChainOfTrust = (certificate: tls.DetailedPeerCertificate, isAu
   }
 
   return chainTrust;
+}
+
+export const computeRenewalComparison = (snapshots: TlsCertRenewal[]): RenewalComparison | null => {
+
+  if (snapshots.length === 0) return null;
+  if (snapshots.length === 1) return null;
+
+  const currentCertInfo = snapshots[0];
+  const previousCertInfo = snapshots[1];
+  const currentExtendedRenewal = getCertificateLifetime(currentCertInfo.valid_from, currentCertInfo.valid_to);
+  const previouExtendedsRenewal = getCertificateLifetime(previousCertInfo.valid_from, previousCertInfo.valid_to);
+
+  const checkExtended = new Date(currentCertInfo.valid_to).getTime() - new Date(previousCertInfo.valid_to).getTime();
+  const getExtendedDays = Math.floor((checkExtended / 1000 / 60 / 60 / 24));
+
+  const previousKey = keyLabel(previousCertInfo.asymmetric_key_type, previousCertInfo.nist_curve ?? undefined, previousCertInfo.key_bits ?? undefined);
+  const currentKey = keyLabel(currentCertInfo.asymmetric_key_type, currentCertInfo.nist_curve ?? undefined, currentCertInfo.key_bits ?? undefined);
+
+  const { namesAdded, namesRemoved, totalNames } = compareSan(previousCertInfo.san, currentCertInfo.san);
+
+  const sanCoverage = computeSanCoverage(namesAdded, namesRemoved, totalNames);
+
+  const previous = {
+    issuer: previousCertInfo.issuer,
+    expiresAt: new Date(previousCertInfo.valid_to),
+    key: previousKey,
+    fingerprint: previousCertInfo.fingerprint_sha256
+  }
+  const current = {
+    issuer: currentCertInfo.issuer,
+    expiresAt: new Date(currentCertInfo.valid_to),
+    key: currentKey,
+    fingerprint: currentCertInfo.fingerprint_sha256
+  }
+
+  const changes = [{
+     field: "Expiry",
+     detail: checkExtended > 0 ? `Extended by ${getExtendedDays} days` : checkExtended !== 0 ? `Shortened by ${Math.abs(getExtendedDays)} days` : "Unchanged",
+    },
+    {
+     field: "Issuer",
+     detail: previousCertInfo.issuer === currentCertInfo.issuer ? `Unchanged ${currentCertInfo.issuer}` : `${previousCertInfo.issuer} -> ${currentCertInfo.issuer}`,
+    },
+    {
+     field: "key and signature",
+     detail: currentKey != previousKey ? `${previousKey} -> ${currentKey}` : `Unchanged ${currentKey}`,
+    },
+    {
+      field: "san coverage",
+      detail: sanCoverage,
+    }
+  ]
+
+  const renewedComparison = {
+    detectedAt: new Date(currentCertInfo.first_seen_at),
+    previous,
+    current,
+    changes
+  }
+
+  return renewedComparison;
+
+}
+
+export const compareSan = (previousSan: string[], currentSan: string[]): {namesAdded: number, namesRemoved: number,totalNames: number} => {
+  let namesAdded = 0;
+  let namesRemoved = 0;
+  const previousSanSet = new Set<string>(previousSan);
+  const currentSanSet = new Set<string>(currentSan);
+
+  for (let i = 0; i < previousSan.length; i++){
+    if (!currentSanSet.has(previousSan[i])) {
+      namesRemoved++;
+    }
+  }
+
+  for (let i = 0; i < currentSan.length; i++){
+    if (!previousSanSet.has(currentSan[i])) {
+      namesAdded++;
+    }
+  }
+
+  return {
+    namesAdded,
+    namesRemoved,
+    totalNames: currentSan.length,
+  }
+}
+
+const computeSanCoverage = (namesAdded: number, namesRemoved: number, totalNames: number): string => {
+  if (namesAdded > 0 && namesRemoved > 0) return `${namesAdded} added ${namesRemoved} removed ${totalNames} names`;
+  if (namesAdded > 0) return `${namesAdded} added ${totalNames} names`;
+  if (namesRemoved > 0) return `${namesRemoved} removed ${totalNames} names`;
+  return `Unchanged ${totalNames}`;
+}
+
+export const connectionInfo = (configInput: TlsConfigInput): TlsConfigOnput => {
+
+  const connectedInfo = {
+    warningThresholdDays: configInput.warning_threshold_days,
+    expiryAlertThresholds: configInput.expiry_alert_thresholds,
+    connectionTimeoutMs: configInput.request_time_out_ms,
+    minTlsVersion: configInput.min_tls_version,
+    serverName: configInput.host,
+    checkIntervalSeconds: configInput.interval_seconds,
+    nextCheckAt: configInput.next_check_at,
+  }
+
+  return connectedInfo;
 }
