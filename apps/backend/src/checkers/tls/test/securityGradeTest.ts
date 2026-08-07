@@ -69,7 +69,7 @@ console.log("sig missing   ", computeSignatureStrength(undefined), "expected {50
 
 /* ---------------- computeProtocolSupport (hardcoded, no network) ---------------- */
 const mk = (rows: [TlsAcceptedConnections["name"], boolean][]): TlsAcceptedConnections[] =>
-  rows.map(([name, enabled]) => ({ name, enabled }));
+  rows.map(([name, enabled]) => ({ name, enabled, rating: "Pass", cipherSuite: null }));
 
 console.log("proto modern-only",
   computeProtocolSupport(mk([["TLSv1.3", true], ["TLSv1.2", true], ["TLSv1.1", false], ["TLSv1", false]])),
@@ -106,23 +106,23 @@ const bothLegacy = mk([["TLSv1.3", true], ["TLSv1.2", true], ["TLSv1.1", true], 
 // Case 1 — perfect: cert 100, sig 100, proto 100, key 100
 // certScore = 100*0.8 + 100*0.2 = 100 ; overall = (100+100+100+100)/4 = 100
 console.log("\ngrade CASE1 perfect",
-  computeSecurityGrade(allPass, "ecdsa-with-sha384", modernOnly, "ec", "prime256v1", 256),
+  computeSecurityGrade(allPass, "ecdsa-with-sha384", modernOnly, "ec", "prime256v1", 256, true, false, "TLSv1.3", true),
   "expected overall 100, grade A+");
 
 // Case 2 — mixed: cert 100, sig 90, proto 70, key 60
 // certScore = 100*0.8 + 90*0.2 = 98 ; overall = round((98+70+90+60)/4=79.5) = 80
 console.log("grade CASE2 mixed  ",
-  computeSecurityGrade(allPass, "sha256WithRSAEncryption", tls11On, "rsa", undefined, 2048),
+  computeSecurityGrade(allPass, "sha256WithRSAEncryption", tls11On, "rsa", undefined, 2048, true, false, "TLSv1.2", true),
   "expected overall 80, grade B");
 
 // Case 3 — one validation fail (surfaces no-cap): cert base 80, sig 100, proto 100, key 100
 // certScore = 80*0.8 + 100*0.2 = 84 ; overall = (84+100+100+100)/4 = 96
 console.log("grade CASE3 1-fail ",
-  computeSecurityGrade({ ...allPass, certificate_trust_check: false }, "ecdsa-with-sha384", modernOnly, "ec", "prime256v1", 256),
+  computeSecurityGrade({ ...allPass, certificate_trust_check: false }, "ecdsa-with-sha384", modernOnly, "ec", "prime256v1", 256, true, false, "TLSv1.3", true),
   "expected overall 96, grade A+ (note: invalid cert still A+ — no hard cap)");
 
 // Case 4 — worst: cert 0, sig 0, proto 50, key 20
 // certScore = 0 ; overall = round((0+50+0+20)/4=17.5) = 18
 console.log("grade CASE4 worst  ",
-  computeSecurityGrade(allFail, "RSA-sha1", bothLegacy, "rsa", undefined, 1024),
+  computeSecurityGrade(allFail, "RSA-sha1", bothLegacy, "rsa", undefined, 1024, false, false, "TLSv1", false),
   "expected overall 18, grade F");

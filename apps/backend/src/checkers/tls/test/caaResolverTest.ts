@@ -41,6 +41,8 @@ const throws = (code: string) => async () => {
 
 const TIMEOUT = 10000;
 
+(async () => {
+
 /* ---------------- Pass: issuers named ---------------- */
 {
   const records: CaaRecord[] = [
@@ -114,4 +116,5 @@ const TIMEOUT = 10000;
   eq("timeout → status Unknown", r.status, "Unknown");
 }
 
-console.log(`\n${passed} passed, ${failed} failed`);
+  console.log(`\n${passed} passed, ${failed} failed`);
+})();

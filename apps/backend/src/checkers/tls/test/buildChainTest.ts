@@ -52,7 +52,7 @@ check("A  leaf+1int+root, trusted",
   { rootName: "RootA", inTrustStore: true, status: "In OS / browser trust store",
     verified: true, pathValidation: "Verified to a trusted root", hostnameMatch: true,
     certsSent: 3, bytesSent: 2148, linksLen: 3 },
-  buildChainOfTrust(leafA, true, null, true, 2148));
+  buildChainOfTrust(leafA, true, undefined, true, 2148));
 
 /* ---------- B: leaf + 2 intermediates + root (sent), trusted ---------- */
 const rB = cert("RootB", "RootB");
@@ -63,7 +63,7 @@ check("B  leaf+2int+root, trusted",
   { rootName: "RootB", inTrustStore: true, status: "In OS / browser trust store",
     verified: true, pathValidation: "Verified to a trusted root", hostnameMatch: true,
     certsSent: 4, bytesSent: 3600, linksLen: 4 },
-  buildChainOfTrust(leafB, true, null, true, 3600));
+  buildChainOfTrust(leafB, true, undefined, true, 3600));
 
 /* ---------- C: leaf + intermediate, NO root sent, trusted ---------- */
 const iC = cert("IntC", "RootC");                 // top cert, no issuerCertificate
@@ -72,7 +72,7 @@ check("C  leaf+int, no root sent, trusted",
   { rootName: "RootC", inTrustStore: true, status: "In OS / browser trust store",
     verified: true, pathValidation: "Verified to a trusted root", hostnameMatch: true,
     certsSent: 2, bytesSent: 1900, linksLen: 2 },
-  buildChainOfTrust(leafC, true, null, true, 1900));
+  buildChainOfTrust(leafC, true, undefined, true, 1900));
 
 /* ---------- D: self-signed leaf, untrusted ---------- */
 const selfD = cert("localhost", "localhost");

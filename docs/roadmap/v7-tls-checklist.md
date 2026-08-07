@@ -188,7 +188,7 @@ it gets a separate frontend table once all backend work is done.
 | "Certificate valid" (status + grade banner) | `TlsStatusSummary` | last-scan time *(renewals + p95 = service SQL, no fn)* | — | 85% |
 | "Certificate lifetime" | `TlsLifetimeCard` | — (backend done + tested 2026-08-07; runs once snapshots persist) | ✅ `lifetimeHistoryStats` done + tested | 85% |
 | "Handshake" | `TlsHandshakeCard` | — | — | 100% |
-| "Handshake latency" | `TlsHandshakeLatencyCard` | SQL query + persistence *(avg/p95/trend = service SQL, no fn)* | ❌ **Not a function** — SQL: `AVG`, `percentile_cont(0.95)`, `date_trunc`+`GROUP BY` per window; optional JS gap-fill shaper. DB integration tests | 40% |
+| "Handshake latency" | `TlsHandshakeLatencyCard` | SQL query + persistence *(service SQL, no fn)* | ❌ **Not a function** — SQL: `AVG`, `MAX`, **`percentile_cont(ARRAY[0.5,0.75,0.9,0.95,0.99,0.999])`** (full ladder — card now shows a PercentileStrip, updated 2026-08-07), `date_trunc`+`GROUP BY` per window; optional JS gap-fill. DB integration tests | 40% |
 | "Security grade" | `TlsSecurityGradeCard` | — (backend done) | ✅ `signals` block done + tested (2026-08-06) | 100% |
 | "Leaf certificate" | `TlsLeafCard` | — (backend done; Raw button **dropped** 2026-08-06) | — (all fields assembled in `tlsFetcher`) | 100% |
 | "Chain of trust" | `TlsChainCard` | — | — | 100% |

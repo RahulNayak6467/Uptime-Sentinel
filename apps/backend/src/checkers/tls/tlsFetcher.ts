@@ -27,9 +27,8 @@ import { checkConnections } from "./probeProtocols";
 import { parseSCTExtensions, checkCrlRevocation, getOcspStatus } from "./ocspParset";
 import { getCrlUrl, parseMustStaple } from "./parseCertExtensions";
 import { CrlRevocation, TlsCertificateInfo, TlsResult } from "./tls.types";
-import { hostname } from "zod/v4/core/regexes.cjs";
 
-export const tlsFetcher = async (host: string, connection_timeout: number): Promise<TlsResult> => {
+export const tlsFetcher = async (host: string, connection_timeout: number,warning_threshold_days: number): Promise<TlsResult> => {
   return new Promise((resolve, reject) => {
 
   let ocspResponse: Buffer | null = null;
@@ -136,7 +135,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       signature_algorithm: x509Certificate?.signatureAlgorithm,
       authorization: socket.authorized,
       authorizationError: socket.authorizationError,
-      tls_version: socket.getProtocol(),
+      tls_version: (socket.getProtocol() as SecureVersion | null),
       cipher_suite: socket.getCipher(),
       alpn_protocol: socket.alpnProtocol,
       publicKey: publicKeyBase64,
@@ -202,7 +201,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
         certificate.issuer.CN,
         certificateInformation.authorization,
         x509Certificate.validToDate,
-        30
+        warning_threshold_days ?? 30
       );
      const nextExpiryAlert =  computeNextExpiryAlert(days);
 
@@ -254,8 +253,6 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
       certificateTransparency
     }
 
-    console.dir(tlsFetchData, {depth: 10});
-      // console.log(offeredProtocols);
     resolve(tlsFetchData);
     return;
   }
@@ -315,4 +312,4 @@ export const tlsFetcher = async (host: string, connection_timeout: number): Prom
  })
 };
 
-tlsFetcher("www.reddit.com", 10000);
+// tlsFetcher("www.reddit.com", 10000, 60);

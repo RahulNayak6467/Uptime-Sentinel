@@ -1,4 +1,4 @@
-import tls,{ CipherNameAndProtocol, SecureVersion } from "node:tls";
+import tls,{ CipherNameAndProtocol, DetailedPeerCertificate, SecureVersion } from "node:tls";
 import { CertHistoryInfo, CertificateEvents, CertificateLifetime, CertLifetimeInfo, CertLifetimeStats, ChainCertificate, ChainOfTrust, ComparePin, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, ValidationChecks } from "./tls.types";
 import { checkConnections } from "./probeProtocols";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
@@ -72,7 +72,7 @@ export const getForwardSecrecy = (keyExchange: { type: string | null }): boolean
   keyExchange.type !== null;
 
 export const getOcspResponder = (
-  infoAccess: Record<string, string[]> | undefined,
+  infoAccess: NodeJS.Dict<string[]> | undefined,
 ): string | null => infoAccess?.["OCSP - URI"]?.[0] ?? null;
 
 export const inferKeyType = (asymmetricKeyType: string | undefined, nistCurve: string | undefined, modulus: string | undefined): string | null => {
@@ -119,35 +119,42 @@ export const keyStrength = (inferKeyType: string | null, nist: string | undefine
   return "Warn";
 }
 
-export const validationChecks = (isCertificateTrusted: boolean,isExpired: boolean,validityStart: Date,hostnameCheck: boolean,subjectCN: string | undefined, issuerCN:string | undefined): ValidationChecks => {
+export const validationChecks = (isCertificateTrusted: boolean,isExpired: boolean,validityStart: Date,hostnameCheck: boolean,subjectCN: string | string[] | undefined, issuerCN:string | string[] |undefined): ValidationChecks => {
 
   const start = new Date().getTime();
   const validationStart = validityStart.getTime();
 
-  const validity_start_check = start - validationStart >= 0 ?  true : false;
+  const validity_start_check = start - validationStart >= 0 ? true : false;
+
+  const subjectCNCheck = Array.isArray(subjectCN) ? subjectCN[0] : subjectCN;
+  const issuerCNCheck = Array.isArray(issuerCN) ? issuerCN[0] : issuerCN;
 
   return {
     certificate_trust_check: isCertificateTrusted,
     validity_start_check,
     expiry_boundary_check: !isExpired,
     check_hostname_match: hostnameCheck,
-    self_signed_check: subjectCN === issuerCN,
+    self_signed_check: subjectCNCheck === issuerCNCheck,
   }
 }
 
-export const computeStatus = (hostnameCheck: boolean, isExpired: boolean, subjectCN: string | undefined, issuerCN: string | undefined, isCertificateTrusted: boolean, endDate: Date, warningThresholdDays: number): TlsStatus => {
+export const computeStatus = (hostnameCheck: boolean, isExpired: boolean, subjectCN: string | string[] |undefined, issuerCN: string | string[] |undefined, isCertificateTrusted: boolean, endDate: Date, warningThresholdDays: number): TlsStatus => {
 
   const { days } = getDaysRemaining(endDate);
 
+  const subjectCNCheck = Array.isArray(subjectCN) ? subjectCN[0] : subjectCN;
+  const issuerCNCheck = Array.isArray(issuerCN) ? issuerCN[0] : issuerCN;
+
   if (isExpired) return "Expired";
-  if (!hostnameCheck || subjectCN === issuerCN || !isCertificateTrusted) return "Invalid";
+  if (!hostnameCheck || subjectCNCheck === issuerCNCheck || !isCertificateTrusted) return "Invalid";
   if (days <= warningThresholdDays) return "Expiring";
   return "Valid";
+
 }
 
-export const computeNextExpiryAlert = (days: number): NextTlsExpiry  => {
+export const computeNextExpiryAlert = (days: number, expiryAlertThresholds?: number[]): NextTlsExpiry  => {
 
-  const thresholds = [1, 7, 14, 30] as const;
+  const thresholds = expiryAlertThresholds ?? [1, 7, 15, 30];
   if (days <= Math.min(...thresholds)) return {thresholdDays: null, dueInDays: null, estimatedAt: null};
   let maxThresholds = Math.max(...thresholds);
   for (let i = 0; i < thresholds.length; i++){
@@ -427,9 +434,9 @@ export const chainOfTrust = (certificate: tls.DetailedPeerCertificate) => {
  while (cert.issuerCertificate && cert.issuerCertificate.fingerprint256 !== cert.fingerprint256) {
     seen.add(cert.fingerprint256);
     const res: Record<string,any> = {};
-    for (const i in cert.issuerCertificate) {
+    for (const i  in cert.issuerCertificate) {
       if (i === "issuerCertificate") break;
-      res[i] = cert.issuerCertificate[i];
+      res[i] = cert.issuerCertificate[i as keyof tls.DetailedPeerCertificate];
     }
     if ((res as tls.DetailedPeerCertificate)?.subject?.CN === (res as tls.DetailedPeerCertificate)?.issuer?.CN) {
       arr.push({role: "Root",...res} as ChainCertificate);
