@@ -5,9 +5,11 @@
 > security-grade derivations, per-region cards). Items marked **★** are additions
 > beyond the original 23-row scope.
 
-**Status:** In progress — 12 of 32 done (+ ★15b/c/d). **Pure-derive layer COMPLETE
-(2026-08-07)** — all remaining work is pipeline/persistence + 2 service SQL queries.
-All 5 tables migrated + applied 2026-08-05.
+**Status:** In progress — 13 of 32 done (+ ★15b/c/d). **Pure-derive layer COMPLETE
+(2026-08-07)** and **#10 COMPLETE (2026-08-08)** — envelope + `checkConnections`
+double-probe dedupe both done. **The entire no-schema backend runway is finished.**
+All remaining work is pipeline/persistence + 2 service SQL queries. All 5 tables
+migrated + applied 2026-08-05.
 
 ## Checklist
 
@@ -22,7 +24,7 @@ All 5 tables migrated + applied 2026-08-05.
 | ★7 | Decision | **monitor_type semantics** → **standalone** (`type='tls'` → tlsFetcher only) | ✅ Decided | 2026-08-05; shared monitor table keeps inert HTTP cols for tls rows |
 | 8 | Persistence | Store check results + handshake timing → `tls_checks` | ❌ Left | Needs #7, #16 |
 | 9 | Persistence | Append cert snapshot on fingerprint/serial change (+prune) | ❌ Left | Needs #6, #16 |
-| ★10 | Backend | **`tlsFetcher` result envelope** (`status`/`certificate`/`error`) | ❌ Left | Fix 4 tsc errors; prereq for #16, #23 |
+| ★10 | Backend | **`tlsFetcher` result envelope** (`status`/`certificate`/`error`) | ✅ Done | Envelope (commit 15a7d43; 0 tsc / 0 console.logs) **+ double-probe deduped 2026-08-08**: `checkDeprecatedProtocol`/`protocolAndCipherScan` now take the single `offeredProtocols` scan (no re-probe) — `checkConnections` runs once/check (tlsFetcher:210). Dead imports removed |
 | 11 | Derive | Fingerprint pinning — `comparePin` | ✅ Done + tested | `computeComparePin` (status/isPinned/normalize) 2026-08-07; auto-repin write deferred to #9/#11 |
 | 12 | Derive | Renewal comparison — `computeRenewalComparison` | ✅ Done + tested | + `compareSan` 2026-08-06; runs once ≥2 snapshots persist |
 | 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ✅ Done + tested | 2026-08-07; runs once snapshots persist |
@@ -33,7 +35,7 @@ All 5 tables migrated + applied 2026-08-05.
 | ★15b | Derive | **CAA policy lookup — `computeCaa`** | ✅ Done + tested | 2026-08-07, injectable resolver; persist to `tls_state` pending — amend `caa_iodef → TEXT[]` |
 | ★15c | Derive | **Certificate history builder — `computeCertificateHistory`** (+ `computeTone`) | ✅ Done + tested | 2026-08-07; runs once `tls_events` persist; per-type metadata locked at #17 |
 | ★15d | Derive | **Connection & schedule — `connectionInfo`** | ✅ Done + tested | 2026-08-06 (return + field mapping fix) |
-| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left | **Gated on #5, #7, #10** |
+| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left — **UNBLOCKED** | Prereqs #5/#7/#10 all ✅; HTTP-cols-nullable migration ✅ (2026-08-08). Next up after #21/#22. See "Pipeline / worker architecture" section |
 | 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
 | 19 | Alerting | Failure alerts (expired/untrusted/hostname-mismatch/revoked) | ❌ Left | |
@@ -47,8 +49,8 @@ All 5 tables migrated + applied 2026-08-05.
 | 27 | Frontend | SAN "+N more" capped-chip display | ❌ Left | Backend already sends all SANs |
 | ★28 | Frontend | **Per-region cert card** (blurred coming-soon) | ⏸️ V12 | Not removed; multi-region infra |
 | 29 | Tests | Derive unit tests (test tables → real assertions) | 🟡 Partial | Scaffolds written + green for all pure-derive fns done this session (signals, renewal, comparePin, CAA, lifetime, history, connectionInfo); remainder as fns land |
-| 30 | Tests | Checker integration tests (envelope + persistence) | ❌ Left | |
-| ★31 | Tests | **DB integration tests** for TLS SQL queries | ❌ Left | Discuss after monitors review |
+| 30 | Tests | Checker integration tests (envelope + persistence) | ❌ Left | uses the DB harness — see "DB integration test harness" section |
+| ★31 | Tests | **DB integration tests** for TLS SQL queries | ❌ Left | test-DB + migrations + seed factories + txn-rollback; see "DB integration test harness" section. Stand up when #8/#9 start |
 | 32 | Deferred | Cipher-order finding (two-connection probe) | ⏸️ Deferred | High effort, moot on TLS 1.3 |
 
 ## Summary
@@ -57,10 +59,12 @@ All 5 tables migrated + applied 2026-08-05.
   (grade, must-staple, revocation shaper, chain of trust, protocol matrix, handshake
   phase-split, keyLabel/cipherSummary) — **all wired into `tlsFetcher`**.
 - **All derivation that can run without persistence is complete (2026-08-05).**
-- **No-schema runway left:** only 2 backend cleanups — **#10 fix build + result
-  envelope** (tsc errors, remove console.logs) and **dedupe `checkConnections`**
-  double-probe. Plus frontend presentation glue (grade summary/chips, chain fill
-  bars, SAN "+N more", protocol summary headline). Everything else needs schema.
+- **No-schema runway: DONE (2026-08-08).** #10 result envelope shipped and the
+  `checkConnections` double-probe is deduped — `computeSecurityGrade`,
+  `protocolAndCipherScan`, and `checkDeprecatedProtocol` all consume the single
+  `offeredProtocols` scan. Only optional frontend presentation glue remains no-schema
+  (grade summary/chips, chain fill bars, SAN "+N more", protocol summary headline).
+  Everything else needs schema.
 - **Extreme-hard / off-track (both already deferred, not in scope):** multi-region
   per-region card (→V12, needs distributed probe infra); CT **unexpected-issuance**
   monitoring (needs an external CT-log follower). No other extreme item is hiding
@@ -71,13 +75,15 @@ All 5 tables migrated + applied 2026-08-05.
 ## Critical path
 
 ```
-#7 monitor_type decision  ┐
-#5 tls_state design       ┼──▶ #16 worker dispatch ──▶ #8/#9 persistence ──▶ #23 API ──▶ #25 frontend wiring
-#10 tlsFetcher envelope   ┘
+#7 monitor_type decision  ✅ ┐
+#5 tls_state design       ✅ ┼──▶ #16 worker dispatch ──▶ #8/#9 persistence ──▶ #23 API ──▶ #25 frontend wiring
+#10 tlsFetcher envelope   ✅ ┘
 ```
 
-Everything downstream is blocked until #5, #7, and #10 are resolved. **#7 is the
-cheapest and unblocks the most** — it is a design decision, not code.
+**All three critical-path prereqs (#5, #7, #10) are resolved (2026-08-08) and the
+no-schema runway is finished.** Next actionable is **#16 worker dispatch**, but the
+create/insert path first needs the **HTTP-columns-nullable migration** (see the
+create-form section) and **#21 Zod schema → #22 endpoints**. Backend-first order applies.
 
 ## Schema column decisions (finalized 2026-08-05)
 
@@ -248,3 +254,113 @@ For every derive function from the "still to derive" list, in order:
 3. **Run the tests. All cases must pass** before moving on.
 4. Only then start the **next function**. Do not batch-write functions ahead of
    their tests.
+
+## DB integration test harness (sketch — for #30/#31)
+
+Pure functions are unit-tested with in-memory fixtures (no DB). **SQL queries and
+persistence writes must be tested against a real Postgres** — mocking the DB tests
+the mock, not `percentile_cont`/`date_trunc`/`WHERE`/transaction behavior.
+
+**Setup**
+- **Separate test Postgres** (reuse the containerized PG18; a dedicated `*_test`
+  database, or Testcontainers for an ephemeral one per run).
+- **Run the same migrations** on it so the schema matches prod exactly.
+
+**Isolation between tests**
+- **Transaction rollback per test** (preferred): `BEGIN` before, `ROLLBACK` after →
+  every test starts clean, no cleanup, fast. (Fallback: `TRUNCATE` between tests.)
+
+**Seed factories** (same idea as the `mk()` unit fixtures, but they INSERT rows):
+- `seedMonitor({ type: "tls" })` → returns monitor id
+- `seedTlsChecks(monitorId, [{ handshakeMs, at }, ...])`
+- `seedTlsEvents(monitorId, [{ type, at }, ...])`
+- `seedSnapshots(monitorId, [{ fingerprint, valid_from, valid_to, first_seen_at }, ...])`
+Defaults sensible, overridable per test → you insert KNOWN rows so you know the
+expected answer.
+
+**Assert against hand-computed values**
+- **Percentile ladder:** seed handshake times `[80,84,90,128]` → run query → assert
+  `p50/p95/max/avg` equal the hand math; edge cases: empty window → nulls, single
+  row → p50 = that value.
+- **Renewals count:** seed `tls_events` with timestamps straddling the 365d window →
+  assert count; test inclusive boundary + empty.
+
+**Persistence writes (#8/#9):** call the write fn, then query the table back and
+assert — "append snapshot only on fingerprint change", "prune keeps exactly 10",
+"went_down/recovered write to `tls_events` AND incidents in the same transaction".
+
+**Order:** stand this up when persistence (#8/#9) starts — the write fns and the
+2 SQL queries are its first customers.
+
+## Pipeline / worker architecture (decided 2026-08-07)
+
+Design decisions for #16 (worker dispatch) and the create flow. Existing infra:
+3 queue/worker pairs — `email-verification` (OTP), `alert-email` (incident alerts),
+`monitor-checks` (monitoring, `urlCheckWorker`, concurrency 10, lockDuration 30s,
+attempts 1). Scheduler cron `*/30 * * * * *` (30s) enqueues due monitors.
+
+**Queue granularity — PER-TYPE (chosen).** One queue per monitor type
+(`http-checks`, `tcp-checks`, `tls-checks`, `dns-checks`), not profile-grouped and
+NOT per-monitor (per-monitor = anti-pattern: blocking-connection + Redis-key
+explosion; model is **few queues, many jobs**, `monitor_id` in payload). Chosen for
+per-type failure isolation, debugging, logging, and independent scaling as the
+codebase grows.
+- **Avoid 4× boilerplate:** build lanes from a shared `createCheckQueue(config)` +
+  `createCheckWorker(config)` factory; lanes differ only in queue name, processor
+  (fetcher), concurrency, lockDuration, interval bounds, retry/limiter.
+
+**Two schedulers by profile.** Fast lane (HTTP+TCP, min interval 1 min) keeps the
+**30s** cron. Slow lane (TLS+DNS, hours-scale) gets a **coarse cron (2–5 min)** — a
+30s tick wastefully re-scans hour-scale monitors ~120×/hr; jitter of a few minutes
+is irrelevant for certs/DNS. Rule: tick ≪ smallest interval served.
+
+**Interval options — slow lane (TLS, DNS):** `1h / 3h / 6h / 12h / 24h`, default
+**12h**, floor **1h**. TCP stays FAST lane (1–60 min like HTTP) — it's uptime-style.
+Rationale: certs renew ~90d, DNS rarely changes; even 24h interval adds ≤24h latency
+vs day-scale expiry thresholds.
+
+**Worker scaling model.** Checks are I/O-bound → **1 worker process per lane, scale
+via `concurrency`** (not process count). Slow lane: low concurrency (3–5) so we don't
+hammer OCSP/CAA. More worker *processes* only for CPU saturation (checks aren't
+CPU-heavy) or HA — BullMQ competing-consumers makes that a deploy change, no rewrite.
+Workers already run in a **separate process from the API** (correct — background work
+must not block request handling). CPU-bound work would need its own process; I/O-bound
+does not.
+
+## TLS create-form field map + schema decision (2026-08-07)
+
+New-monitor: TLS/TCP/DNS selection **opened** (`comingSoon` removed in
+`new_monitor/data.ts`); "SSL Cert" → **"TLS Cert"** (data.ts, types.ts, monitors-page
+columns badge, edit-monitor-modal tab; SSLv3 protocol name kept as-is).
+
+**TLS create form fields:**
+- **Common (→ `monitor`):** name, host (→ `url`, bare hostname), interval_seconds
+  (hours-scale), monitor_type=`tls`, connection timeout (→ `request_timeout_ms`),
+  failure_threshold, recovery_threshold.
+- **TLS-specific (→ `tls_config`):** port (443), min_tls_version (TLSv1.2),
+  warning_threshold_days (30), expiry_alert_thresholds ({1,7,14,30}). Fingerprint
+  pin/auto_repin **deferred to the detail page** (pin after observing the live cert).
+  **`enabled_alerts` NOT in the create form** — uses its DB default (7 rules); alert
+  management belongs on the edit/settings page (TBD). **Interval options = hours-scale**
+  (`tlsCheckIntervals` 1h/3h/6h/12h/24h) in the design.
+- **NOT sent** (HTTP-only): statusCodes, httpMethod, requestBody/type, contentType,
+  responseTimeThresholdMS.
+
+**DB coverage:** all TLS fields have columns. Host reuses `monitor.url` (no dedicated
+`host` column — bare hostname). Port in `tls_config.port`. Timeout reuses
+`request_timeout_ms`.
+
+**Schema decision — HTTP columns NULLABLE ✅ DONE (migration written 2026-08-08,
+`1786130525765_change-monitor-table-datatype.ts`):** `http_method`, `content_type`,
+`request_body_type`, `status_code`, `response_time_threshold_ms` had `NOT NULL` on the
+shared `monitor` table → a TLS insert would violate NOT NULL. Fixed via **one migration
+dropping NOT NULL** on those 5 (`up` = `DROP NOT NULL`, `down` = `SET NOT NULL`) — honest
+"N/A for non-HTTP" over fake inert values. **Rejected:** (a) inject inert defaults, (b) separate TLS table (TLS
+already isolated in `tls_config`), (c) extract `http_config` now — that's ~11 files /
+68 refs (create+update writes → txn, ~4 read queries → JOIN, worker, 3 type files) +
+a data backfill on working V1–V6 code; **deferred as tech-debt**, do when the monitor
+schema is next touched.
+
+**Order:** backend-first — #21 Zod discriminated-union schema (contract) → #22
+create/edit endpoints → pipeline → frontend form last conforms to the contract.
+Frontend TLS form *design* built ahead as a reference for the payload shape.

@@ -3,7 +3,6 @@ import tls, { SecureVersion } from "node:tls";
 import {
   buildChainOfTrust,
   chainOfTrust,
-  checkDeprecatedProtocol,
   cipherSummary,
   computeConnectionLatency,
   computeNextExpiryAlert,
@@ -211,7 +210,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
     const offeredProtocols = await checkConnections(host, connection_timeout,(certificateInformation.tls_version as SecureVersion));
     const certificateTransparency = await parseSCTExtensions(x509Certificate);
     const summaryCipher = cipherSummary(certificateInformation.cipher_suite, certificateInformation.keyExchange);
-    const { configFindings } = await protocolAndCipherScan(host, connection_timeout, certificateInformation.tls_version as SecureVersion, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
+    const { configFindings } = await protocolAndCipherScan(offeredProtocols, certificateInformation.signature_algorithm, type, certificateInformation.nist, certificate.bits);
     const ocsp = await getOcspStatus(x509Certificate);
     const hostnameMatch = certificateInformation.hostname_match;
     const chainOfTrustCertificate = buildChainOfTrust(certificate, certificateInformation.authorization, certificateInformation.authorizationError?.message, hostnameMatch, certificate.pubkey?.length);
@@ -252,7 +251,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       crl,
       certificateTransparency
     }
-
+      console.log(tlsFetchData);
     resolve(tlsFetchData);
     return;
   }
@@ -312,4 +311,4 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
  })
 };
 
-// tlsFetcher("www.reddit.com", 10000, 60);
+tlsFetcher("www.reddit.com", 10000, 60);
