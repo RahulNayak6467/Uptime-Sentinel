@@ -3,6 +3,7 @@ import { db } from "../db/index";
 import { UrlActiveRowsProps } from "../shared/types/types";
 import { addToQueue } from "../queue/monitorQueue";
 import logger from "../config/logger";
+import createCheckQueue from "../queue/createCheckQueue";
 
 export const scheduleResponseIntoDB = () => {
   const task = cron.schedule("*/30 * * * * *", async () => {

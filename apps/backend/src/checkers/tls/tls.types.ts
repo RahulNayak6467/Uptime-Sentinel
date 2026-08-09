@@ -70,6 +70,7 @@ export interface ParseSCTExtension {
   sctCount: number;
   deliveryMethod: string;
   logs: {
+      logId: string;
       operator: string;
       timestamp: Date;
   }[];
@@ -85,6 +86,8 @@ export interface CrlRevocation {
 export interface OCSPStatus {
   status: "good" | "revoked" | "unknown";
   nextUpdateAt: Date | null;
+  producedAt: Date | null;
+  revokedAt: Date | null;
 }
 
 export interface TlsCertificateInfo {
@@ -94,8 +97,8 @@ export interface TlsCertificateInfo {
   issuer: string | string[] | undefined;
 
   leaf_certificate: {
-    subject: string | string[] | undefined;
-    issuer: string | string[] | undefined;
+    subject: string;
+    issuer: string;
     valid_from: string;
     valid_to: string;
     finger_print: string;
@@ -111,7 +114,7 @@ export interface TlsCertificateInfo {
     serial_number: string | null;
   };
 
-  signature_algorithm: string | undefined;
+  signature_algorithm: string;
   authorization: boolean;
   authorizationError: Error | null;
   tls_version: SecureVersion | null;
@@ -160,6 +163,7 @@ export interface TlsDerived {
   chainOfTrustCertificate: ChainOfTrust,
   securityGrade: SecurityGrade,
   revocation: RevocationShaper,
+   caaInfo: ComputeCaa,
 }
 
 export interface TlsResult {
@@ -180,8 +184,9 @@ export interface TlsResult {
   certificateTransparency: ParseSCTExtension | null
 }
 
+export type CertGrade = "A+" | "A" | "B" | "C" | "D" | "F";
 export interface SecurityGrade {
-  grade: "A+" | "A" | "B" | "C" | "D" | "F";
+  grade: CertGrade;
   overall: number;
   scores: { label: string; value: number }[];
   signals: Signals

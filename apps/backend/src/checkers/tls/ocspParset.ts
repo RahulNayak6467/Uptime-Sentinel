@@ -10,10 +10,10 @@ import { MUST_STAPLE_OID, SCT_EXTENSION_OID } from "../../constants/constants";
 export const getOcspStatus = async (x509Certificate: any): Promise<OCSPStatus> => {
   try {
     const ocsp = await getCertStatus(x509Certificate);
-    return { status: ocsp.status, nextUpdateAt: ocsp.nextUpdate ?? null };
+    return { status: ocsp.status, nextUpdateAt: ocsp.nextUpdate ?? null, producedAt: ocsp.producedAt ?? null, revokedAt: ocsp.revocationTime ?? null};
   }
   catch (err) {
-    return {status: "unknown", nextUpdateAt:null }
+    return {status: "unknown", nextUpdateAt:null , producedAt: null, revokedAt: null}
   }
 }
 
@@ -28,6 +28,7 @@ export const parseSCTExtensions = async (x509Certificate: any): Promise<ParseSCT
     const logs = parsedAsnConvert.items.map((sct) => {
       const logIdBase64 = Buffer.from(sct.logId).toString("base64");
       return {
+        logId: logIdBase64 ?? "Unknown log",
         operator: logMap.get(logIdBase64) ?? "Unknown log",
         timestamp: sct.timestamp,
       };

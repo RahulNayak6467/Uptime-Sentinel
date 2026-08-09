@@ -27,40 +27,56 @@ const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
  * `caaPresent` disambiguates the two empty-`allowedIssuers` cases:
  *   deny-all (`issue ";"`, present=true) vs no-record (present=false).
  */
+// Build the CAA tree-climb: the exact name, then each parent up to the
+// registrable domain (RFC 8659 §3 — CAA is inherited from the closest ancestor
+// that has a record). Stop at 2 labels; querying the TLD/public suffix (e.g.
+// "com") never carries CAA. The 2-label rule is slightly off for multi-label
+// suffixes like ".co.uk" (stops at "co.uk"), but climbing one level too far
+// there is harmless — it just returns empty.
+const climbNames = (host: string): string[] => {
+  const labels = host.split(".");
+  const names: string[] = [];
+  for (let i = 0; i <= labels.length - 2; i++) {
+    names.push(labels.slice(i).join("."));
+  }
+  return names;
+};
+
 export const computeCaa = async (
   host: string,
   connection_timeout: number,
   lookup: CaaLookup = (h) => withTimeout(resolveCaa(h), connection_timeout),
 ): Promise<ComputeCaa> => {
-  try {
-    const records = await lookup(host);
-    const caaPresent = records.length > 0;
+  // Walk up (www.example.com → example.com) until we find a record or run out.
+  for (const name of climbNames(host)) {
+    try {
+      const records = await lookup(name);
 
-    // issue + issuewild are both authorized-CA entries. A lone ";" is the
-    // deny-all marker, not an issuer — drop it so the list is empty for deny-all.
-    const allowedIssuers = records
-      .map((record) => record.issue ?? record.issuewild)
-      .filter((value): value is string => value !== undefined && value.trim() !== ";");
+      // No policy at this level → climb to the parent.
+      if (records.length === 0) continue;
 
-    const iodef = records
-      .map((record) => record.iodef)
-      .filter((value): value is string => value !== undefined);
+      // issue + issuewild are both authorized-CA entries. A lone ";" is the
+      // deny-all marker, not an issuer — drop it so the list is empty for deny-all.
+      const allowedIssuers = records
+        .map((record) => record.issue ?? record.issuewild)
+        .filter((value): value is string => value !== undefined && value.trim() !== ";");
 
-    return {
-      status: caaPresent ? "Pass" : "Warn",
-      caaPresent,
-      allowedIssuers,
-      iodef,
-    };
-  } catch (err) {
-    const code = (err as NodeJS.ErrnoException)?.code;
+      const iodef = records
+        .map((record) => record.iodef)
+        .filter((value): value is string => value !== undefined);
 
-    // Host resolves but has no CAA record → confirmed permissive (any CA).
-    if (code === "ENODATA" || code === "ENOTFOUND") {
-      return { status: "Warn", caaPresent: false, allowedIssuers: [], iodef: [] };
+      return { status: "Pass", caaPresent: true, allowedIssuers, iodef };
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException)?.code;
+
+      // No CAA record at this name → treat like empty and climb to the parent.
+      if (code === "ENODATA" || code === "ENOTFOUND") continue;
+
+      // Timeout / SERVFAIL / anything else → we could not determine the policy.
+      return { status: "Unknown", caaPresent: false, allowedIssuers: [], iodef: [] };
     }
-
-    // Timeout / SERVFAIL / anything else → we could not determine the policy.
-    return { status: "Unknown", caaPresent: false, allowedIssuers: [], iodef: [] };
   }
+
+  // Climbed to the registrable domain and found nothing → confirmed permissive.
+  return { status: "Warn", caaPresent: false, allowedIssuers: [], iodef: [] };
 };

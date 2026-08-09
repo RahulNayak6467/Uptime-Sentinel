@@ -26,6 +26,7 @@ import { checkConnections } from "./probeProtocols";
 import { parseSCTExtensions, checkCrlRevocation, getOcspStatus } from "./ocspParset";
 import { getCrlUrl, parseMustStaple } from "./parseCertExtensions";
 import { CrlRevocation, TlsCertificateInfo, TlsResult } from "./tls.types";
+import { computeCaa } from "./caaResolver";
 
 export const tlsFetcher = async (host: string, connection_timeout: number,warning_threshold_days: number): Promise<TlsResult> => {
   return new Promise((resolve, reject) => {
@@ -217,6 +218,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
     const mustStaple = parseMustStaple(x509Certificate.toString());
     const securityGrade = computeSecurityGrade(validations, certificateInformation.signature_algorithm, offeredProtocols, type, certificateInformation.nist, certificate.bits,forwardSecrecy,mustStaple,certificateInformation.tls_version,certificateInformation.ocsp_stapled);
     const revocation = computeRevocationShaper(ocsp, crl, certificateTransparency, certificateInformation.ocsp_stapled, ocspResponder, mustStaple);
+    const caaInfo = await computeCaa(host,connection_timeout)
     const tlsFetchData: TlsResult =  {
       status,
       error: null,
@@ -243,6 +245,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
         chainOfTrustCertificate,
         securityGrade,
         revocation,
+        caaInfo
       },
 
       offeredProtocols,
@@ -251,7 +254,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       crl,
       certificateTransparency
     }
-      console.log(tlsFetchData);
+      console.dir(tlsFetchData, {depth: 10});
     resolve(tlsFetchData);
     return;
   }
