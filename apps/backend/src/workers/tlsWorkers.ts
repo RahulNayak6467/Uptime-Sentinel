@@ -35,7 +35,7 @@ const processor = async (job: Job<TLSCheckJobData>) => {
 
   try {
     const tlsCheckData = await checkTlsHealth(user_id, tls_id);
-    await insertToDB(tls_id,tlsCheckData, user_id)
+    await insertToDB(tls_id, tlsCheckData);
   }
   catch (err) {
     throw err;

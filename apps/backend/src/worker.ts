@@ -3,6 +3,7 @@ import "./config/env";
 import { urlCheckWorker } from "./workers/monitorWorkers";
 import { emailVerificationWorker } from "./workers/emailVerificationWorker";
 import { emailAlertWorker } from "./workers/alertEmailWorker";
+import { tlsCheckWorker } from "./workers/tlsWorkers";
 import logger from "./config/logger";
 
 process.on("uncaughtException", (err) => {

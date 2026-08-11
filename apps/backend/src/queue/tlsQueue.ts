@@ -11,7 +11,7 @@ export type TLSCheckJobData = {
   tls_id: string;
 };
 
-export const addToQueue = async (
+export const addToTlsQueue = async (
   user_id: string,
   tls_id: string,
 ) => {

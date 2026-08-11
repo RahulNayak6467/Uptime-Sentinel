@@ -73,6 +73,52 @@ export const checkUrlRegistration = async (
       user_id,
     ];
     await db.query(insert_monitor_url, values_monitor_url);
+
+    // for testing tls for now no atomic operations because of testing purposes
+
+    const insert_tls_url = `INSERT INTO monitor (
+      url,
+      monitor_name,
+      interval_seconds,
+      failure_threshold,
+      request_timeout_ms,
+      monitor_type,
+      recovery_threshold,
+      response_time_threshold_ms,
+      user_id
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+    RETURNING id`;
+
+    const insert_tls_values = [
+      url,
+      monitorName,
+      intervalSeconds,
+      failureThreshold,
+      requestTimeoutMS,
+      "tls",
+      recoveryThreshold,
+      responseTimeThresholdMS,
+      user_id,
+    ];
+
+    const tlsConfig = await db.query(insert_tls_url, insert_tls_values);
+
+    const rows = tlsConfig.rows;
+
+    console.log(rows);
+
+    // for testing tls for now no atomic operations because of testing purposes
+
+    const insert_tls_config = `INSERT INTO tls_config (
+      monitor_id
+    )
+    VALUES ($1)`;
+
+    const values_tls_config = [rows[0].id];
+
+    await db.query(insert_tls_config, values_tls_config);
+
     logger.info({ userId: user_id }, "monitor registered");
     return "url successfully registered";
   } catch (error) {

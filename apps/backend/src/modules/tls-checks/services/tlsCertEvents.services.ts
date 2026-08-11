@@ -39,9 +39,10 @@ export const detectProtocolChange = async (client: PoolClient, TlsCheckData: Tls
   const previous_certificate_query = `
     SELECT negotiated_protocol, grade
     FROM tls_checks
-    WHERE m.id = $1
-    ORDER BY first_seen_at DESC
-    LIMIT
+    WHERE monitor_id = $1
+    AND negotiated_protocol IS NOT NULL
+    ORDER BY created_at DESC
+    LIMIT 1
   `;
   const previous_certificate_values = [tls_id];
 

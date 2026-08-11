@@ -2,15 +2,14 @@ import { PoolClient, QueryResult } from "pg";
 import { CertGrade, CertificateEvents, TlsResult, TlsStatus } from "../../../checkers/tls/tls.types"
 import { db } from "../../../db";
 import { RenewalCheck } from "../types/tls-db-types";
-import { Certificate } from "crypto";
 import { checkFirstSnapshot, detectProtocolChange } from "./tlsCertEvents.services";
-import { checkTlsHealth } from "./tls.services";
+import { SNAPSHOTS_DB_LIMIT } from "../../../constants/constants";
 
-export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult, user_id:string) => {
+export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
 
   const client = await db.connect();
   try {
-    client.query("BEGIN");
+    await client.query("BEGIN");
 
     // Inserting to tls_checks
     const status = tlsCheckData.status;
@@ -31,7 +30,6 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult, user_i
     `;
     const insert_tlsInfo_values = [tls_id, status, tls_handshake_time_ms, error_code, error_message, dns_time_ms, tcp_time_ms, negotiated_protocol, grade];
 
-    // Detect protocol change against the PREVIOUS check before inserting this one
     if (negotiated_protocol) {
       await detectProtocolChange(client, tlsCheckData, tls_id, negotiated_protocol, grade);
     }
@@ -41,33 +39,33 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult, user_i
     await updateTlsMonitor(client,tls_id, status);
 
     const fingerprint = tlsCheckData.certificate?.leaf_certificate.finger_print;
-    if (!fingerprint || !tlsCheckData.certificate || !tlsCheckData.derived) return;
+    // if (!fingerprint || !tlsCheckData.certificate || !tlsCheckData.derived) return;
+    if (fingerprint && tlsCheckData.certificate && tlsCheckData.derived) {
 
     // Inserting to tls_state
     const revocation = tlsCheckData.derived?.revocation ?? null;
 
-    const revocation_status = revocation.overall;
-    const revocation_source = revocation.footer.ocspResponder
+    const revocation_status = tlsCheckData.ocsp?.status ?? "unknown";
+    const revocation_source = revocation_status === "unknown" ? null : "ocsp";
     const ocsp_next_update = revocation?.footer.nextOcspUpdate ?? null;
     const caa_allowed_issuers = tlsCheckData.derived?.caaInfo.allowedIssuers ?? [];
     const caa_iodef = tlsCheckData.derived?.caaInfo.iodef ?? [];
     const caa_present = tlsCheckData.derived?.caaInfo.caaPresent ?? false;
-    const getOcspInfo = tlsCheckData.derived?.revocation.checks[0] ?? null;
     const ocsp_stapled = tlsCheckData.certificate.ocsp_stapled;
     const ocsp_stapled_produced_at = tlsCheckData.ocsp?.producedAt ?? null;
-    const protocol_scan = tlsCheckData.offeredProtocols;
-    const alpn = tlsCheckData.certificate.alpn_protocol ? [...tlsCheckData.certificate.alpn_protocol] : [];
+    const protocol_scan = JSON.stringify(tlsCheckData.offeredProtocols);
+    const alpn = tlsCheckData.certificate.alpn_protocol ? [tlsCheckData.certificate.alpn_protocol] : [];
     const revoked_at = tlsCheckData.ocsp?.revokedAt ? tlsCheckData.ocsp?.revokedAt : tlsCheckData.crl?.revokedAt ? tlsCheckData.crl?.revokedAt : null;
     // const grade = tlsCheckData.derived?.securityGrade.grade ?? null;
 
     const insert_update_query = `
       INSERT INTO tls_state (
         monitor_id, protocol_scan, alpn, revocation_status, revocation_source,
-        ocsp_next_update, revoked_at, ocsp_stapled, ocsp_stapled_produced_at,
+        ocsp_next_update, revoked_at, ocsp_stapled, ocsp_staple_produced_at,
         caa_present, caa_allowed_issuers, caa_iodef
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $1, $11, $12)
-      ON CONFLICT (updated_at) DO UPDATE SET
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ON CONFLICT (monitor_id) DO UPDATE SET
         protocol_scan = $2,
         alpn = $3,
         revocation_status = $4,
@@ -75,7 +73,7 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult, user_i
         ocsp_next_update = $6,
         revoked_at = $7,
         ocsp_stapled = $8,
-        ocsp_stapled_produced_at = $9,
+        ocsp_staple_produced_at = $9,
         caa_present = $10,
         caa_allowed_issuers = $11,
         caa_iodef = $12,
@@ -83,16 +81,16 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult, user_i
     `;
     const insert_update_values = [tls_id, protocol_scan, alpn, revocation_status, revocation_source, ocsp_next_update, revoked_at, ocsp_stapled, ocsp_stapled_produced_at, caa_present, caa_allowed_issuers, caa_iodef];
 
-    const insertUpdateData = await client.query(insert_tlsInfo_query, insert_tlsInfo_values);
+    const insertUpdateData = await client.query(insert_update_query, insert_update_values);
 
     await checkFirstSnapshot(client, tls_id, tlsCheckData);
 
     await checkIsCertificateRenewed(client, tls_id, fingerprint, tlsCheckData);
-
-    client.query("COMMIT")
+  }
+    await client.query("COMMIT")
   }
   catch (err) {
-    client.query("ROLLBACK");
+    await client.query("ROLLBACK");
     throw err;
   }
   finally{
@@ -173,6 +171,23 @@ export const insertToSnapshot = async (client: PoolClient, tls_id: string, tlsCh
   const insert_snapshot_values = [tls_id, fingerprint, serial_number, issuer, subject, san_names, new Date(valid_from), new Date(valid_to), signature_algorithm, asymmetric_key_type, key_bits, nist_curve, chain, must_staple, ocsp_responder, ct_logs];
 
   const insertSnapshot = await client.query(insert_snapshot_query, insert_snapshot_values);
+
+  // delete if snapshots cross the SnapshotLIMIT
+
+  const delete_snapshot_query = `DELETE FROM tls_cert_snapshots
+    WHERE monitor_id = $1
+      AND id IN (
+        SELECT id FROM tls_cert_snapshots
+        WHERE monitor_id = $1
+        ORDER BY first_seen_at DESC, id DESC
+        OFFSET $2
+      )
+    `;
+
+  const delete_snapshot_value = [tls_id, SNAPSHOTS_DB_LIMIT];
+
+  await client.query(delete_snapshot_query, delete_snapshot_value);
+
 
   // insert the renewal event
 

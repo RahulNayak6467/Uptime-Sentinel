@@ -108,6 +108,9 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       return;
     }
 
+    const cn = (v: string | string[] | undefined): string =>
+      Array.isArray(v) ? v.join(", ") : v ?? "";
+
     const certificateInformation: TlsCertificateInfo = {
       common_name: certificate.subject.CN,
       san_names: certificate?.subjectaltname ?? "",
@@ -115,8 +118,8 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       issuer: certificate.issuer.CN,
 
       leaf_certificate: {
-        subject: certificate.subject.CN,
-        issuer: certificate.issuer.CN,
+        subject: cn(certificate.subject.CN),
+        issuer: cn(certificate.issuer.CN),
         valid_from: certificate.valid_from,
         valid_to: certificate.valid_to,
         finger_print: certificate.fingerprint256,
@@ -132,7 +135,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
         serial_number: certificate.issuerCertificate.serialNumber ?? null,
       },
 
-      signature_algorithm: x509Certificate?.signatureAlgorithm,
+      signature_algorithm: x509Certificate?.signatureAlgorithm ?? "",
       authorization: socket.authorized,
       authorizationError: socket.authorizationError,
       tls_version: (socket.getProtocol() as SecureVersion | null),
@@ -254,7 +257,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       crl,
       certificateTransparency
     }
-      console.dir(tlsFetchData, {depth: 10});
+    console.dir(tlsFetchData, {depth: 10});
     resolve(tlsFetchData);
     return;
   }
@@ -314,4 +317,5 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
  })
 };
 
-tlsFetcher("www.reddit.com", 10000, 60);
+// tlsFetcher("www.reddit.com", 10000, 60);
+tlsFetcher("www.example.com", 10000, 5);

@@ -21,6 +21,7 @@ export interface UrlActiveRowsProps {
   id: string;
   user_id: string;
   next_check_at: string;
+  monitor_type: monitor_types;
 }
 
 export interface responseTimeProps {
@@ -50,6 +51,8 @@ export interface monitorDataProps {
   next_check_at: Date;
 }
 
+export type monitor_types =  "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
+
 export interface allMonitorsDataProps {
   id: string;
   url: string;
@@ -57,7 +60,7 @@ export interface allMonitorsDataProps {
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: string;
-  monitor_type: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
+  monitor_type: monitor_types;
   last_status_code: number | null;
   response: {
     responseTime: number;

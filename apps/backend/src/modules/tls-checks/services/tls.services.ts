@@ -26,9 +26,11 @@ export const checkTlsHealth = async (user_id: string, tls_id: string): Promise<T
       throw new AppError(404, "Tls not found", "TLS_NOT_FOUND");
     }
 
-    const {warning_threshold_days, url: host, request_timeout_ms: connection_timeout}= rows[0];
+    const { warning_threshold_days, url: host, request_timeout_ms: connection_timeout } = rows[0];
 
-    const responseObject = await tlsFetcher(host, connection_timeout, warning_threshold_days);
+    const hostName = new URL(host).hostname;
+
+    const responseObject = await tlsFetcher(hostName, connection_timeout, warning_threshold_days);
 
     return responseObject;
 
