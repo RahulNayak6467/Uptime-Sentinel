@@ -17,7 +17,7 @@ redis.on("error", (err) =>
 
 const getEmailVerificationOptions = () => {
   return {
-    connection: redis,
+    connection: redis.duplicate(),
     concurrency: 10,
     lockDuration: 30000,
     removeOnComplete: {
@@ -34,7 +34,8 @@ const getEmailVerificationOptions = () => {
 const processor = async (job: Job) => {
   const { email, otp } = job.data;
 
-  await sendEmailVerification(email, otp);
+  const sendEmail = await sendEmailVerification(email, otp);
+  console.log(sendEmail);
 };
 
 export const emailVerificationWorker = new Worker(

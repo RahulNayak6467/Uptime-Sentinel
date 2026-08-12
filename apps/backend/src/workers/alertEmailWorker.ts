@@ -21,7 +21,7 @@ redis.on("error", (err) =>
 
 const alertEmailOptions = () => {
   return {
-    connection: redis,
+    connection: redis.duplicate(),
     concurrency: 10,
     lockDuration: 30000,
     removeOnComplete: {
