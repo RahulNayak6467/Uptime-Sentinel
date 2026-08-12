@@ -16,7 +16,7 @@ redis.on("error", (err) =>
 
 const getWorkerOptions = () => {
   return {
-    connection: redis,
+    connection: redis.duplicate(),
     concurrency: 5,
     lockDuration: 90000,
     removeOnComplete: {
@@ -41,21 +41,6 @@ const processor = async (job: Job<TLSCheckJobData>) => {
     throw err;
   }
 }
-
-// const processor = async (job: Job<TLSCheckJobData>) => {
-//   const { user_id, tls_id } = job.data;
-
-//   console.log("Worker gets the job");
-
-//   const urlMonitorResponse = await checkUrlHealth(user_id, url_id);
-//   await updateMonitorStatus(
-//     urlMonitorResponse.status,
-//     urlMonitorResponse.statusCode,
-//     user_id,
-//     url_id,
-//   );
-//   await runStateMachine(user_id,url_id, urlMonitorResponse.status);
-// };
 
 export const tlsCheckWorker = new Worker(
   "tls-checks",

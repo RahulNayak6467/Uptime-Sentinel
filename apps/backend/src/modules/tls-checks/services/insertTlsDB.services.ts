@@ -111,8 +111,7 @@ export const updateTlsMonitor = async (client: PoolClient, tls_id: string, statu
 
   const update_tls_query = `
     UPDATE monitor
-    SET status = $1,
-    next_check_at = NOW() + (interval_seconds || ' seconds')::interval
+    SET status = $1
     WHERE id = $2
   `;
   const update_tls_values = [statusCheck, tls_id];

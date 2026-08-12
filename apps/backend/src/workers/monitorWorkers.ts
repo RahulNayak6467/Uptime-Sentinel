@@ -17,7 +17,7 @@ redis.on("error", (err) =>
 
 const getWorkerOptions = () => {
   return {
-    connection: redis,
+    // connection: redistlsFetcher("https://example.com", 10000, 60);
     concurrency: 10,
     lockDuration: 30000,
     removeOnComplete: {
