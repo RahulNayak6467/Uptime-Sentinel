@@ -1,10 +1,9 @@
-import "reflect-metadata";
 import { initSentry } from "./config/sentry";
 initSentry();
 import express, { Application } from "express";
 import { env } from "./config/env";
 import routes from "./routes";
-import { scheduleResponseIntoDB } from "./scheduler";
+import { scheduleFastLaneChecks, scheduleSlowLaneChecks } from "./scheduler";
 import { handleError } from "./shared/middleware/error.middleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -20,7 +19,8 @@ app.options("/{*path}", cors(corsConfigOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-scheduleResponseIntoDB();
+scheduleFastLaneChecks();
+scheduleSlowLaneChecks();
 
 app.use(routes);
 app.use(handleError);
