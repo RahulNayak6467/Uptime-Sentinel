@@ -11,6 +11,12 @@ double-probe dedupe both done. **The entire no-schema backend runway is finished
 All remaining work is pipeline/persistence + 2 service SQL queries. All 5 tables
 migrated + applied 2026-08-05.
 
+**#8/#9 persistence WRITTEN + type-clean (2026-08-10).** Reviewed function-by-function;
+all runtime + logic bugs found in that review are fixed and `tsc` is clean across the
+backend. **Two things remain before #8/#9 are DONE:** (a) prune-to-10 in `insertToSnapshot`
+(parked), (b) DB-harness verification of the things tsc can't prove — `ON CONFLICT`
+upsert, jsonb/array round-trip, event writes, mid-txn rollback. Then → #16.
+
 ## Checklist
 
 | # | Bucket | Item | Status | Depends on / notes |
@@ -20,10 +26,10 @@ migrated + applied 2026-08-05.
 | 3 | Schema | `tls_cert_snapshots` table | ✅ Done | Migrated; `chain jsonb` kept |
 | 4 | Schema | `tls_checks` table (per-check + timing) | ✅ Done | Migrated |
 | ★5 | Schema | **`tls_state` table** (protocol-scan/OCSP/CAA, 1:1, overwrite) | ✅ Done | 15 cols, migrated 2026-08-05 |
-| ★6 | Schema | **Raise snapshot cap** (cap-2 → **10**) | 🟡 Decided | cap=10 locked; prune is worker logic (#9) |
+| ★6 | Schema | **Raise snapshot cap** (cap-2 → **10**) | ✅ Done | cap=10; prune-to-10 written in #9 + verified (12→10) 2026-08-12 |
 | ★7 | Decision | **monitor_type semantics** → **standalone** (`type='tls'` → tlsFetcher only) | ✅ Decided | 2026-08-05; shared monitor table keeps inert HTTP cols for tls rows |
-| 8 | Persistence | Store check results + handshake timing → `tls_checks` | ❌ Left | Needs #7, #16 |
-| 9 | Persistence | Append cert snapshot on fingerprint/serial change (+prune) | ❌ Left | Needs #6, #16 |
+| 8 | Persistence | Store check results + handshake timing → `tls_checks` | ✅ Done + verified (2026-08-12) | `insertToDB` (tls_checks + tls_state upsert + monitor status map). **Verified end-to-end against the real DB** via the pipeline: happy-path writes, upsert (state=1 on re-run), jsonb/array round-trips, down-path (check row + DOWN, no cert rows, still commits), atomicity/rollback all pass |
+| 9 | Persistence | Append cert snapshot on fingerprint/serial change (+prune) | ✅ Done + verified (2026-08-12) | Snapshot append-on-fingerprint-change + prune-to-10 + `first_snapshot`/`renewed`/`protocol_change` events. **Verified:** no-dup on unchanged cert, renewal (fingerprint tamper), protocol_change (uses last-non-null protocol so null→value isn't a false change), prune keeps 10. `first_snapshot`-only on first check |
 | ★10 | Backend | **`tlsFetcher` result envelope** (`status`/`certificate`/`error`) | ✅ Done | Envelope (commit 15a7d43; 0 tsc / 0 console.logs) **+ double-probe deduped 2026-08-08**: `checkDeprecatedProtocol`/`protocolAndCipherScan` now take the single `offeredProtocols` scan (no re-probe) — `checkConnections` runs once/check (tlsFetcher:210). Dead imports removed |
 | 11 | Derive | Fingerprint pinning — `comparePin` | ✅ Done + tested | `computeComparePin` (status/isPinned/normalize) 2026-08-07; auto-repin write deferred to #9/#11 |
 | 12 | Derive | Renewal comparison — `computeRenewalComparison` | ✅ Done + tested | + `compareSan` 2026-08-06; runs once ≥2 snapshots persist |
@@ -35,7 +41,7 @@ migrated + applied 2026-08-05.
 | ★15b | Derive | **CAA policy lookup — `computeCaa`** | ✅ Done + tested | 2026-08-07, injectable resolver; persist to `tls_state` pending — amend `caa_iodef → TEXT[]` |
 | ★15c | Derive | **Certificate history builder — `computeCertificateHistory`** (+ `computeTone`) | ✅ Done + tested | 2026-08-07; runs once `tls_events` persist; per-type metadata locked at #17 |
 | ★15d | Derive | **Connection & schedule — `connectionInfo`** | ✅ Done + tested | 2026-08-06 (return + field mapping fix) |
-| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ❌ Left — **UNBLOCKED** | Prereqs #5/#7/#10 all ✅; HTTP-cols-nullable migration ✅ (2026-08-08). Next up after #21/#22. See "Pipeline / worker architecture" section |
+| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | 🟡 In progress (2026-08-12) | **Dispatch already works** — `scheduler/index.ts` routes `tls`→`tlsQueue`→standalone `tlsWorker`→`insertToDB` (verified). Remaining = cleanup: (1) new **slow-lane scheduler** (`*/5`, `WHERE monitor_type='tls'`), (2) strip TLS from fast scheduler (avoid double-dispatch), (3) **remove `next_check_at` advance from `updateTlsMonitor`** (scheduler owns it — kills double-advance), (4) per-worker `redis.duplicate()` + drop console.log. Shared queue/worker factory still deferred until DNS/TCP exist |
 | 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
 | 19 | Alerting | Failure alerts (expired/untrusted/hostname-mismatch/revoked) | ❌ Left | |
@@ -76,14 +82,15 @@ migrated + applied 2026-08-05.
 
 ```
 #7 monitor_type decision  ✅ ┐
-#5 tls_state design       ✅ ┼──▶ #16 worker dispatch ──▶ #8/#9 persistence ──▶ #23 API ──▶ #25 frontend wiring
+#5 tls_state design       ✅ ┼──▶ #8/#9 persistence ──▶ #16 worker dispatch ──▶ #23 API ──▶ #25 frontend wiring
 #10 tlsFetcher envelope   ✅ ┘
 ```
 
 **All three critical-path prereqs (#5, #7, #10) are resolved (2026-08-08) and the
-no-schema runway is finished.** Next actionable is **#16 worker dispatch**, but the
-create/insert path first needs the **HTTP-columns-nullable migration** (see the
-create-form section) and **#21 Zod schema → #22 endpoints**. Backend-first order applies.
+no-schema runway is finished.** **Order changed 2026-08-09:** build + DB-test the
+persistence writes (#8/#9) as standalone functions **first**, then **#16 worker
+dispatch** wires them into the slow-lane scheduler. HTTP-columns-nullable migration ✅.
+Backend-first order applies.
 
 ## Schema column decisions (finalized 2026-08-05)
 
