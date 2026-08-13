@@ -27,6 +27,7 @@ import { parseSCTExtensions, checkCrlRevocation, getOcspStatus } from "./ocspPar
 import { getCrlUrl, parseMustStaple } from "./parseCertExtensions";
 import { CrlRevocation, TlsCertificateInfo, TlsResult } from "./tls.types";
 import { computeCaa } from "./caaResolver";
+import { getHandshakeLatencyStats } from "../../modules/tls-checks/services/handshakeLatency.services";
 
 export const tlsFetcher = async (host: string, connection_timeout: number,warning_threshold_days: number): Promise<TlsResult> => {
   return new Promise((resolve, reject) => {
@@ -257,7 +258,8 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       crl,
       certificateTransparency
     }
-    console.dir(tlsFetchData, {depth: 10});
+    // console.dir(tlsFetchData, {depth: 10});
+
     resolve(tlsFetchData);
     return;
   }

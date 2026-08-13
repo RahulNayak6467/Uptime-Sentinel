@@ -3,6 +3,13 @@ node_modules/
 dist/
 coverage/
 build/
+
+# personal career/planning notes — not project code
+/career-planning/
+
+# personal daily reviews + learnings log — not project code
+/daily-reviews/
+/learnings/
 .next/
 
 # env files — keep .env.example tracked as a template
