@@ -4,6 +4,7 @@ import { db } from "../../../db";
 import { RenewalCheck } from "../types/tls-db-types";
 import { checkFirstSnapshot, detectProtocolChange } from "./tlsCertEvents.services";
 import { SNAPSHOTS_DB_LIMIT } from "../../../constants/constants";
+import { runTlsStateMachine } from "../../../workers/statemachine/tlsStateMachine.worker";
 
 export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
 
@@ -42,23 +43,23 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
     // if (!fingerprint || !tlsCheckData.certificate || !tlsCheckData.derived) return;
     if (fingerprint && tlsCheckData.certificate && tlsCheckData.derived) {
 
-    // Inserting to tls_state
-    const revocation = tlsCheckData.derived?.revocation ?? null;
+      // Inserting to tls_state
+      const revocation = tlsCheckData.derived?.revocation ?? null;
 
-    const revocation_status = tlsCheckData.ocsp?.status ?? "unknown";
-    const revocation_source = revocation_status === "unknown" ? null : "ocsp";
-    const ocsp_next_update = revocation?.footer.nextOcspUpdate ?? null;
-    const caa_allowed_issuers = tlsCheckData.derived?.caaInfo.allowedIssuers ?? [];
-    const caa_iodef = tlsCheckData.derived?.caaInfo.iodef ?? [];
-    const caa_present = tlsCheckData.derived?.caaInfo.caaPresent ?? false;
-    const ocsp_stapled = tlsCheckData.certificate.ocsp_stapled;
-    const ocsp_stapled_produced_at = tlsCheckData.ocsp?.producedAt ?? null;
-    const protocol_scan = JSON.stringify(tlsCheckData.offeredProtocols);
-    const alpn = tlsCheckData.certificate.alpn_protocol ? [tlsCheckData.certificate.alpn_protocol] : [];
-    const revoked_at = tlsCheckData.ocsp?.revokedAt ? tlsCheckData.ocsp?.revokedAt : tlsCheckData.crl?.revokedAt ? tlsCheckData.crl?.revokedAt : null;
-    // const grade = tlsCheckData.derived?.securityGrade.grade ?? null;
+      const revocation_status = tlsCheckData.ocsp?.status ?? "unknown";
+      const revocation_source = revocation_status === "unknown" ? null : "ocsp";
+      const ocsp_next_update = revocation?.footer.nextOcspUpdate ?? null;
+      const caa_allowed_issuers = tlsCheckData.derived?.caaInfo.allowedIssuers ?? [];
+      const caa_iodef = tlsCheckData.derived?.caaInfo.iodef ?? [];
+      const caa_present = tlsCheckData.derived?.caaInfo.caaPresent ?? false;
+      const ocsp_stapled = tlsCheckData.certificate.ocsp_stapled;
+      const ocsp_stapled_produced_at = tlsCheckData.ocsp?.producedAt ?? null;
+      const protocol_scan = JSON.stringify(tlsCheckData.offeredProtocols);
+      const alpn = tlsCheckData.certificate.alpn_protocol ? [tlsCheckData.certificate.alpn_protocol] : [];
+      const revoked_at = tlsCheckData.ocsp?.revokedAt ? tlsCheckData.ocsp?.revokedAt : tlsCheckData.crl?.revokedAt ? tlsCheckData.crl?.revokedAt : null;
+      // const grade = tlsCheckData.derived?.securityGrade.grade ?? null;
 
-    const insert_update_query = `
+      const insert_update_query = `
       INSERT INTO tls_state (
         monitor_id, protocol_scan, alpn, revocation_status, revocation_source,
         ocsp_next_update, revoked_at, ocsp_stapled, ocsp_staple_produced_at,
@@ -79,15 +80,19 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
         caa_iodef = $12,
         updated_at = NOW()
     `;
-    const insert_update_values = [tls_id, protocol_scan, alpn, revocation_status, revocation_source, ocsp_next_update, revoked_at, ocsp_stapled, ocsp_stapled_produced_at, caa_present, caa_allowed_issuers, caa_iodef];
+      const insert_update_values = [tls_id, protocol_scan, alpn, revocation_status, revocation_source, ocsp_next_update, revoked_at, ocsp_stapled, ocsp_stapled_produced_at, caa_present, caa_allowed_issuers, caa_iodef];
 
-    const insertUpdateData = await client.query(insert_update_query, insert_update_values);
+      const insertUpdateData = await client.query(insert_update_query, insert_update_values);
 
-    await checkFirstSnapshot(client, tls_id, tlsCheckData);
+      await checkFirstSnapshot(client, tls_id, tlsCheckData);
 
-    await checkIsCertificateRenewed(client, tls_id, fingerprint, tlsCheckData);
-  }
+      await checkIsCertificateRenewed(client, tls_id, fingerprint, tlsCheckData);
+
+    }
+
+    await runTlsStateMachine(client, tls_id, status, tlsCheckData.derived?.validationChecks ?? null, tlsCheckData.ocsp?.status ?? "unknown");
     await client.query("COMMIT")
+
   }
   catch (err) {
     await client.query("ROLLBACK");

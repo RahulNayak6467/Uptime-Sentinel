@@ -24,6 +24,13 @@ export type keyStrengthLevels = "Pass" | "Fail" | "Warn";
 
 export type TlsStatus = "Expired" | "Invalid" | "Valid" | "Expiring";
 
+export type TlsDownCause =
+  | "unreachable"
+  | "expired"
+  | "revoked"
+  | "hostname_mismatch"
+  | "other";
+
 export type TlsVersion = "TLSv1" | "TLSv1.1" | "TLSv1.2" | "TLSv1.3";
 
 export interface ValidationChecks {

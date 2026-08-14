@@ -198,15 +198,6 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
         certificate.subject.CN,
         certificate.issuer.CN
       );
-      const status = computeStatus(
-        certificateInformation.hostname_match,
-        isExpired,
-        certificate.subject.CN,
-        certificate.issuer.CN,
-        certificateInformation.authorization,
-        x509Certificate.validToDate,
-        warning_threshold_days ?? 30
-      );
      const nextExpiryAlert =  computeNextExpiryAlert(days);
 
     const crlUrl = getCrlUrl(x509Certificate.toString());
@@ -222,7 +213,17 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
     const mustStaple = parseMustStaple(x509Certificate.toString());
     const securityGrade = computeSecurityGrade(validations, certificateInformation.signature_algorithm, offeredProtocols, type, certificateInformation.nist, certificate.bits,forwardSecrecy,mustStaple,certificateInformation.tls_version,certificateInformation.ocsp_stapled);
     const revocation = computeRevocationShaper(ocsp, crl, certificateTransparency, certificateInformation.ocsp_stapled, ocspResponder, mustStaple);
-    const caaInfo = await computeCaa(host,connection_timeout)
+    const caaInfo = await computeCaa(host, connection_timeout)
+    const status = computeStatus(
+        certificateInformation.hostname_match,
+        isExpired,
+        certificate.subject.CN,
+        certificate.issuer.CN,
+        certificateInformation.authorization,
+        x509Certificate.validToDate,
+        warning_threshold_days ?? 30,
+        ocsp.status
+      );
     const tlsFetchData: TlsResult =  {
       status,
       error: null,
@@ -258,7 +259,7 @@ export const tlsFetcher = async (host: string, connection_timeout: number,warnin
       crl,
       certificateTransparency
     }
-    // console.dir(tlsFetchData, {depth: 10});
+    console.dir(tlsFetchData, {depth: 10});
 
     resolve(tlsFetchData);
     return;

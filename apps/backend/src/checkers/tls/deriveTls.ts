@@ -1,5 +1,5 @@
 import tls,{ CipherNameAndProtocol, DetailedPeerCertificate, SecureVersion } from "node:tls";
-import { CertHistoryInfo, CertificateEvents, CertificateLifetime, CertLifetimeInfo, CertLifetimeStats, ChainCertificate, ChainOfTrust, ComparePin, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, ValidationChecks } from "./tls.types";
+import { CertHistoryInfo, CertificateEvents, CertificateLifetime, CertLifetimeInfo, CertLifetimeStats, ChainCertificate, ChainOfTrust, ComparePin, CrlRevocation, ElapsedDays, keyStrengthLevels, LatencyShaper, NextTlsExpiry, OCSPStatus, ParseSCTExtension, ProtocolCipherScan, RenewalComparison, RevocationShaper, SecurityGrade, TimeRemaining, TlsAcceptedConnections, TlsCertRenewal, TlsConfigInput, TlsConfigOnput, TlsStatus, TlsDownCause, ValidationChecks } from "./tls.types";
 import { CERTIFICATE_WEIGHTAGE, SECURITY_GRADE_PARAMETRES, SIGNATURE_STRENGTH_WEIGHTAGE, TLS_1_POINT_1_SUPPORT_DEPRECATED_VERSION, TLS_1_SUPPORT_DEPRECATED_VERSION, VALIDATION_CHECK_SCORES } from "../../constants/constants";
 import { Certificate } from "node:crypto";
 export const getDaysRemaining = ( endDate: Date):TimeRemaining => {
@@ -137,18 +137,39 @@ export const validationChecks = (isCertificateTrusted: boolean,isExpired: boolea
   }
 }
 
-export const computeStatus = (hostnameCheck: boolean, isExpired: boolean, subjectCN: string | string[] |undefined, issuerCN: string | string[] |undefined, isCertificateTrusted: boolean, endDate: Date, warningThresholdDays: number): TlsStatus => {
+export const computeStatus = (hostnameCheck: boolean, isExpired: boolean, subjectCN: string | string[] | undefined, issuerCN: string | string[] | undefined, isCertificateTrusted: boolean, endDate: Date, warningThresholdDays: number, revocationStatus: OCSPStatus["status"]): TlsStatus => {
 
   const { days } = getDaysRemaining(endDate);
 
   const subjectCNCheck = Array.isArray(subjectCN) ? subjectCN[0] : subjectCN;
   const issuerCNCheck = Array.isArray(issuerCN) ? issuerCN[0] : issuerCN;
+  const isRevoked = revocationStatus === "revoked" ? true : false;
 
   if (isExpired) return "Expired";
-  if (!hostnameCheck || subjectCNCheck === issuerCNCheck || !isCertificateTrusted) return "Invalid";
+  if (!hostnameCheck || subjectCNCheck === issuerCNCheck || !isCertificateTrusted || isRevoked) return "Invalid";
   if (days <= warningThresholdDays) return "Expiring";
   return "Valid";
 
+}
+
+/**
+ * Attributes a single `cause` to a DOWN check for the `went_down` event metadata.
+ * Only meaningful on a DOWN classification. A check can fail several validations at
+ * once, so a fixed precedence picks ONE cause: no-connection first, then cert-level
+ * failures most-specific first. Anything not in the known set -> "other" (the
+ * universal fallback: untrusted chain, self-signed, not-yet-valid, etc.).
+ */
+export const reasonForTlsDown = (
+  status: TlsStatus | "Unreachable",
+  validation: ValidationChecks | null,
+  revocationStatus: OCSPStatus["status"],
+): TlsDownCause => {
+  if (status === "Unreachable") return "unreachable";
+  if (!validation) return "other"; // DOWN but no cert data to attribute a cause
+  if (!validation.expiry_boundary_check) return "expired";
+  if (revocationStatus === "revoked") return "revoked";
+  if (!validation.check_hostname_match) return "hostname_mismatch";
+  return "other";
 }
 
 export const computeNextExpiryAlert = (days: number, expiryAlertThresholds?: number[]): NextTlsExpiry  => {

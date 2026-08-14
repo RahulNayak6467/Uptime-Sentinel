@@ -1,6 +1,7 @@
 import { PoolClient } from "pg";
-import { CertGrade, CertificateEvents, TlsResult } from "../../../checkers/tls/tls.types";
+import { CertGrade, CertificateEvents, OCSPStatus, TlsResult, TlsStatus, ValidationChecks } from "../../../checkers/tls/tls.types";
 import { SecureVersion } from "tls";
+import { reasonForTlsDown } from "../../../checkers/tls/deriveTls";
 
 export const checkFirstSnapshot = async (client: PoolClient, tls_id: string, TlsCheckData: TlsResult) => {
 
@@ -76,4 +77,49 @@ export const detectProtocolChange = async (client: PoolClient, TlsCheckData: Tls
   const changedProtocol = await client.query(change_protocol_query, change_protocol_values);
 
   return changedProtocol;
+}
+
+export const insertDownEvent = async (
+  client: PoolClient,
+  tls_id: string,
+  status: TlsStatus | "Unreachable",
+  validation: ValidationChecks | null,
+  revocationStatus: OCSPStatus["status"],
+) => {
+  const eventType: CertificateEvents = "went_down";
+
+  const cause = reasonForTlsDown(status, validation, revocationStatus);
+  const metadata = {
+    eventType,
+    cause,
+  }
+
+  const insert_down_query = `
+    INSERT INTO tls_events (monitor_id, type, metadata)
+    VALUES ($1, $2, $3)
+    `;
+  const insert_down_values = [tls_id, eventType, metadata];
+
+  const downEvent = await client.query(insert_down_query, insert_down_values);
+
+  return downEvent;
+}
+
+export const recoveredEvent = async(client: PoolClient, tls_id: string) => {
+
+  const eventType: CertificateEvents = "recovered";
+
+  const metadata = {
+    eventType,
+  }
+
+  const insert_recovered_query = `
+    INSERT INTO tls_events (monitor_id, type, metadata)
+    VALUES ($1, $2, $3)
+    `;
+  const insert_recovered_values = [tls_id, eventType, metadata];
+
+  const insertRecoveredEvent = await client.query(insert_recovered_query, insert_recovered_values);
+
+  return insertRecoveredEvent;
 }

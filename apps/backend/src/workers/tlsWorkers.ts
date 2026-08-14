@@ -4,6 +4,7 @@ import logger from "../config/logger";
 import { TLSCheckJobData } from "../queue/tlsQueue";
 import { insertToDB } from "../modules/tls-checks/services/insertTlsDB.services";
 import { checkTlsHealth } from "../modules/tls-checks/services/tls.services";
+import { runTlsStateMachine } from "./statemachine/tlsStateMachine.worker";
 
 logger.info({}, "tlsWorkers module loaded");
 logger.info({ status: redis.status }, "Redis connection state:");

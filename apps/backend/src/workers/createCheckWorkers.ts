@@ -1,7 +1,7 @@
 // import { Job, Worker } from "bullmq";
 // import redis from "../redis";
 // import { checkUrlHealth } from "../modules/monitors/services/url.services";
-// import { runStateMachine, updateMonitorStatus } from "./stateMachine.worker";
+// import { runStateMachine, updateMonitorStatus } from "./statemachine/httpsStateMachine.worker";
 // import { db } from "../db";
 // import logger from "../config/logger";
 // import { MonitorCheckJobData } from "../queue/monitorQueue";

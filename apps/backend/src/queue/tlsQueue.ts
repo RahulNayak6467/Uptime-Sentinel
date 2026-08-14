@@ -1,6 +1,7 @@
 import { Queue } from "bullmq";
 import redis from "../redis";
 import logger from "../config/logger";
+import { PoolClient } from "pg";
 
 const tlsQueue = new Queue("tls-checks", {
   connection: redis,
