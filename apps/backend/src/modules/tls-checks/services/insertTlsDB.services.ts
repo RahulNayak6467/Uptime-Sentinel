@@ -9,6 +9,7 @@ import { runTlsStateMachine } from "../../../workers/statemachine/tlsStateMachin
 export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
 
   const client = await db.connect();
+  let isRenewed = false;
   try {
     await client.query("BEGIN");
 
@@ -86,13 +87,14 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
 
       await checkFirstSnapshot(client, tls_id, tlsCheckData);
 
-      await checkIsCertificateRenewed(client, tls_id, fingerprint, tlsCheckData);
+      isRenewed = await checkIsCertificateRenewed(client, tls_id, fingerprint, tlsCheckData);
 
     }
 
     await runTlsStateMachine(client, tls_id, status, tlsCheckData.derived?.validationChecks ?? null, tlsCheckData.ocsp?.status ?? "unknown");
     await client.query("COMMIT")
 
+    return isRenewed;
   }
   catch (err) {
     await client.query("ROLLBACK");
@@ -141,14 +143,17 @@ export const checkIsCertificateRenewed = async (client: PoolClient,tls_id: strin
   const rows = previousCertificateFingerprint.rows;
 
   if (rows.length === 0) {
-    return await insertToSnapshot(client, tls_id, tlsCheckData,"first_snapshot");
+    await insertToSnapshot(client, tls_id, tlsCheckData,"first_snapshot");
+    return false;
   }
 
   const compareFingerprint = rows[0].fingerprint_sha256 === fingerprint_sha256;
 
-  if (compareFingerprint) return;
+  if (compareFingerprint) return false;
 
-  await insertToSnapshot(client, tls_id, tlsCheckData,"renewed");
+  await insertToSnapshot(client, tls_id, tlsCheckData, "renewed");
+
+  return true;
 }
 
 export const insertToSnapshot = async (client: PoolClient, tls_id: string, tlsCheckData: TlsResult, eventType: CertificateEvents) => {

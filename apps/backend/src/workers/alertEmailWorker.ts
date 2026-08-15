@@ -6,7 +6,7 @@ import { sendRecoveryEmail } from "../emails/recoveredEmail";
 import { sendStillDownAlertEmail } from "../emails/reminderEmail";
 import { db } from "../db";
 import logger from "../config/logger";
-import { insertIntoNotificationsTable, reminderEmailQuery, updateLastAlertSentAt } from "./statemachine/shared/workerHelper";
+import { insertIntoNotificationsTable, reminderEmailQuery, renewalEmailQuery, updateLastAlertSentAt } from "./statemachine/shared/workerHelper";
 import { alertEmailOptions } from "./statemachine/shared/alertEmailConfig";
 import { downEmailQuery, recoveryEmailQuery } from "./statemachine/shared/workerHelper";
 
@@ -31,6 +31,9 @@ const processor = async (job: Job) => {
   } else if (job.name === "reminder-email") {
     const { monitor_id, incident_id } = job.data;
     await reminderEmailQuery(monitor_id, incident_id);
+  } else if (job.name === "renewal-tls-email") {
+    const { monitor_id, issuer, expiryDate, fingerprint } = job.data;
+    await renewalEmailQuery(monitor_id, issuer, expiryDate, fingerprint);
   }
 
 };

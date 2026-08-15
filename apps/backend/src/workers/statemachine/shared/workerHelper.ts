@@ -1,8 +1,10 @@
 import { TlsDownCause } from "../../../checkers/tls/tls.types";
+import logger from "../../../config/logger";
 import { db } from "../../../db";
 import { sendDownAlertEmail } from "../../../emails/downEmail";
 import { sendRecoveryEmail } from "../../../emails/recoveredEmail";
 import { sendStillDownAlertEmail } from "../../../emails/reminderEmail";
+import { sendRenewalEmail } from "../../../emails/renewalEmail";
 
 export const getMonitorAlertInfo = async (monitor_id: string) => {
   const result = await db.query(
@@ -82,3 +84,9 @@ export const reminderEmailQuery = async (monitor_id: string, incident_id: string
     await insertIntoNotificationsTable(id, reminderEmail.id, "sent", "reminder");
   }
 };
+
+export const renewalEmailQuery = async (monitor_id: string, issuer: string, expiryDate: string, fingerprint: string) => {
+  const { email, url, monitorName } = await getMonitorAlertInfo(monitor_id);
+
+   await sendRenewalEmail(email, monitorName, url, issuer, new Date(expiryDate), fingerprint);
+}

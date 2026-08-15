@@ -5,6 +5,7 @@ import { TLSCheckJobData } from "../queue/tlsQueue";
 import { insertToDB } from "../modules/tls-checks/services/insertTlsDB.services";
 import { checkTlsHealth } from "../modules/tls-checks/services/tls.services";
 import { runTlsStateMachine } from "./statemachine/tlsStateMachine.worker";
+import { addTlsRenewalEmailQueue } from "../queue/alertEmailQueue";
 
 logger.info({}, "tlsWorkers module loaded");
 logger.info({ status: redis.status }, "Redis connection state:");
@@ -36,7 +37,11 @@ const processor = async (job: Job<TLSCheckJobData>) => {
 
   try {
     const tlsCheckData = await checkTlsHealth(user_id, tls_id);
-    await insertToDB(tls_id, tlsCheckData);
+    const isRenewed = await insertToDB(tls_id, tlsCheckData);
+    logger.info({isRenewed}, "Check whether Tls certificate is renewed")
+    if (isRenewed) {
+      await addTlsRenewalEmailQueue(tls_id, tlsCheckData.certificate?.leaf_certificate.issuer as string, tlsCheckData.certificate?.leaf_certificate.valid_to as string, tlsCheckData.certificate?.leaf_certificate.finger_print as string);
+    }
   }
   catch (err) {
     throw err;
