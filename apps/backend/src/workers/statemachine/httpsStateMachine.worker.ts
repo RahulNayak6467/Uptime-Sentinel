@@ -43,7 +43,7 @@ export const runStateMachine = async (
         client.release();
       }
 
-      await addToDownAlertEmailQueue(url_id, incident_id);
+      await addToDownAlertEmailQueue(url_id, incident_id, null);
     },
     "NO_INCIDENT:URL_UP": async () => {
       // await updateMonitorStatus(status, user_id, url_id);

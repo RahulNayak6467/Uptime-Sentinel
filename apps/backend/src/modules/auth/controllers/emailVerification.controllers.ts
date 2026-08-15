@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from "express";
+// import { verifyEmail } from "../services/emailVerification.services";
+// import { emailSchema } from "../validations/emailValidation";
 import { verifyEmail } from "../services/emailVerification.services";
 import { emailSchema } from "../validations/emailValidation";
 import {

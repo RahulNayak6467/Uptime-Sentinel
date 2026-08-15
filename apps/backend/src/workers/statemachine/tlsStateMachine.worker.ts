@@ -3,6 +3,8 @@ import { OCSPStatus, TlsDownCause, TlsStatus, ValidationChecks } from "../../che
 import { insertDownEvent, recoveredEvent } from "../../modules/tls-checks/services/tlsCertEvents.services";
 // import { getActiveIncident, insertIntoIncidentsTable, updateResolvedAt } from "./httpsStateMachine.worker"
 import { getActiveIncident, insertIntoIncidentsTable, updateResolvedAt } from "./shared/incidentLifecycle";
+import { addToDownAlertEmailQueue, addToRecoveryEmailQueue } from "../../queue/alertEmailQueue";
+import { reasonForTlsDown } from "../../checkers/tls/deriveTls";
 
 export const checkStatus = (status: TlsStatus | "Unreachable"): "UP" | "DOWN" => {
   if (status === "Valid" || status === "Expiring") return "UP";
@@ -22,15 +24,22 @@ export const runTlsStateMachine = async(client: PoolClient, tls_id: string, stat
       // Find the reason for down
       // Store in incidents table
       // update the incident_updates table
-      await insertIntoIncidentsTable(client, tls_id);
+      const incident_id = await insertIntoIncidentsTable(client, tls_id);
       // update the tls_events table
       await insertDownEvent(client, tls_id, status, validation, revocationStatus);
+
+      const cause = reasonForTlsDown(status, validation, revocationStatus);
+      // email
+      await addToDownAlertEmailQueue(tls_id, incident_id, cause);
     },
     "INCIDENT_ACTIVE:TLS_UP": async () => {
       // updating resolved At
       await updateResolvedAt(client,activeIncident.id);
       // Creating the recovered event
       await recoveredEvent(client, tls_id);
+
+      // email
+      await addToRecoveryEmailQueue(tls_id, activeIncident.id);
     },
     "INCIDENT_ACTIVE:TLS_DOWN": () => {
       // Nothing to do

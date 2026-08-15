@@ -76,3 +76,22 @@ export const insertIntoIncidentsTable = async (client: PoolClient, monitor_id: s
     throw err;
   }
 };
+
+export const insertIntoNotificationsTable = async (
+  id: string,
+  resendId: string | null,
+  status: "sent" | "failed",
+  type: "down" | "recovery" | "reminder",
+) => {
+  const insert_notifications_query =
+    "INSERT INTO notification_logs (incident_id,resend_email_id,type,status) VALUES($1,$2,$3,$4)";
+  const insert_notifications_values = [id, resendId, type, status];
+  await db.query(insert_notifications_query, insert_notifications_values);
+};
+
+export const updateLastAlertSentAt = async (incident_id: string) => {
+  const updatelast_alert_query =
+    "UPDATE incidents SET last_alert_sent_at = NOW() where id = $1";
+  const updatelast_alert_values = [incident_id];
+  await db.query(updatelast_alert_query, updatelast_alert_values);
+};

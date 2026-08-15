@@ -1,22 +1,25 @@
 import { Queue } from "bullmq";
 import redis from "../redis";
+import { TlsDownCause } from "../checkers/tls/tls.types";
 
 const alertEmailQueue = new Queue("alert-email", {
   connection: redis,
 });
 
 export const addToDownAlertEmailQueue = async (
-  url_id: string,
+  monitor_id: string,
   incident_id: string,
+  cause: TlsDownCause | null
 ) => {
   const addJob = await alertEmailQueue.add(
     "down-alert-email",
     {
-      url_id,
+      monitor_id,
       incident_id,
+      cause,
     },
     {
-      jobId: `email-check-${url_id}-${Date.now()}`,
+      jobId: `email-check-${monitor_id}-${Date.now()}`,
       attempts: 4,
       backoff: {
         type: "exponential",
@@ -37,17 +40,17 @@ export const addToDownAlertEmailQueue = async (
 };
 
 export const addToRecoveryEmailQueue = async (
-  url_id: string,
+  monitor_id: string,
   incident_id: string,
 ) => {
   const addJob = await alertEmailQueue.add(
     "recovery-email",
     {
-      url_id,
+      monitor_id,
       incident_id,
     },
     {
-      jobId: `email-recovery-${url_id}-${Date.now()}`,
+      jobId: `email-recovery-${monitor_id}-${Date.now()}`,
       attempts: 4,
       backoff: {
         type: "exponential",
@@ -68,17 +71,17 @@ export const addToRecoveryEmailQueue = async (
 };
 
 export const addReminderEmailQueue = async (
-  url_id: string,
+  monitor_id: string,
   incident_id: string,
 ) => {
   const addJob = await alertEmailQueue.add(
     "reminder-email",
     {
-      url_id,
+      monitor_id,
       incident_id,
     },
     {
-      jobId: `email-reminder-${url_id}-${Date.now()}`,
+      jobId: `email-reminder-${monitor_id}-${Date.now()}`,
       attempts: 4,
       backoff: {
         type: "exponential",
