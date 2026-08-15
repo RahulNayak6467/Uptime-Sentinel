@@ -22,13 +22,13 @@ export const runTlsStateMachine = async(client: PoolClient, tls_id: string, stat
       // Find the reason for down
       // Store in incidents table
       // update the incident_updates table
-      await insertIntoIncidentsTable(tls_id);
+      await insertIntoIncidentsTable(client, tls_id);
       // update the tls_events table
       await insertDownEvent(client, tls_id, status, validation, revocationStatus);
     },
     "INCIDENT_ACTIVE:TLS_UP": async () => {
       // updating resolved At
-      await updateResolvedAt(activeIncident.id);
+      await updateResolvedAt(client,activeIncident.id);
       // Creating the recovered event
       await recoveredEvent(client, tls_id);
     },

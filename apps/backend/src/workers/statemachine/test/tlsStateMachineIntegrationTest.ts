@@ -229,7 +229,23 @@ const run = (client: PoolClient, tlsId: string, status: Status, validation: Vali
     eq("H2 close sets fields", await incidentRow(tlsId),
       { is_active: false, has_started: true, has_resolved: true, has_alert: true });
 
-    /* I. atomicity/rollback -> deferred until the client-param refactor (helpers self-commit) */
+    /* ================= I. atomicity / rollback ================= */
+    // I1: an OPEN rolled back must leave nothing behind (all writes were on the txn client)
+    await reset(tlsId);
+    await client.query("BEGIN");
+    await run(client, tlsId, "Expired", ok({ expiry_boundary_check: false }), "good");
+    await client.query("ROLLBACK");
+    eq("I1 rolled-back open -> nothing persists", await counts(tlsId),
+      { incidents: 0, active: 0, detected: 0, resolved: 0, went_down: 0, recovered: 0 });
+
+    // I2: a CLOSE rolled back must leave the (committed) incident STILL active
+    await reset(tlsId);
+    await seedActiveIncident(tlsId);           // committed via db.query
+    await client.query("BEGIN");
+    await run(client, tlsId, "Valid", ok(), "good");
+    await client.query("ROLLBACK");
+    eq("I2 rolled-back close -> incident still active", await counts(tlsId),
+      { incidents: 1, active: 1, detected: 0, resolved: 0, went_down: 0, recovered: 0 });
   } finally {
     client.release();
     await db.query(`DELETE FROM monitor WHERE monitor_name = $1`, [TEST_NAME]); // cascade cleanup (A + any extra seeded monitors)

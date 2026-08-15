@@ -29,7 +29,20 @@ export const runStateMachine = async (
         return;
       }
 
-      const incident_id = await insertIntoIncidentsTable(url_id);
+      const client = await db.connect();
+      let incident_id;
+      try {
+        await client.query("BEGIN");
+        incident_id = await insertIntoIncidentsTable(client, url_id);
+        await client.query("COMMIT");
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      }
+      finally {
+        client.release();
+      }
+
       await addToDownAlertEmailQueue(url_id, incident_id);
     },
     "NO_INCIDENT:URL_UP": async () => {
@@ -52,7 +65,20 @@ export const runStateMachine = async (
       if (!isUrlUp) {
         return
       }
-      await updateResolvedAt(activeIncident.id);
+
+      const client = await db.connect();
+      try {
+        await client.query("BEGIN");
+        await updateResolvedAt(client, activeIncident.id);
+        await client.query("COMMIT")
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      }
+      finally {
+        client.release();
+      }
+
       await addToRecoveryEmailQueue(url_id, activeIncident.id);
     },
   };

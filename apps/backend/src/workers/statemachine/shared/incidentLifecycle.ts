@@ -1,9 +1,10 @@
+import { PoolClient } from "pg";
 import { db } from "../../../db";
 
-export const getActiveIncident = async (url_id: string) => {
+export const getActiveIncident = async (monitor_id: string) => {
   const is_active_query =
     "SELECT id, started_at,last_alert_sent_at FROM incidents WHERE monitor_id = $1 AND is_active = true LIMIT 1";
-  const is_active_values = [url_id];
+  const is_active_values = [monitor_id];
   const checkIsActive = await db.query(is_active_query, is_active_values);
   const activeRows = checkIsActive.rows.length;
   if (activeRows === 0) {
@@ -12,11 +13,8 @@ export const getActiveIncident = async (url_id: string) => {
   return checkIsActive.rows[0];
 };
 
-export const updateResolvedAt = async (incident_id: string) => {
-  const client = await db.connect();
+export const updateResolvedAt = async (client: PoolClient,incident_id: string) => {
   try {
-    await client.query("BEGIN");
-
     const update_resolvedAt_query =
       "UPDATE incidents SET is_active = false, resolved_at = NOW() where  id = $1 RETURNING resolved_at";
     const update_resolvedAt_values = [incident_id];
@@ -40,22 +38,16 @@ export const updateResolvedAt = async (incident_id: string) => {
       insert_incidentsUpdates_values,
     );
 
-    await client.query("COMMIT");
   } catch (err) {
-    await client.query("ROLLBACK");
     throw err;
-  } finally {
-    client.release();
   }
 };
 
-export const insertIntoIncidentsTable = async (url_id: string) => {
-  const client = await db.connect();
+export const insertIntoIncidentsTable = async (client: PoolClient, monitor_id: string) => {
   try {
-    await client.query("BEGIN");
     const insert_incidents_query =
       "INSERT INTO incidents (monitor_id,is_active,last_alert_sent_at) VALUES($1, $2, NOW()) RETURNING id,started_at";
-    const insert_incidents_values = [url_id, true];
+    const insert_incidents_values = [monitor_id, true];
 
     const result = await client.query(
       insert_incidents_query,
@@ -79,12 +71,8 @@ export const insertIntoIncidentsTable = async (url_id: string) => {
       insert_incidentsUpdates_values,
     );
 
-    await client.query("COMMIT");
     return incident_id;
   } catch (err) {
-    await client.query("ROLLBACK");
     throw err;
-  } finally {
-    client.release();
   }
 };
