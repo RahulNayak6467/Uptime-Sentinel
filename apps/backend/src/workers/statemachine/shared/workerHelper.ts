@@ -48,7 +48,7 @@ export const downEmailQuery = async (monitor_id: string, incident_id: string, ca
   const { email, url, monitorName, type } = await getMonitorAlertInfo(monitor_id);
   const { id, startedAt } = await getIncidentTimes(monitor_id, incident_id);
 
-  const downAlertEmail = await sendDownAlertEmail(type, email, monitorName, url, startedAt, cause);
+  const downAlertEmail = await sendDownAlertEmail(type, email, monitorName, url, startedAt, monitor_id, cause);
 
   if (downAlertEmail === null) {
     await insertIntoNotificationsTable(id, null, "failed", "down");
@@ -62,7 +62,7 @@ export const recoveryEmailQuery = async (monitor_id: string, incident_id: string
   const { email, url, monitorName, type } = await getMonitorAlertInfo(monitor_id);
   const { id, startedAt, resolvedAt } = await getIncidentTimes(monitor_id, incident_id);
 
-  const recoveryAlertEmail = await sendRecoveryEmail(type, email, monitorName, url, startedAt, resolvedAt);
+  const recoveryAlertEmail = await sendRecoveryEmail(type, email, monitorName, url, startedAt, resolvedAt, monitor_id);
 
   if (recoveryAlertEmail === null) {
     await insertIntoNotificationsTable(id, null, "failed", "recovery");
@@ -88,5 +88,5 @@ export const reminderEmailQuery = async (monitor_id: string, incident_id: string
 export const renewalEmailQuery = async (monitor_id: string, issuer: string, expiryDate: string, fingerprint: string) => {
   const { email, url, monitorName } = await getMonitorAlertInfo(monitor_id);
 
-   await sendRenewalEmail(email, monitorName, url, issuer, new Date(expiryDate), fingerprint);
+   await sendRenewalEmail(email, monitorName, url, issuer, new Date(expiryDate), fingerprint, monitor_id);
 }
