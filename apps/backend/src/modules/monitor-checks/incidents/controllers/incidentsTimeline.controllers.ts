@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
 import { getIncidentsTimelineServices } from "../services/incidentsTimelineServices";
 import { getPaginationData } from "../../../../shared/utils/generatePagePagination";
+import { incidentListQuerySchema } from "../validations/incidentListValidation";
 
 export const getIncidentsTimeline = async (
   req: Request,
@@ -18,11 +19,15 @@ export const getIncidentsTimeline = async (
     if (!userId) {
       throw new AppError(401, "Unauthenticated", "UNAUTHENTICATED");
     }
+    const { status } = incidentListQuerySchema.parse({
+      status: req.query.status,
+    });
     const getTimeline = await getIncidentsTimelineServices(
       userId,
       limit,
       offset,
-      page,
+      pageNumber,
+      status,
     );
     return res.status(200).json(getTimeline);
   } catch (err) {

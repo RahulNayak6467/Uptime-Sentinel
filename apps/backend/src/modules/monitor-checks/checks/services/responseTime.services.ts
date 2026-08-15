@@ -32,9 +32,21 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
           percentile_cont(0.5) WITHIN GROUP (
                 ORDER BY u.response_time
             )AS p50,
+            percentile_cont(0.75) WITHIN GROUP (
+                ORDER BY u.response_time
+            ) AS p75,
+            percentile_cont(0.90) WITHIN GROUP (
+                ORDER BY u.response_time
+            ) AS p90,
             percentile_cont(0.95) WITHIN GROUP (
                 ORDER BY u.response_time
-            ) AS p95
+            ) AS p95,
+            percentile_cont(0.99) WITHIN GROUP (
+                ORDER BY u.response_time
+            ) AS p99,
+            percentile_cont(0.999) WITHIN GROUP (
+                ORDER BY u.response_time
+            ) AS p999
         FROM generate_series(
             date_trunc($3, now() - $1::interval),
             date_trunc($3, now()),
@@ -55,7 +67,14 @@ export const sendResponseTimeData = async(monitor_id:string,user_id:string,timeR
     const getTimeRangeData:QueryResult<responseTimeDataProps> = await db.query(time_range_query, time_range_values);
 
     const formatedData = getTimeRangeData.rows.map((data) => {
-        return {...data, p50: data.p50 === null ? null : Number(data.p50), p95: data.p95 === null ? null : Number(data.p95) };
+      return {
+        ...data, p50: data.p50 === null ? null : Number(data.p50)
+        , p75: data.p75 === null ? null : Number(data.p75)
+        , p90: data.p90 === null ? null : Number(data.p90)
+        , p95: data.p95 === null ? null : Number(data.p95)
+        , p99: data.p99 === null ? null : Number(data.p99)
+        , p999: data.p999 === null ? null : Number(data.p999)
+      };
     })
 
     const data = {

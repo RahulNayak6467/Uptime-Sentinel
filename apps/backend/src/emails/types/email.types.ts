@@ -1,9 +1,9 @@
 export type EmailShell = {
-  accent: string;      // header background
-  badge: string;       // uppercase status badge
-  badgeColor: string;  // badge text color
-  title: string;       // header title
-  bodyHtml: string;    // inner content (intro + rows + notes)
+  accent: string;
+  badge: string;
+  badgeColor: string;
+  title: string;
+  bodyHtml: string;
   ctaUrl: string;
   ctaLabel: string;
 };

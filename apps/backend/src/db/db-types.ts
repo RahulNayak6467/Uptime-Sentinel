@@ -100,9 +100,12 @@ export interface IncidentsDataProps {
   id: string;
   is_active: boolean;
   monitor_name: string;
+  monitor_type: MonitorType;
   started_at: string;
   resolved_at: string | null;
   url: string;
+  failure_status_code: number | null;
+  failure_reason: string | null;
 }
 
 export interface AddIncidentDataProps {

@@ -33,7 +33,11 @@ export interface responseTimeProps {
 export interface responseTimeDataProps {
   bucket: Date;
   p50: string | null;
+  p75: string | null;
+  p90: string | null;
   p95: string | null;
+  p99: string | null;
+  p999: string | null;
 }
 
 export interface lastChecksDataProps {
