@@ -1,283 +1,335 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import {
   Activity,
-  Ban,
   BellRing,
-  CalendarClock,
-  Fingerprint,
+  Clock,
+  FileText,
   History,
-  KeyRound,
   Link2,
-  ListChecks,
+  Lock,
+  MapPin,
+  Pin,
   RefreshCw,
-  ScrollText,
-  Server,
-  Shield,
+  Settings2,
   ShieldCheck,
+  SlidersHorizontal,
+  Zap,
+  type LucideIcon,
 } from "lucide-react";
 import {
-  mockTlsCertificate,
-  mockTlsCertificateHistory,
-  mockTlsRenewalComparison,
-} from "../data";
-import {
   CheckRow,
-  DetailSection,
   KeyValue,
   KeyValueList,
-  MiniStat,
-  MonitorHeader,
   Panel,
-  PanelHeader,
+  PercentileStrip,
   Pill,
-  StatusBanner,
+  TableScroll,
   type HeaderStat,
   type Tone,
 } from "../monitor-detail-primitives";
-import { RadialGauge, TrendChart } from "../monitor-detail-charts";
+import { TrendChart } from "../monitor-detail-charts";
+import { useTlsDetail } from "../hooks/useTlsDetail";
+import { useTlsHandshakeLatency } from "../hooks/useTlsHandshakeLatency";
+import { useTlsHistory } from "../hooks/useTlsHistory";
+import type { TlsLatencyRange } from "../types";
+import {
+  buildCertificateView,
+  buildHandshakeTrendView,
+  buildHistoryView,
+  type CertificateView,
+} from "./certificate-view";
 
-/* ------------------------------------------------------------------ */
-/* Tone helpers                                                        */
-/* ------------------------------------------------------------------ */
+const LATENCY_RANGES: TlsLatencyRange[] = ["7d", "30d", "90d", "1y"];
 
-const HANDSHAKE_THRESHOLD_MS = 200;
+/* Subject Alternative Names — capped chip list with a "+N more" toggle. */
+const SAN_VISIBLE_LIMIT = 6;
 
-const findingTone: Record<"Pass" | "Warn" | "Fail", Tone> = {
+const SanList = ({ sans }: { sans: readonly string[] }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const hiddenCount = sans.length - SAN_VISIBLE_LIMIT;
+  const visibleSans = expanded ? sans : sans.slice(0, SAN_VISIBLE_LIMIT);
+
+  return (
+    <div className="flex flex-wrap gap-1.5 px-4 pt-3">
+      {visibleSans.map((san) => (
+        <span
+          key={san}
+          className="rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-[11px] text-sf-text-sub"
+        >
+          {san}
+        </span>
+      ))}
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          className="rounded-sf border border-sf-border bg-sf-surface px-2 py-0.5 font-sans text-[11px] font-medium text-sf-text-sub transition-colors hover:text-sf-text"
+        >
+          {expanded ? "Show less" : `+${hiddenCount} more`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+/* Coming-soon badge (brand accent). */
+const ComingSoon = () => (
+  <span className="inline-flex items-center gap-1 rounded-sf border border-[var(--sf-protocol-accent-border)] bg-[var(--sf-protocol-accent-soft)] px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide text-[var(--sf-protocol-accent)]">
+    Coming soon
+  </span>
+);
+
+/* Blurs a card's data region while leaving the header + Coming-soon badge crisp. */
+const BlurredContent = ({ children }: { children: ReactNode }) => (
+  <div className="pointer-events-none select-none opacity-15 saturate-0">
+    {children}
+  </div>
+);
+
+const toneIconClass: Record<Tone, string> = {
+  neutral: "text-sf-text-muted",
+  info: "text-[var(--sf-protocol-accent)]",
+  positive: "text-sf-green",
+  warning: "text-sf-amber",
+  negative: "text-sf-red",
+};
+
+const summaryToneClasses: Record<
+  CertificateView["statusTone"],
+  { border: string; bg: string; text: string }
+> = {
+  positive: { border: "border-sf-green-border", bg: "bg-sf-green-bg", text: "text-sf-green" },
+  warning: { border: "border-sf-amber-border", bg: "bg-sf-amber-bg", text: "text-sf-amber" },
+  negative: { border: "border-sf-red-border", bg: "bg-sf-red-bg", text: "text-sf-red" },
+};
+
+const TlsPanelHeader = ({
+  icon: Icon,
+  title,
+  description,
+  action,
+  tone = "neutral",
+}: {
+  icon: LucideIcon;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  tone?: Tone;
+}) => (
+  <header className="flex min-h-[42px] flex-col items-start justify-between gap-1.5 border-b border-sf-border-faint px-3.5 py-2 sm:flex-row sm:items-center sm:gap-4">
+    <div className="flex min-w-0 items-center gap-2">
+      <Icon
+        className={`size-3.5 shrink-0 ${toneIconClass[tone]}`}
+        strokeWidth={1.75}
+        aria-hidden="true"
+      />
+      <h3 className="truncate text-[13px] font-semibold text-sf-text">{title}</h3>
+      {description ? <span className="sr-only">{description}</span> : null}
+    </div>
+    {action ? (
+      <div className="text-left text-[11.5px] leading-relaxed text-sf-text-muted sm:shrink-0 sm:text-right">
+        {action}
+      </div>
+    ) : null}
+  </header>
+);
+
+const TlsSection = ({
+  title,
+  description,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) => (
+  <section>
+    <h2 className="sr-only">{title}</h2>
+    <p className="sr-only">{description}</p>
+    {children}
+  </section>
+);
+
+/* Right-aligned footer row used to balance card heights. */
+const FooterRow = ({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: ReactNode;
+  tone?: "positive";
+}) => (
+  <div className="flex items-center justify-between gap-3 py-1.5">
+    <span className="text-xs text-sf-text-muted">{label}</span>
+    <span className={`text-right text-[12.5px] font-medium ${tone === "positive" ? "text-sf-green" : "text-sf-text"}`}>
+      {value}
+    </span>
+  </div>
+);
+
+const checkTone: Record<"Pass" | "Warn" | "Fail", Tone> = {
   Pass: "positive",
   Warn: "warning",
   Fail: "negative",
 };
 
-const headerStats: HeaderStat[] = [
-  { label: "Days left", value: mockTlsCertificate.daysRemaining, tone: "positive", hint: "until expiry" },
-  { label: "Handshake p95", value: mockTlsCertificate.p95HandshakeTimeMs, hint: "ms · 24h" },
-  { label: "Trust", value: "Trusted", tone: "positive", hint: "system store" },
-  { label: "Renews", value: mockTlsCertificate.expiresAt.split(" · ")[0].replace(",", ""), hint: `warns at ${mockTlsCertificate.warningThresholdDays}d` },
-];
+const dotTone: Record<Tone, string> = {
+  neutral: "bg-sf-text-muted",
+  info: "bg-[var(--sf-protocol-accent)]",
+  positive: "bg-sf-green",
+  warning: "bg-sf-amber",
+  negative: "bg-sf-red",
+};
 
-/* ------------------------------------------------------------------ */
-/* Hero — certificate lifetime gauge                                   */
-/* ------------------------------------------------------------------ */
-
-const TlsLifetimeHero = () => {
-  const { certificateLifetimeDays, elapsedDays, warningThresholdDays, daysRemaining } =
-    mockTlsCertificate;
-  const usedPercent = Math.round((elapsedDays / certificateLifetimeDays) * 100);
-  const warningPercent = Math.round(
-    ((certificateLifetimeDays - warningThresholdDays) / certificateLifetimeDays) * 100,
-  );
-  const healthy = daysRemaining > warningThresholdDays;
-  const tone: Tone = healthy ? "positive" : "warning";
+const TlsStatusSummary = ({ cert }: { cert: CertificateView }) => {
+  const tone = summaryToneClasses[cert.statusTone];
+  const headerStats: HeaderStat[] = [
+    { label: "Days remaining", value: cert.daysRemaining, hint: `expires ${cert.expiresAt}` },
+    { label: "Handshake", value: `${cert.handshakeMs}ms`, hint: `p95 ${cert.p95Ms}ms` },
+    { label: "Protocol", value: cert.protocol, hint: cert.cipherSummary },
+    { label: "Key", value: cert.key, hint: cert.keySummary },
+    { label: "Renewals", value: cert.renewals, hint: "last 12 months" },
+    { label: "Last scan", value: cert.lastScan, hint: "every 12h" },
+  ];
 
   return (
-    <Panel>
-      <PanelHeader
-        icon={CalendarClock}
-        tone={tone}
-        title="Certificate lifetime"
-        description="Validity window with the configured warning boundary"
-        action={
-          <span className="tabular-nums">
-            {certificateLifetimeDays}-day certificate
+    <div className="space-y-2.5">
+      <Panel className="relative bg-sf-surface">
+        <div className="flex items-start gap-3.5 px-[18px] py-4">
+          <span className={`flex size-[34px] shrink-0 items-center justify-center rounded-[9px] border ${tone.border} ${tone.bg} ${tone.text}`}>
+            <ShieldCheck className="size-[17px]" strokeWidth={1.8} aria-hidden="true" />
           </span>
-        }
-      />
-      <div className="grid gap-6 px-5 py-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-8 sm:px-6">
-        <RadialGauge
-          percent={usedPercent}
-          marker={warningPercent}
-          tone={tone}
-          value={daysRemaining}
-          label="days left"
-        />
-        <div className="min-w-0">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sf-text-muted">
-                Valid from
-              </p>
-              <p className="mt-1 text-sm font-medium tabular-nums text-sf-text">
-                {mockTlsCertificate.validFrom.split(" · ")[0]}
-              </p>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-[16.5px] font-semibold leading-none tracking-[-0.015em] text-sf-text">
+                {cert.statusLabel}
+              </h1>
+              <Pill tone={cert.statusTone}>Grade {cert.grade}</Pill>
+              <Pill tone="neutral">{cert.protocol}</Pill>
             </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sf-text-muted">
-                Expires
-              </p>
-              <p className="mt-1 text-sm font-medium tabular-nums text-sf-text">
-                {mockTlsCertificate.expiresAt.split(" · ")[0]}
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sf-text-muted">
-                Elapsed
-              </p>
-              <p className="mt-1 text-sm font-medium tabular-nums text-sf-text">
-                {elapsedDays} / {certificateLifetimeDays} days
-              </p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sf-text-muted">
-                Warning at
-              </p>
-              <p className="mt-1 text-sm font-medium tabular-nums text-sf-amber">
-                {warningThresholdDays} days left
-              </p>
-            </div>
-          </div>
-          <div className="mt-5">
-            <div className="relative h-2 overflow-hidden rounded-full bg-sf-border-faint">
-              <div
-                className="absolute inset-y-0 right-0 bg-sf-amber/15"
-                style={{ width: `${100 - warningPercent}%` }}
-              />
-              <div
-                className={`absolute inset-y-0 left-0 rounded-full ${healthy ? "bg-sf-green" : "bg-sf-amber"}`}
-                style={{ width: `${usedPercent}%` }}
-              />
-              <span
-                className="absolute -top-1 h-4 w-px bg-sf-amber"
-                style={{ left: `${warningPercent}%` }}
-              />
-            </div>
-            <p className="mt-2.5 text-[11px] leading-relaxed text-sf-text-muted">
-              Renewal alerts fire at {mockTlsCertificate.expiryAlertThresholds.join(", ")} days
-              before expiry.
+            <p className="mt-2 font-mono text-[11.5px] text-sf-text-sub">
+              {cert.host}:{cert.port}
+            </p>
+            <p className="mt-1 max-w-4xl text-[12.5px] leading-[1.55] text-sf-text-muted">
+              Live handshake against {cert.host}:{cert.port} · chain, hostname, expiry and revocation checked each scan.
             </p>
           </div>
         </div>
+      </Panel>
+
+      <Panel>
+        <dl className="grid grid-cols-2 gap-px bg-sf-border-faint sm:grid-cols-3 xl:grid-cols-6">
+          {headerStats.map((stat) => (
+            <div key={stat.label} className="min-w-0 bg-sf-surface px-4 py-3">
+              <dt className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-sf-text-muted">
+                {stat.label}
+              </dt>
+              <dd className="mt-1.5 truncate text-[16px] font-semibold leading-[1.15] tracking-[-0.015em] tabular-nums text-sf-text">
+                {stat.value}
+              </dd>
+              {stat.hint ? (
+                <dd className="mt-1 text-[11.5px] leading-relaxed text-sf-text-muted">
+                  {stat.hint}
+                </dd>
+              ) : null}
+            </div>
+          ))}
+        </dl>
+      </Panel>
+    </div>
+  );
+};
+
+const TlsLifetimeCard = ({ cert }: { cert: CertificateView }) => {
+  const { lifetime } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={Clock}
+        title="Certificate lifetime"
+        description="Every certificate served by this host"
+        action={<span className="text-sf-text-muted">diffed by fingerprint</span>}
+      />
+      <div className="px-4 py-3">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-sf-border bg-sf-border-faint sm:grid-cols-5">
+          {lifetime.certs.map((cert, index) => (
+            <div
+              key={`${cert.fp}-${index}`}
+              className={`flex min-w-0 flex-col gap-1 px-3 py-2.5 ${
+                cert.current ? "bg-sf-green-bg" : "bg-sf-bg"
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <span className={`size-1.5 shrink-0 rounded-full ${cert.current ? "bg-sf-green" : "bg-sf-text-muted"}`} />
+                <span className={`truncate text-[11.5px] ${cert.current ? "font-semibold text-sf-green" : "font-medium text-sf-text"}`}>
+                  {cert.seen}
+                </span>
+                {cert.current ? (
+                  <span className="ml-auto shrink-0 text-[9px] font-semibold uppercase tracking-wide text-sf-green">
+                    Current
+                  </span>
+                ) : null}
+              </div>
+              <span className="truncate pl-3 font-mono text-[10.5px] tracking-tight text-sf-text-muted">
+                {cert.fp}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 border-t border-sf-border-faint px-4 sm:grid-cols-3 sm:gap-x-6">
+        <FooterRow label="Current certificate" value={lifetime.currentRange} />
+        <FooterRow label="Remaining" value={lifetime.remaining} tone="positive" />
+        <FooterRow label="Avg renewal lead" value={lifetime.avgRenewalLead} />
       </div>
     </Panel>
   );
 };
 
-/* ------------------------------------------------------------------ */
-/* Main column — security posture                                      */
-/* ------------------------------------------------------------------ */
-
-const TlsHandshakeCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={Activity}
-      tone="info"
-      title="TLS handshake performance"
-      description="Negotiation time, separate from HTTP response time"
-      action={<span className="tabular-nums">{HANDSHAKE_THRESHOLD_MS}ms threshold</span>}
-    />
-    <div className="px-4 pb-2 pt-3 sm:px-5">
-      <TrendChart
-        values={[...mockTlsCertificate.handshakeTrend]}
-        threshold={HANDSHAKE_THRESHOLD_MS}
-        tone="info"
-        height={188}
-      />
-    </div>
-    <div className="grid grid-cols-3 divide-x divide-sf-border-faint border-t border-sf-border-faint py-4">
-      <MiniStat label="Latest" value={mockTlsCertificate.handshakeTimeMs} unit="ms" />
-      <MiniStat label="24h avg" value={mockTlsCertificate.averageHandshakeTimeMs} unit="ms" />
-      <MiniStat label="24h p95" value={mockTlsCertificate.p95HandshakeTimeMs} unit="ms" />
-    </div>
-  </Panel>
-);
-
-const TlsValidationCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={ShieldCheck}
-      tone="positive"
-      title="Validation"
-      description="Checks applied to the current certificate"
-      action="All passing"
-    />
-    <div className="divide-y divide-sf-border-faint px-5">
-      {mockTlsCertificate.validationChecks.map((check) => (
-        <CheckRow
-          key={check.label}
-          tone="positive"
-          title={check.label}
-          description={check.description}
-          status={check.status}
-        />
-      ))}
-    </div>
-  </Panel>
-);
-
-const TlsConfigScanCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={ListChecks}
-      tone="positive"
-      title="Protocol & cipher scan"
-      description="What the server actually accepts, not just the negotiated session"
-      action="Weak protocols refused"
-    />
-    <div className="border-b border-sf-border-faint px-5 py-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-sf-text-muted">
-        Offered protocols
-      </p>
-      <div className="mt-2.5 flex flex-wrap gap-2">
-        {mockTlsCertificate.offeredProtocols.map((protocol) => {
-          if (!protocol.enabled) {
-            return (
-              <span
-                key={protocol.name}
-                className="rounded-full border border-sf-border bg-sf-bg px-2.5 py-0.5 text-[11px] font-semibold text-sf-text-muted line-through"
-              >
-                {protocol.name}
-              </span>
-            );
-          }
-          return (
-            <Pill key={protocol.name} tone={protocol.secure ? "positive" : "negative"}>
-              {protocol.name}
-            </Pill>
-          );
-        })}
-      </div>
-    </div>
-    <div className="divide-y divide-sf-border-faint px-5">
-      {mockTlsCertificate.configFindings.map((finding) => (
-        <CheckRow
-          key={finding.label}
-          tone={findingTone[finding.status as "Pass" | "Warn" | "Fail"]}
-          title={finding.label}
-          description={finding.description}
-          status={finding.status}
-        />
-      ))}
-    </div>
-  </Panel>
-);
-
-const TlsCtLogCard = () => {
-  const { certificateTransparency: ct } = mockTlsCertificate;
+const TlsHandshakeCard = ({ cert }: { cert: CertificateView }) => {
+  const { handshake } = cert;
+  const total = handshake.totalMs || 1;
+  const rows = handshake.phases.map((phase, index) => ({
+    ...phase,
+    start: handshake.phases
+      .slice(0, index)
+      .reduce((elapsed, previousPhase) => elapsed + previousPhase.ms, 0),
+  }));
   return (
     <Panel>
-      <PanelHeader
-        icon={ScrollText}
-        tone="positive"
-        title="Certificate Transparency"
-        description="Public CT-log presence for misissuance detection"
-        action={
-          <span className="tabular-nums">
-            {ct.sctCount} SCTs · {ct.deliveryMethod}
-          </span>
-        }
+      <TlsPanelHeader
+        icon={Zap}
+        tone="info"
+        title="Handshake"
+        description="Per-phase timing of the last live scan"
+        action={<span className="tabular-nums text-sf-text-muted">{handshake.totalMs}ms total</span>}
       />
-      <StatusBanner
-        tone="positive"
-        title={ct.status}
-        description={`Present in ${ct.sctCount} independent logs; unexpected new entries can reveal misissuance.`}
-      />
-      <div className="divide-y divide-sf-border-faint px-5">
-        {ct.logs.map((log) => (
-          <div key={log.operator} className="flex items-center justify-between gap-4 py-3">
-            <p className="text-xs font-medium text-sf-text">{log.operator}</p>
-            <time className="shrink-0 text-[11px] tabular-nums text-sf-text-muted">
-              {log.timestamp}
-            </time>
+      <div className="flex items-center justify-between px-4 pt-2.5 text-[10.5px] uppercase tracking-[0.06em] text-sf-text-muted">
+        <span>0</span>
+        <span>{Math.round(total / 2)}ms</span>
+        <span>{total}ms</span>
+      </div>
+      <div className="space-y-2 px-4 py-2.5">
+        {rows.map((phase, index) => (
+          <div key={phase.label} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-[12.5px] font-semibold text-sf-text">{phase.label}</p>
+              <p className="mt-0.5 truncate text-[11px] text-sf-text-muted">{phase.detail}</p>
+              <div className="relative mt-1.5 h-2.5 w-full overflow-hidden rounded-[3px] bg-sf-border-faint">
+                <div
+                  className={`absolute h-full rounded-[3px] bg-[var(--sf-protocol-accent)] ${
+                    index === 0 ? "opacity-40" : index === 1 ? "opacity-70" : "opacity-100"
+                  }`}
+                  style={{ left: `${(phase.start / total) * 100}%`, width: `${(phase.ms / total) * 100}%` }}
+                />
+              </div>
+            </div>
+            <span className="shrink-0 tabular-nums text-xs font-semibold text-sf-text">{phase.ms}ms</span>
           </div>
         ))}
       </div>
@@ -285,168 +337,470 @@ const TlsCtLogCard = () => {
   );
 };
 
-const TlsRevocationCard = () => {
-  const { revocation } = mockTlsCertificate;
-  const revoked = revocation.revokedAt !== null;
-  const tone: Tone = revoked ? "negative" : "positive";
+const TlsHandshakeLatencyCard = ({
+  trend,
+  range,
+  onRangeChange,
+}: {
+  trend: ReturnType<typeof buildHandshakeTrendView> | null;
+  range: TlsLatencyRange;
+  onRangeChange: (range: TlsLatencyRange) => void;
+}) => (
+  <Panel>
+    <TlsPanelHeader
+      icon={Activity}
+      tone="info"
+      title="Handshake latency"
+      description="Full handshake time over the selected window"
+      action={
+        <span className="inline-flex overflow-hidden rounded-sf border border-sf-border text-[11px] font-semibold">
+          {LATENCY_RANGES.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => onRangeChange(option)}
+              className={`px-2 py-0.5 ${
+                option === range
+                  ? "bg-[var(--sf-protocol-accent-soft)] text-[var(--sf-protocol-accent)]"
+                  : "text-sf-text-muted"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </span>
+      }
+    />
+    {trend ? (
+      <>
+        <div className="px-4 pb-2 pt-2.5">
+          <TrendChart
+            series={[
+              { name: "p50", values: trend.values },
+              { name: "p95", values: trend.p95Values },
+            ]}
+            categories={trend.categories}
+            tone="info"
+            height={200}
+            area={false}
+          />
+        </div>
+        <PercentileStrip
+          ariaLabel="TLS handshake latency summary"
+          metrics={[
+            { label: "Latest", value: trend.latestMs, unit: "ms" },
+            { label: "Average", value: trend.averageMs, unit: "ms" },
+            { label: "p50", value: trend.p50Ms, unit: "ms", color: "var(--sf-protocol-accent)" },
+            { label: "p75", value: trend.p75Ms, unit: "ms" },
+            { label: "p90", value: trend.p90Ms, unit: "ms" },
+            { label: "p95", value: trend.p95Ms, unit: "ms", color: "var(--sf-percentile-p95)" },
+            { label: "p99", value: trend.p99Ms, unit: "ms", color: "var(--sf-percentile-p99)" },
+            { label: "p99.9", value: trend.p999Ms, unit: "ms", color: "var(--sf-percentile-p999)" },
+            { label: "Max", value: trend.maxMs, unit: "ms" },
+          ]}
+        />
+      </>
+    ) : (
+      <div className="px-4 py-10 text-center text-[12px] text-sf-text-muted">Loading latency…</div>
+    )}
+  </Panel>
+);
+
+const TlsSecurityGradeCard = ({ cert }: { cert: CertificateView }) => {
+  const { securityGrade } = cert;
   return (
     <Panel>
-      <PanelHeader
-        icon={Ban}
-        tone={tone}
-        title="Revocation status"
-        description="OCSP and CRL checks, beyond system trust"
-        action={revoked ? "Revoked" : "Not revoked"}
+      <TlsPanelHeader
+        icon={ShieldCheck}
+        title="Security grade"
+        description="Aggregate score recomputed every scan"
+        action={<span className="text-sf-text-muted">recomputed every scan</span>}
       />
-      <StatusBanner
-        tone={tone}
-        icon={revoked ? Ban : ShieldCheck}
-        title={`OCSP · ${revocation.ocspStatus}`}
-        description={
-          revocation.ocspStapled
-            ? "Response is stapled to the handshake"
-            : "Responder queried directly"
-        }
+      <div className="flex items-start gap-3 px-4 pt-3">
+        <span className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl border border-sf-green-border bg-sf-green-bg">
+          <span className="text-[25px] font-bold leading-none tracking-[-0.03em] text-sf-green">{securityGrade.grade}</span>
+          <span className="mt-1 text-[9px] font-semibold uppercase tracking-wide text-sf-green">Grade</span>
+        </span>
+        <p className="text-[11.5px] leading-relaxed text-sf-text-muted">{securityGrade.summary}</p>
+      </div>
+      <div className="space-y-2 px-4 py-3">
+        {securityGrade.scores.map((score) => (
+          <div key={score.label}>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-sf-text">{score.label}</span>
+              <span className="font-semibold tabular-nums text-sf-text">{score.value}</span>
+            </div>
+            <div className="mt-1 h-[5px] w-full overflow-hidden rounded-[3px] bg-sf-border-faint">
+              <div className="h-full rounded-[3px] bg-sf-text-sub" style={{ width: `${score.value}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      {securityGrade.chips.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5 border-t border-sf-border-faint px-4 py-2.5">
+          {securityGrade.chips.map((chip) => (
+            <Pill key={chip} tone="neutral">{chip}</Pill>
+          ))}
+        </div>
+      ) : null}
+    </Panel>
+  );
+};
+
+const TlsLeafCard = ({ cert }: { cert: CertificateView }) => {
+  const { leaf } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={FileText}
+        title="Leaf certificate"
+        description="The certificate presented for the monitored hostname"
       />
-      <KeyValueList>
-        <KeyValue label="OCSP stapling" tone={revocation.ocspStapled ? "positive" : undefined}>
-          {revocation.ocspStapled ? "Enabled" : "Not stapled"}
-        </KeyValue>
-        <KeyValue label="OCSP responder" mono>{revocation.ocspResponder}</KeyValue>
-        <KeyValue label="Checked">{revocation.ocspCheckedAt}</KeyValue>
-        <KeyValue label="Next update">{revocation.ocspNextUpdate}</KeyValue>
-        <KeyValue label="CRL status">{revocation.crlStatus}</KeyValue>
+      <SanList sans={leaf.sans} />
+      <KeyValueList className="!px-4 [&>div]:!gap-4 [&>div]:!py-1.5 [&>div>dd]:!text-[12.5px] [&>div>dt]:!text-xs">
+        <KeyValue label="Common name" mono>{leaf.commonName}</KeyValue>
+        <KeyValue label="Issuer">{leaf.issuer}</KeyValue>
+        <KeyValue label="Signature">{leaf.signature}</KeyValue>
+        <KeyValue label="Public key">{leaf.publicKey}</KeyValue>
+        <KeyValue label="Valid from">{leaf.validFrom}</KeyValue>
+        <KeyValue label="Valid to">{leaf.validTo}</KeyValue>
+        <KeyValue label="Serial" mono>{leaf.serial}</KeyValue>
+        <KeyValue label="SHA-256" mono>{leaf.sha256}</KeyValue>
       </KeyValueList>
     </Panel>
   );
 };
 
-/* ------------------------------------------------------------------ */
-/* Aside — identity, chain, negotiated security, config                */
-/* ------------------------------------------------------------------ */
-
-const TlsIdentityCard = () => (
-  <Panel>
-    <PanelHeader icon={Shield} title="Certificate identity" />
-    <KeyValueList>
-      <KeyValue label="Common name">{mockTlsCertificate.subject}</KeyValue>
-      <KeyValue label="Issuer">{mockTlsCertificate.issuer}</KeyValue>
-      <KeyValue label="Public key">{mockTlsCertificate.publicKey}</KeyValue>
-      <KeyValue label="Signature">{mockTlsCertificate.signatureAlgorithm}</KeyValue>
-      <KeyValue label="Serial" mono>
-        <span className="line-clamp-1" title={mockTlsCertificate.serialNumber}>
-          {mockTlsCertificate.serialNumber}
-        </span>
-      </KeyValue>
-      <KeyValue label="SHA-256" mono>
-        <span className="line-clamp-1" title={mockTlsCertificate.fingerprintSha256}>
-          {mockTlsCertificate.fingerprintSha256}
-        </span>
-      </KeyValue>
-      <div className="py-3">
-        <p className="text-xs text-sf-text-muted">Alternative names</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {mockTlsCertificate.subjectAlternativeNames.map((name) => (
-            <span
-              key={name}
-              className="rounded-sf border border-sf-border bg-sf-bg px-2 py-0.5 font-mono text-[11px] text-sf-text"
-            >
-              {name}
+const TlsChainCard = ({ cert }: { cert: CertificateView }) => {
+  const { chain } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={Link2}
+        title="Chain of trust"
+        description="Path from the leaf up to a trusted root"
+        action={
+          <span className="flex items-center gap-2">
+            <Pill tone="positive">{chain.verified}</Pill>
+            <span className="text-[11px] text-sf-text-muted">{chain.sent}</span>
+          </span>
+        }
+      />
+      <div className="px-4 py-1">
+        {chain.links.map((link, index) => (
+          <div key={link.name} className="relative grid gap-0.5 py-2 pl-7">
+            {index < chain.links.length - 1 ? (
+              <span className="absolute bottom-0 left-[9px] top-7 w-px bg-sf-border-faint" />
+            ) : null}
+            <span className="absolute left-0 top-2 flex size-[18px] items-center justify-center rounded-[5px] border border-sf-green-border bg-sf-green-bg text-sf-green">
+              <ShieldCheck className="size-2.5" strokeWidth={2} />
             </span>
-          ))}
-        </div>
-      </div>
-    </KeyValueList>
-  </Panel>
-);
-
-const TlsChainCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={Link2}
-      tone="positive"
-      title="Chain & trust"
-      description="Observed chain with system trust result"
-      action="Trusted"
-    />
-    <div className="px-5 py-4">
-      <div className="space-y-3">
-        {mockTlsCertificate.chain.map((certificate, index) => (
-          <div key={certificate.name} className="flex items-start gap-3" style={{ paddingLeft: `${index * 14}px` }}>
-            <span className="mt-1 size-2 shrink-0 rounded-full bg-sf-green ring-2 ring-sf-green/15" />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-3">
-                <span className="truncate text-xs font-medium text-sf-text">
-                  {certificate.name}
-                </span>
-                <span className="shrink-0 text-[11px] text-sf-text-muted">
-                  {certificate.role}
-                </span>
-              </div>
-              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-sf-text-muted">
-                <span className="tabular-nums">Expires {certificate.expiresAt}</span>
-                <span className="font-mono">{certificate.fingerprint}</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <p className="text-[12.5px] font-semibold text-sf-text">{link.name}</p>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-sf-text-muted">{link.role}</span>
+            </div>
+            <p className="text-[11px] text-sf-text-muted">{link.detail}</p>
+            <div className="mt-1 h-[5px] w-full overflow-hidden rounded-[3px] bg-sf-border-faint">
+              <div className="h-full rounded-[3px] bg-sf-text-sub" style={{ width: `${link.fill}%` }} />
             </div>
           </div>
         ))}
+      </div>
+      <div className="border-t border-sf-border-faint px-4">
+        <FooterRow label="Chain order" value={chain.order} tone="positive" />
+        <FooterRow label="Hostname match" value={chain.hostnameMatch} tone="positive" />
+        <FooterRow label="Path validation" value={chain.pathValidation} />
+      </div>
+    </Panel>
+  );
+};
+
+const TlsProtocolCipherCard = ({ cert }: { cert: CertificateView }) => {
+  const { protocolFooter } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={SlidersHorizontal}
+        title="Protocol & cipher support"
+        description="What the server actually accepts, probed each scan"
+        action={<Pill tone="positive">{cert.protocol} negotiated</Pill>}
+      />
+      <TableScroll>
+        <table className="w-full min-w-[720px] text-left text-[12.5px]">
+          <thead className="border-b border-sf-border bg-sf-bg/70 text-[10.5px] uppercase tracking-[0.07em] text-sf-text-muted">
+            <tr>
+              <th className="px-4 py-2 font-semibold">Protocol</th>
+              <th className="px-3 py-2 font-semibold">Status</th>
+              <th className="px-3 py-2 font-semibold">Suite</th>
+              <th className="px-4 py-2 text-right font-semibold">Rating</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-sf-border-faint">
+            {cert.protocols.map((p) => (
+              <tr key={p.name}>
+                <td className="px-4 py-[9px]">
+                  <span className={`flex items-center gap-2 font-semibold ${p.enabled ? "text-sf-text" : "text-sf-text-muted"}`}>
+                    <span className={p.enabled ? "text-sf-green" : "text-sf-text-muted"}>{p.enabled ? "✓" : "✕"}</span>
+                    {p.name}
+                  </span>
+                </td>
+                <td className="px-3 py-[9px] text-sf-text-muted">{p.status}</td>
+                <td className="px-3 py-[9px] font-mono text-xs text-sf-text">{p.cipherSuite ?? "—"}</td>
+                <td className={`px-4 py-[9px] text-right font-semibold ${p.rating === "Fail" ? "text-sf-red" : p.rating === "Warn" ? "text-sf-amber" : "text-sf-green"}`}>{p.rating}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableScroll>
+      <div className="grid grid-cols-1 border-t border-sf-border-faint px-4 sm:grid-cols-2 sm:gap-x-6">
+        <FooterRow label="Forward secrecy" value={protocolFooter.forwardSecrecy} tone="positive" />
+        <FooterRow label="ALPN" value={protocolFooter.alpn} />
+      </div>
+    </Panel>
+  );
+};
+
+const TlsRegionCard = () => (
+  <Panel>
+    <TlsPanelHeader
+      icon={MapPin}
+      title="Certificate served per region"
+      description="A mismatch means an edge node is serving an old certificate"
+      action={<ComingSoon />}
+    />
+    <div className="relative overflow-hidden">
+      <BlurredContent>
+        <div className="h-40 w-full bg-sf-bg" />
+      </BlurredContent>
+      <div className="absolute inset-0 flex items-center justify-center bg-sf-surface/90 p-6">
+        <div className="max-w-sm px-5 py-4 text-center">
+          <MapPin className="mx-auto size-5 text-[var(--sf-protocol-accent)]" aria-hidden="true" />
+          <p className="mt-2 text-sm font-semibold text-sf-text">Regional certificate checks are coming soon</p>
+          <p className="mt-1 text-xs leading-5 text-sf-text-muted">
+            Certificate consistency and handshake latency by region will appear here when multi-region monitoring is available.
+          </p>
+        </div>
       </div>
     </div>
   </Panel>
 );
 
-const TlsSecurityCard = () => (
+const TlsValidationCard = ({ cert }: { cert: CertificateView }) => (
   <Panel>
-    <PanelHeader
-      icon={KeyRound}
-      tone="positive"
-      title="Negotiated security"
-      description="Connection security from the latest handshake"
-      action={mockTlsCertificate.forwardSecrecy ? "PFS active" : "No PFS"}
+    <TlsPanelHeader
+      icon={ShieldCheck}
+      title="Validation"
+      description="Trust, expiry, and hostname checks · every scan"
+      action="Every scan"
     />
-    <KeyValueList>
-      <KeyValue label="Protocol" tone="positive">{mockTlsCertificate.tlsVersion}</KeyValue>
-      <KeyValue label="Cipher suite" mono>{mockTlsCertificate.cipherSuite}</KeyValue>
-      <KeyValue label="Key exchange" mono>{mockTlsCertificate.keyExchange}</KeyValue>
-      <KeyValue label="ALPN" mono>{mockTlsCertificate.alpnProtocol}</KeyValue>
-      <KeyValue label="Forward secrecy" tone="positive">
-        {mockTlsCertificate.forwardSecrecy ? "Enabled" : "Unavailable"}
-      </KeyValue>
-    </KeyValueList>
+    <div className="px-4">
+      {cert.validation.map((check) => (
+        <div key={check.label} className="border-b border-sf-border-faint py-0.5 last:border-b-0 [&>div]:!gap-2.5 [&>div]:!py-2 [&>div>span]:!size-[18px]">
+          <CheckRow tone={checkTone[check.status]} title={check.label} description={check.description} />
+        </div>
+      ))}
+    </div>
   </Panel>
 );
 
-const TlsPinningCard = () => {
-  const { pinning } = mockTlsCertificate;
-  const tone: Tone = pinning.matches ? "positive" : "negative";
+const TlsRevocationCard = ({ cert }: { cert: CertificateView }) => {
+  const { revocationFooter } = cert;
   return (
     <Panel>
-      <PanelHeader
-        icon={Fingerprint}
-        tone={tone}
-        title="Fingerprint pin"
-        description="Alerts on any unexpected certificate change"
-        action={pinning.matches ? "Pin matches" : "Pin broken"}
+      <TlsPanelHeader
+        icon={Lock}
+        title="Revocation, CT & issuance policy"
+        description="OCSP, certificate transparency, and CAA issuance controls"
+        action={<Pill tone="positive">Good</Pill>}
       />
-      <StatusBanner
-        tone={tone}
-        title={pinning.matches ? "Live certificate matches the pin" : "Live certificate does not match the pin"}
-        description={
-          pinning.autoRepinOnRenewal
-            ? "Pin re-anchors automatically on detected renewals"
-            : "Pin is fixed until manually updated"
-        }
+      <div className="divide-y divide-sf-border-faint px-4">
+        {cert.revocation.map((check) => (
+          <div key={check.label} className="py-0.5 [&>div]:!gap-2.5 [&>div]:!py-2 [&>div>span]:!size-[18px]">
+            <CheckRow tone={checkTone[check.status]} title={check.label} description={check.description} />
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 border-t border-sf-border-faint px-4 sm:grid-cols-2 sm:gap-x-6">
+        <FooterRow label="OCSP responder" value={<span className="font-mono">{revocationFooter.ocspResponder}</span>} />
+        <FooterRow label="Next OCSP update" value={revocationFooter.nextOcspUpdate} />
+        <FooterRow label="CT logs" value={revocationFooter.ctLogs} />
+        <FooterRow label="CAA iodef" value={<span className="font-mono">{revocationFooter.caaIodef}</span>} />
+        <FooterRow label="Must-staple" value={revocationFooter.mustStaple} />
+      </div>
+    </Panel>
+  );
+};
+
+const TlsHistoryCard = ({ history }: { history: ReturnType<typeof buildHistoryView> }) => (
+  <Panel>
+    <TlsPanelHeader
+      icon={History}
+      title="Certificate history"
+      description="Renewals, protocol changes, and recovery events"
+      action="Diffed by fingerprint · duplicates ignored"
+    />
+    <div className="px-4 py-1">
+      {history.length === 0 ? (
+        <p className="py-6 text-center text-[12px] text-sf-text-muted">No certificate events recorded yet.</p>
+      ) : (
+        history.map((event, index) => (
+          <div key={event.id} className="relative py-2 pl-7">
+            {index < history.length - 1 ? (
+              <span className="absolute bottom-0 left-[6px] top-5 w-px bg-sf-border-faint" />
+            ) : null}
+            <span className={`absolute left-0 top-[13px] size-3 rounded-full border-2 border-sf-surface ${dotTone[event.tone]}`} />
+            <div>
+              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                <p className={`text-xs font-semibold ${event.tone === "positive" ? "text-sf-green" : "text-sf-text"}`}>{event.type}</p>
+                <time className="font-mono text-[11px] tabular-nums text-sf-text-muted">{event.occurredAt}</time>
+              </div>
+              <p className="mt-0.5 text-[11.5px] leading-relaxed text-sf-text-muted">{event.description}</p>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </Panel>
+);
+
+const TlsRenewalComparisonCard = ({ cert }: { cert: CertificateView }) => {
+  const { renewalComparison } = cert;
+  if (!renewalComparison) {
+    return (
+      <Panel>
+        <TlsPanelHeader
+          icon={RefreshCw}
+          tone="info"
+          title="Latest renewal comparison"
+          description="What changed at the most recent certificate rotation"
+        />
+        <p className="px-4 py-6 text-center text-[12px] text-sf-text-muted">
+          No renewal observed yet — a comparison appears after the first rotation.
+        </p>
+      </Panel>
+    );
+  }
+  const cols = [
+    { key: "previous", label: "Previous", data: renewalComparison.previous, green: false },
+    { key: "current", label: "Current", data: renewalComparison.current, green: true },
+  ];
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={RefreshCw}
+        tone="info"
+        title="Latest renewal comparison"
+        description="What changed at the most recent certificate rotation"
+        action={<span className="text-sf-text-muted">{renewalComparison.detectedAt}</span>}
       />
-      <div className="space-y-3 px-5 py-4">
-        {[
-          ["Pinned", pinning.pinnedFingerprint],
-          ["Current", pinning.currentFingerprint],
-        ].map(([label, value]) => (
-          <div key={label}>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-sf-text-muted">
-              {label}
+      <div className="grid grid-cols-1 divide-y divide-sf-border-faint sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        {cols.map((col) => (
+          <div key={col.key} className="px-4 py-3">
+            <p className={`text-[11px] font-semibold uppercase tracking-wide ${col.green ? "text-sf-green" : "text-sf-text-muted"}`}>
+              {col.label}
             </p>
-            <p className="mt-1 break-all font-mono text-[11px] text-sf-text">{value}</p>
+            <dl className="mt-2 space-y-1.5 text-xs">
+              <div className="flex justify-between gap-3"><dt className="text-sf-text-muted">Issuer</dt><dd className="font-medium text-sf-text">{col.data.issuer}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-sf-text-muted">Expires</dt><dd className="font-medium text-sf-text">{col.data.expiresAt}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-sf-text-muted">Key</dt><dd className="font-medium text-sf-text">{col.data.key}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-sf-text-muted">Fingerprint</dt><dd className="font-mono text-[11px] text-sf-text">{col.data.fingerprint}</dd></div>
+            </dl>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-sf-border-faint px-4 py-2.5">
+        <p className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-sf-text-muted">
+          What changed
+        </p>
+        <div className="grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+          {renewalComparison.changes.map((change) => (
+            <div key={change.label} className="flex items-center justify-between gap-3 py-1">
+              <span className="text-xs text-sf-text-muted">{change.label}</span>
+              <span className="text-right text-[12px] font-medium text-sf-text">
+                {change.detail}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Panel>
+  );
+};
+
+const TlsPinningCard = ({ cert }: { cert: CertificateView }) => {
+  const { pinning } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={Pin}
+        title="Fingerprint pin"
+        description="Alerts on any unexpected certificate change (MITM / misissuance)"
+        action={<Pill tone={pinning.matches ? "positive" : "negative"}>{pinning.matches ? "Pin matches" : "Pin broken"}</Pill>}
+      />
+      <KeyValueList className="!px-4 [&>div]:!gap-4 [&>div]:!py-1.5 [&>div>dd]:!text-[12.5px] [&>div>dt]:!text-xs">
+        <KeyValue label="Pinned fingerprint" mono>{pinning.pinnedFingerprint}</KeyValue>
+        <KeyValue label="Current fingerprint" mono>{pinning.currentFingerprint}</KeyValue>
+        <KeyValue label="Pinned at">{pinning.pinnedAt}</KeyValue>
+        <KeyValue label="Last verified">{pinning.lastVerified}</KeyValue>
+        <KeyValue label="Auto-repin">{pinning.autoRepin}</KeyValue>
+      </KeyValueList>
+    </Panel>
+  );
+};
+
+const TlsConfigCard = ({ cert }: { cert: CertificateView }) => {
+  const { config } = cert;
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={Settings2}
+        title="Connection & schedule"
+        description="Certificate monitor settings and expiry-alert thresholds"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-sf-border-faint">
+        <KeyValueList className="!px-4 [&>div]:!gap-4 [&>div]:!py-1.5 [&>div>dd]:!text-[12.5px] [&>div>dt]:!text-xs">
+          <KeyValue label="Warning threshold">{config.warningThresholdDays}</KeyValue>
+          <KeyValue label="Expiry alert thresholds">{config.expiryAlertThresholds}</KeyValue>
+          <KeyValue label="Connection timeout">{config.connectionTimeout}</KeyValue>
+          <KeyValue label="Min TLS version">{config.minTlsVersion}</KeyValue>
+        </KeyValueList>
+        <KeyValueList className="!px-4 [&>div]:!gap-4 [&>div]:!py-1.5 [&>div>dd]:!text-[12.5px] [&>div>dt]:!text-xs">
+          <KeyValue label="Server name (SNI)" mono>{config.serverName}</KeyValue>
+          <KeyValue label="Check interval">{config.checkInterval}</KeyValue>
+          <KeyValue label="Next check" tone="info">{config.nextCheck}</KeyValue>
+        </KeyValueList>
+      </div>
+    </Panel>
+  );
+};
+
+const TlsAlertRulesCard = ({ cert }: { cert: CertificateView }) => {
+  const activeCount = cert.alertRules.filter((rule) => rule.enabled).length;
+
+  return (
+    <Panel>
+      <TlsPanelHeader
+        icon={BellRing}
+        title="Alert rules"
+        description="Which alerts fire for this certificate"
+        action={`${activeCount} of ${cert.alertRules.length} active · duplicates suppressed`}
+      />
+      <div className="grid md:grid-cols-2">
+        {cert.alertRules.map((rule) => (
+          <div
+            key={rule.label}
+            className="flex items-start gap-2.5 border-b border-sf-border-faint px-4 py-2.5 last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0 md:odd:border-r md:odd:border-r-sf-border-faint"
+          >
+            <span className={`mt-1.5 size-2 shrink-0 rounded-full ${rule.enabled ? "bg-sf-green" : "border border-sf-border bg-sf-bg"}`} aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-xs font-semibold text-sf-text">{rule.label}</p>
+                <span className={`shrink-0 text-[10.5px] font-medium ${rule.enabled ? "text-sf-green" : "text-sf-text-muted"}`}>
+                  {rule.enabled ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11.5px] leading-relaxed text-sf-text-muted">{rule.description}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -454,241 +808,98 @@ const TlsPinningCard = () => {
   );
 };
 
-const TlsConnectionCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={Server}
-      title="Connection & schedule"
-      description="Read-only prototype configuration"
-    />
-    <KeyValueList>
-      <KeyValue label="Hostname" mono>{mockTlsCertificate.hostname}</KeyValue>
-      <KeyValue label="Port">{mockTlsCertificate.port}</KeyValue>
-      <KeyValue label="Connection timeout">{mockTlsCertificate.connectionTimeout}</KeyValue>
-      <KeyValue label="Check interval">{mockTlsCertificate.checkInterval}</KeyValue>
-      <KeyValue label="Last checked">{mockTlsCertificate.lastChecked}</KeyValue>
-      <KeyValue label="Next check" tone="info">{mockTlsCertificate.nextCheck}</KeyValue>
-      <KeyValue label="Next expiry alert">
-        {mockTlsCertificate.nextExpiryAlert.estimatedAt} · in{" "}
-        {mockTlsCertificate.nextExpiryAlert.dueInDays} days
-      </KeyValue>
-    </KeyValueList>
-  </Panel>
+const TlsLoading = () => (
+  <div className="protocol-detail-theme space-y-3">
+    {[0, 1, 2].map((row) => (
+      <Panel key={row}>
+        <div className="h-28 w-full animate-pulse bg-sf-border-faint/40" />
+      </Panel>
+    ))}
+  </div>
 );
 
-/* ------------------------------------------------------------------ */
-/* Activity                                                            */
-/* ------------------------------------------------------------------ */
-
-const TlsRenewalComparisonCard = () => (
+const TlsError = ({ onRetry }: { onRetry: () => void }) => (
   <Panel>
-    <PanelHeader
-      icon={RefreshCw}
-      title="Latest renewal comparison"
-      description="What changed when the latest certificate was detected"
-      action={mockTlsRenewalComparison.detectedAt}
-    />
-    <div className="grid gap-3 p-5 sm:grid-cols-2">
-      {[
-        { label: "Previous certificate", certificate: mockTlsRenewalComparison.previous },
-        { label: "Current certificate", certificate: mockTlsRenewalComparison.current },
-      ].map(({ label, certificate }) => (
-        <div key={label} className="rounded-md border border-sf-border bg-sf-bg p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-sf-text-muted">
-            {label}
-          </p>
-          <dl className="mt-3 space-y-2.5 text-xs">
-            <div className="flex justify-between gap-4">
-              <dt className="text-sf-text-muted">Issuer</dt>
-              <dd className="text-right font-medium text-sf-text">{certificate.issuer}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-sf-text-muted">Expires</dt>
-              <dd className="text-right font-medium tabular-nums text-sf-text">
-                {certificate.expiresAt}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-sf-text-muted">Fingerprint</dt>
-              <dd className="font-mono text-[11px] text-sf-text">{certificate.fingerprint}</dd>
-            </div>
-          </dl>
-        </div>
-      ))}
+    <div className="flex min-h-48 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+      <ShieldCheck className="size-6 text-sf-text-muted" aria-hidden="true" />
+      <p className="text-sm font-semibold text-sf-text">Could not load certificate data</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="rounded-sf border border-sf-border bg-sf-surface px-3 py-1.5 text-xs font-semibold text-sf-text-sub transition-colors hover:text-sf-text"
+      >
+        Retry
+      </button>
     </div>
   </Panel>
 );
 
-const TlsHistoryCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={History}
-      title="Snapshot & renewal history"
-      description="Only meaningful certificate state changes are stored"
-      action="Fingerprint and serial changes"
-    />
-    <div className="px-5 py-2">
-      {mockTlsCertificateHistory.map((event, index) => (
-        <div
-          key={event.id}
-          className="relative grid gap-3 py-3 pl-7 sm:grid-cols-[minmax(0,1fr)_auto]"
-        >
-          {index < mockTlsCertificateHistory.length - 1 ? (
-            <span className="absolute bottom-0 left-[7px] top-6 w-px bg-sf-border-faint" />
-          ) : null}
-          <span
-            className={`absolute left-0 top-[17px] size-3.5 rounded-full border-2 border-sf-surface ${
-              index < 2 ? "bg-sf-green" : "bg-sf-text-muted"
-            }`}
-          />
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className={`text-xs font-semibold ${index < 2 ? "text-sf-green" : "text-sf-text"}`}>
-                {event.title}
-              </p>
-              <span className="rounded-sf bg-sf-bg px-1.5 py-0.5 text-[11px] text-sf-text-muted">
-                {event.detail}
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-sf-text-muted">{event.description}</p>
-          </div>
-          <time className="text-[11px] tabular-nums text-sf-text-muted sm:text-right">
-            {event.occurredAt}
-          </time>
-        </div>
-      ))}
-    </div>
-  </Panel>
-);
+const CertificatesMonitor = ({ tlsMonitorId }: { tlsMonitorId: string }) => {
+  const [range, setRange] = useState<TlsLatencyRange>("7d");
 
-const TlsAlertRulesCard = () => (
-  <Panel>
-    <PanelHeader
-      icon={BellRing}
-      title="Alert rules"
-      description="Read-only preview; per-rule editing can follow alert persistence"
-      action="Duplicate alerts suppressed"
-    />
-    <div className="grid md:grid-cols-2">
-      {mockTlsCertificate.alertRules.map((rule) => (
-        <div
-          key={rule.label}
-          className="flex items-start gap-3 border-b border-sf-border-faint px-5 py-3.5 last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0 md:odd:border-r md:odd:border-r-sf-border-faint"
-        >
-          <span className="mt-1.5 size-2 shrink-0 rounded-full bg-sf-green" aria-hidden="true" />
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-semibold text-sf-text">{rule.label}</p>
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-sf-green">
-                Enabled
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-sf-text-muted">{rule.description}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </Panel>
-);
+  const { data: detail, isLoading, isError, refetch } = useTlsDetail(tlsMonitorId);
+  const { data: latency } = useTlsHandshakeLatency(tlsMonitorId, range);
+  const { data: history } = useTlsHistory(tlsMonitorId);
 
-/* ------------------------------------------------------------------ */
-/* Page                                                                */
-/* ------------------------------------------------------------------ */
+  if (isLoading) return <TlsLoading />;
+  if (isError || !detail) return <TlsError onRetry={() => refetch()} />;
 
-const CertificatesMonitor = () => (
-  <section id="tls-monitoring" className="scroll-mt-16 space-y-4">
-    <MonitorHeader
-      icon={ShieldCheck}
-      tone="positive"
-      title="TLS certificate"
-      status={<Pill tone="positive" dot>Valid</Pill>}
-      target={`${mockTlsCertificate.hostname}:${mockTlsCertificate.port}`}
-      meta={
-        <>
-          Checked {mockTlsCertificate.lastChecked} · next check{" "}
-          {mockTlsCertificate.nextCheck}
-        </>
-      }
-      stats={headerStats}
-    />
+  const cert = buildCertificateView(detail, latency);
+  const trend = latency ? buildHandshakeTrendView(latency) : null;
+  const historyView = history ? buildHistoryView(history) : [];
 
-    <TlsLifetimeHero />
+  return (
+    <section id="infrastructure" className="protocol-detail-theme scroll-mt-16 space-y-3">
+      <TlsStatusSummary cert={cert} />
 
-    <DetailSection
-      icon={Shield}
-      title="Certificate identity & trust"
-      description="The certificate presented by the endpoint, its identity claims, and the chain that anchors system trust."
-    >
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-7 [&>.sf-panel]:h-full">
-          <TlsIdentityCard />
+      <TlsSection icon={Clock} title="Lifetime & handshake" description="Certificate rotation history, the last handshake breakdown, and the aggregate security grade.">
+        <TlsLifetimeCard cert={cert} />
+        <div className="mt-3">
+          <TlsHandshakeLatencyCard trend={trend} range={range} onRangeChange={setRange} />
         </div>
-        <div className="lg:col-span-5 [&>.sf-panel]:h-full">
-          <TlsChainCard />
+        <div className="mt-3 grid items-start gap-3 lg:grid-cols-2">
+          <TlsHandshakeCard cert={cert} />
+          <TlsSecurityGradeCard cert={cert} />
         </div>
-      </div>
-    </DetailSection>
+      </TlsSection>
 
-    <DetailSection
-      icon={Activity}
-      title="Handshake & transport"
-      description="Negotiation latency and the protocol parameters observed during the latest successful TLS session."
-    >
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-8 [&>.sf-panel]:h-full">
-          <TlsHandshakeCard />
+      <TlsSection icon={FileText} title="Certificate & chain" description="The leaf certificate, its path to a trusted root, and the protocols and ciphers the server accepts.">
+        <div className="grid items-start gap-3 lg:grid-cols-2">
+          <TlsLeafCard cert={cert} />
+          <TlsChainCard cert={cert} />
         </div>
-        <div className="lg:col-span-4 [&>.sf-panel]:h-full">
-          <TlsConnectionCard />
+        <div className="mt-3">
+          <TlsProtocolCipherCard cert={cert} />
         </div>
-      </div>
-    </DetailSection>
+      </TlsSection>
 
-    <DetailSection
-      icon={ShieldCheck}
-      title="Security posture"
-      description="Trust validation, protocol hardening, revocation, transparency, and fingerprint integrity."
-    >
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-6 [&>.sf-panel]:h-full">
-          <TlsValidationCard />
+      <TlsSection icon={ShieldCheck} title="Regional & hardening" description="Per-region certificate consistency, validation and transport hardening, and revocation / CT / issuance policy.">
+        <TlsRegionCard />
+        <div className="mt-3 grid items-start gap-3 lg:grid-cols-2">
+          <TlsValidationCard cert={cert} />
+          <TlsRevocationCard cert={cert} />
         </div>
-        <div className="lg:col-span-6 [&>.sf-panel]:h-full">
-          <TlsConfigScanCard />
-        </div>
-        <div className="lg:col-span-6 [&>.sf-panel]:h-full">
-          <TlsRevocationCard />
-        </div>
-        <div className="lg:col-span-6 [&>.sf-panel]:h-full">
-          <TlsPinningCard />
-        </div>
-        <div className="lg:col-span-7 [&>.sf-panel]:h-full">
-          <TlsCtLogCard />
-        </div>
-        <div className="lg:col-span-5 [&>.sf-panel]:h-full">
-          <TlsSecurityCard />
-        </div>
-      </div>
-    </DetailSection>
+      </TlsSection>
 
-    <DetailSection
-      icon={History}
-      title="Renewal & activity"
-      description="Certificate changes, renewal context, and the alert policy protecting this endpoint."
-    >
-      <div className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-7 [&>.sf-panel]:h-full">
-          <TlsRenewalComparisonCard />
+      <TlsSection icon={RefreshCw} title="Renewal & pinning" description="The most recent rotation compared, and the fingerprint pin guarding against unexpected certificate changes.">
+        <div className="grid items-start gap-3 lg:grid-cols-2">
+          <TlsRenewalComparisonCard cert={cert} />
+          <TlsPinningCard cert={cert} />
         </div>
-        <div className="lg:col-span-5 [&>.sf-panel]:h-full">
-          <TlsHistoryCard />
+      </TlsSection>
+
+      <TlsSection icon={Settings2} title="Configuration & alerts" description="Monitor settings, expiry-alert thresholds, and the alert policy attached to this certificate.">
+        <TlsConfigCard cert={cert} />
+        <div className="mt-3">
+          <TlsAlertRulesCard cert={cert} />
         </div>
-        <div className="lg:col-span-12">
-          <TlsAlertRulesCard />
-        </div>
-      </div>
-    </DetailSection>
-  </section>
-);
+      </TlsSection>
+
+      <TlsSection icon={Activity} title="Activity" description="Renewals, protocol changes, and recovery events for this certificate.">
+        <TlsHistoryCard history={historyView} />
+      </TlsSection>
+    </section>
+  );
+};
 
 export default CertificatesMonitor;
