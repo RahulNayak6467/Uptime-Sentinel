@@ -133,7 +133,7 @@ export const validationChecks = (isCertificateTrusted: boolean,isExpired: boolea
     validity_start_check,
     expiry_boundary_check: !isExpired,
     check_hostname_match: hostnameCheck,
-    self_signed_check: subjectCNCheck === issuerCNCheck,
+    self_signed_check: subjectCNCheck !== issuerCNCheck,
   }
 }
 
@@ -369,7 +369,7 @@ export const computeCertificateStrength = (validations: ValidationChecks): numbe
     certificateScore += VALIDATION_CHECK_SCORES;
   }
   if (validations.self_signed_check) {
-    certificateScore += VALIDATION_CHECK_SCORES;
+    certificateScore -= VALIDATION_CHECK_SCORES;
   }
   if (validations.validity_start_check) {
     certificateScore += VALIDATION_CHECK_SCORES;

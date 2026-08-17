@@ -32,9 +32,22 @@ export const individualMonitorInfo = async(user_id:string,monitor_id:string) => 
         throw new AppError(404, `No monitor found`,"MONITOR_NOT_FOUND");
     }
 
-    const individual_monitor_info = rows[0];
+  const individual_monitor_info = rows[0];
 
-    logger.debug(
+  const tls_id_query = `
+    SELECT
+    monitor_id
+    FROM tls_config
+    WHERE linked_monitor_id = $1
+    `;
+
+  const tls_id_values = [monitor_id];
+
+  const tlsID = await db.query(tls_id_query, tls_id_values);
+
+  const linkedTlsMonitorId = tlsID.rows[0]?.monitor_id ?? null
+
+  logger.debug(
         { userId: user_id, monitorId: monitor_id },
         "fetched monitor details",
     );
@@ -50,7 +63,8 @@ export const individualMonitorInfo = async(user_id:string,monitor_id:string) => 
         failureThreshold: individual_monitor_info.failure_threshold,
         recoveryThreshold: individual_monitor_info.recovery_threshold,
         httpMethod: individual_monitor_info.http_method,
-        monitorType: individual_monitor_info.monitor_type,
+       monitorType: individual_monitor_info.monitor_type,
+      linkedTlsMonitorId: linkedTlsMonitorId ?? null,
     }
 
 }

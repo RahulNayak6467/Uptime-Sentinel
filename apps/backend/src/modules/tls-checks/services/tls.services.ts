@@ -4,6 +4,7 @@ import { AppError, PostgresError } from "../../../shared/errors/AppError";
 import { tlsFetcher } from "../../../checkers/tls/tlsFetcher";
 import { TlsCheckInfo } from "../types/tls-db-types";
 import { TlsResult } from "../../../checkers/tls/tls.types";
+import logger from "../../../config/logger";
 
 export const checkTlsHealth = async (user_id: string, tls_id: string): Promise<TlsResult>  => {
 
@@ -28,9 +29,11 @@ export const checkTlsHealth = async (user_id: string, tls_id: string): Promise<T
 
     const { warning_threshold_days, url: host, request_timeout_ms: connection_timeout } = rows[0];
 
-    const hostName = new URL(host).hostname;
+    logger.info({ host: host });
 
-    const responseObject = await tlsFetcher(hostName, connection_timeout, warning_threshold_days);
+    // const hostName = new URL(host).hostname;
+
+    const responseObject = await tlsFetcher(host, connection_timeout, warning_threshold_days);
 
     return responseObject;
 

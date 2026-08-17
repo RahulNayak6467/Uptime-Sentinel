@@ -44,6 +44,7 @@ const processor = async (job: Job<TLSCheckJobData>) => {
     }
   }
   catch (err) {
+    logger.error({ err });
     throw err;
   }
 }
