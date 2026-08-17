@@ -10,6 +10,7 @@ import ErrorMessage from "@/features/auth/error";
 const AlertConditions = ({
   control,
   errors,
+  isTls = false,
 }: {
   control: controlProps;
   errors: {
@@ -17,26 +18,28 @@ const AlertConditions = ({
     recoveryThreshold: string | undefined;
     responseTimeThresholdMS: string | undefined;
   };
+  isTls?: boolean;
 }) => {
   return (
     <div className="mt-4 w-full">
       <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
         <SectionHeader step="05" title="Alert conditions" description="Define when this monitor should trigger an incident" />
         <div className="px-5 pb-5">
-          {alertConditionsData.map((data) => (
-            <AlertTypes
-              control={control}
-              key={data.id}
-              alertType={data.alertType}
-              alertMessage={data.alertMessage}
-              alertText={data.alertText}
-              error={
-                data.alertMessage === "success"
-                  ? errors.recoveryThreshold
-                  : errors.failureThreshold
-              }
-            />
-          ))}
+          {!isTls &&
+            alertConditionsData.map((data) => (
+              <AlertTypes
+                control={control}
+                key={data.id}
+                alertType={data.alertType}
+                alertMessage={data.alertMessage}
+                alertText={data.alertText}
+                error={
+                  data.alertMessage === "success"
+                    ? errors.recoveryThreshold
+                    : errors.failureThreshold
+                }
+              />
+            ))}
 
           <div className="flex flex-col justify-between gap-3 py-3 sm:flex-row sm:items-center">
             <div>

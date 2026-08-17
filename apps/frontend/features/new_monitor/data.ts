@@ -1,4 +1,4 @@
-import { Activity, Bell, Globe, Link, Mail, MapPin, Search, Send, Shield, Wifi, Zap } from "lucide-react";
+import { Bell, Globe, Link, Mail, MapPin, Send, Server, Shield, Webhook, Wifi, Zap } from "lucide-react";
 import { alertConditionsProps, monitorTypeProps, notificationChannelProps } from "./types";
 
 export const httpMethods = ["get", "post", "put", "patch", "delete"];
@@ -11,6 +11,9 @@ export const bodyTypes = [
 ] as const;
 
 export const checkIntervals = ["30s", "1m", "2m", "5m", "10m", "30m", "1h"];
+
+// Slow-lane intervals for TLS/DNS (hours-scale). Default 12h, floor 1h.
+export const tlsCheckIntervals = ["1h", "3h", "6h", "12h", "24h"];
 
 export type checkIntervalsTypeProps = "30s" | "1m" | "2m" | "5m" | "10m" | "30m" | "1h"
 
@@ -39,13 +42,12 @@ export const monitorTypesData: monitorTypesDataProps[] = [
     icon: Wifi,
     checkType: "TCP Port",
     featuresOffered: "Port reachability check",
-    comingSoon: true,
   },
   {
     id: crypto.randomUUID(),
-    icon: Activity,
-    checkType: "Ping",
-    featuresOffered: "ICMP host reachability",
+    icon: Server,
+    checkType: "VPS",
+    featuresOffered: "Server resources & agent health",
     comingSoon: true,
   },
   {
@@ -53,20 +55,18 @@ export const monitorTypesData: monitorTypesDataProps[] = [
     icon: MapPin,
     checkType: "DNS",
     featuresOffered: "Record resolution check",
-    comingSoon: true,
   },
   {
     id: crypto.randomUUID(),
     icon: Shield,
-    checkType: "SSL Cert",
+    checkType: "TLS Cert",
     featuresOffered: "Cert expiry & validity",
-    comingSoon: true,
   },
   {
     id: crypto.randomUUID(),
-    icon: Search,
-    checkType: "Keyword",
-    featuresOffered: "Page content match",
+    icon: Webhook,
+    checkType: "Webhook Events",
+    featuresOffered: "Incoming events & delivery gaps",
     comingSoon: true,
   },
 ];
