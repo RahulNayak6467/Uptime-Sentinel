@@ -1,7 +1,8 @@
 import { AppError } from "../../../../shared/errors/AppError";
 import { db } from "../../../../db";
 import logger from "../../../../config/logger";
-import { RegisterUrlInput } from "../validations/urlValidation";
+import { RegisterTlsInput, RegisterUrlInput } from "../validations/urlValidation";
+import { TLS_THRESHOLD } from "../../../../constants/constants";
 
 export const checkUrlRegistration = async (
   url: RegisterUrlInput["url"],
@@ -20,23 +21,7 @@ export const checkUrlRegistration = async (
   user_id: string,
 ) => {
   try {
-    const check_monitor_url = `
-      SELECT url
-      from monitor
-      where url = $1 and user_id = $2
-    `;
-    const check_monitor_value = [url, user_id];
-    const check_monitor_rows = await db.query(
-      check_monitor_url,
-      check_monitor_value,
-    );
-    if (check_monitor_rows.rows.length !== 0) {
-      throw new AppError(
-        409,
-        "The url is already registered",
-        "URL_ALREADY_REGISTERED",
-      );
-    }
+    await checkUrlExist(url, user_id);
     const insert_monitor_url = `
       INSERT INTO monitor (
         url,
@@ -55,6 +40,7 @@ export const checkUrlRegistration = async (
         user_id
       )
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+      RETURNING id
     `;
     const values_monitor_url = [
       url,
@@ -72,9 +58,41 @@ export const checkUrlRegistration = async (
       responseTimeThresholdMS,
       user_id,
     ];
-    await db.query(insert_monitor_url, values_monitor_url);
+    const getMonitorId = await db.query(insert_monitor_url, values_monitor_url);
 
-    // for testing tls for now no atomic operations because of testing purposes
+    const monitorId = getMonitorId.rows[0].id;
+
+    logger.info({ userId: user_id }, "monitor registered");
+    return monitorId;
+  } catch (error) {
+    if (!(error instanceof AppError)) {
+      logger.error(
+        { err: error, userId: user_id },
+        "monitor registration failed unexpectedly",
+      );
+    }
+    throw error;
+  }
+};
+
+export const checkTlsRegistration = async (
+monitorId:string | null,
+url: RegisterUrlInput["url"],
+monitorName: RegisterTlsInput["monitorName"],
+intervalSeconds: RegisterTlsInput["intervalSeconds"],
+requestTimeoutMS: RegisterTlsInput["requestTimeoutMS"],
+responseTimeThresholdMS: RegisterTlsInput["responseTimeThresholdMS"],
+port: RegisterTlsInput["port"],
+minTlsVersion: RegisterTlsInput["minTlsVersion"],
+warningThresholdDays: RegisterTlsInput["warningThresholdDays"],
+expiryThresholdAlerts: RegisterTlsInput["expiryAlertThresholds"],
+user_id: string
+) => {
+
+  const client = await db.connect();
+  try {
+    await checkUrlExist(url, user_id);
+    await client.query("BEGIN");
 
     const insert_tls_url = `INSERT INTO monitor (
       url,
@@ -94,34 +112,38 @@ export const checkUrlRegistration = async (
       url,
       monitorName,
       intervalSeconds,
-      failureThreshold,
+      TLS_THRESHOLD,
       requestTimeoutMS,
       "tls",
-      recoveryThreshold,
+      TLS_THRESHOLD,
       responseTimeThresholdMS,
       user_id,
     ];
 
-    const tlsConfig = await db.query(insert_tls_url, insert_tls_values);
+    const tlsConfig = await client.query(insert_tls_url, insert_tls_values);
 
     const rows = tlsConfig.rows;
 
-    console.log(rows);
-
-    // for testing tls for now no atomic operations because of testing purposes
-
     const insert_tls_config = `INSERT INTO tls_config (
-      monitor_id
+      monitor_id,
+      warning_threshold_days,
+      expiry_alert_thresholds,
+      min_tls_version,
+      linked_monitor_id,
+      port
     )
-    VALUES ($1)`;
+    VALUES ($1,$2,$3,$4,$5,$6)`
 
-    const values_tls_config = [rows[0].id];
+    const values_tls_config = [rows[0].id, warningThresholdDays, expiryThresholdAlerts, minTlsVersion, monitorId, port ];
 
-    await db.query(insert_tls_config, values_tls_config);
+    await client.query(insert_tls_config, values_tls_config);
+
+    await client.query("COMMIT");
 
     logger.info({ userId: user_id }, "monitor registered");
     return "url successfully registered";
   } catch (error) {
+    await client.query("ROLLBACK");
     if (!(error instanceof AppError)) {
       logger.error(
         { err: error, userId: user_id },
@@ -130,4 +152,29 @@ export const checkUrlRegistration = async (
     }
     throw error;
   }
+  finally {
+    client.release();
+  }
 };
+
+const checkUrlExist = async (url: string, user_id: string) => {
+  const check_monitor_url = `
+    SELECT url
+    from monitor
+    where url = $1 and user_id = $2
+  `;
+
+  const check_monitor_value = [url, user_id];
+  const check_monitor_rows = await db.query(
+    check_monitor_url,
+    check_monitor_value,
+  );
+
+  if (check_monitor_rows.rows.length !== 0) {
+    throw new AppError(
+      409,
+      "The url is already registered",
+      "URL_ALREADY_REGISTERED",
+    );
+  }
+}

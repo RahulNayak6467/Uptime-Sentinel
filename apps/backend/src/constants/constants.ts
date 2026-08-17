@@ -15,3 +15,5 @@ export const CERTIFICATE_WEIGHTAGE = 0.8;
 export const SIGNATURE_STRENGTH_WEIGHTAGE = 0.2;
 export const SECURITY_GRADE_PARAMETRES = 4;
 export const SNAPSHOTS_DB_LIMIT = 10;
+export const TLS_THRESHOLD = 1;
+export const TLS_HISTORY_LIMIT = 10;

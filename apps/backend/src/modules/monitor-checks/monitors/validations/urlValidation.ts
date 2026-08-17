@@ -141,20 +141,10 @@ export const registerUrlSchema = z.object({
     .max(10, {
       error: "Recovery threshold cannot exceed 10",
     }),
-}).refine(
-  (data) => data.responseTimeThresholdMS <= data.requestTimeoutMS,
-  {
-    path: ["responseTimeThresholdMS"],
-    error: "Response-time threshold cannot exceed the request timeout",
-  },
-);
+});
 
 
 export const urlSchema =z.object({
-  // monitorType: z
-  //   .enum(["http", "https"], {
-  //   error: "Invalid monitor type",
-  // }),
   url: urlField
     .optional(),
   monitorName: z
@@ -283,13 +273,133 @@ export const urlSchema =z.object({
     })
     .optional()
 })
-// .refine(
-//   (data) => data.responseTimeThresholdMS <= data.requestTimeoutMS,
-//   {
-//     path: ["responseTimeThresholdMS"],
-//     error: "Response-time threshold cannot exceed the request timeout",
-//   },
-// ).optional()
+
 
 
 export type RegisterUrlInput = z.infer<typeof registerUrlSchema>;
+
+export const registerTlsSchema = z.strictObject({
+  monitorType: z
+    .enum(["tls"],{
+    error: "Monitor type must be tls",
+  }),
+  monitorName: z
+    .string({
+      error: "Monitor name must be a string",
+    })
+    .trim()
+    .min(2, {
+      error: "Minimum 2 characters are required",
+    })
+    .max(50, {
+      error: "Maximum 50 characters are allowed",
+    }),
+  url: z
+   .string({ error: "Host is required" })
+   .trim()
+   .toLowerCase()
+   .regex(
+     /^(?=.{1,253}$)(?!-)([a-z0-9-]{1,63}\.)+[a-z]{2,}$/i,
+     { error: "Enter a valid hostname, e.g. example.com (no https://, port, or path)" }
+   ),
+  intervalSeconds: z
+    .number({
+      error: "Interval must be a number",
+    })
+    .int({
+      error: "Interval must be a whole number of seconds",
+    })
+    .min(3600, {
+      error: "Minimum interval time should be 1hour",
+    })
+    .default(43200),
+  requestTimeoutMS: z
+    .number({
+      error: "Request timeout must be a number",
+    })
+    .int({
+      error: "Request timeout must be an integer",
+    })
+    .min(10000, {
+      error: "Minimum request timeout is 10000ms",
+    })
+    .max(60000, {
+      error: "Maximum request timeout is 60000ms",
+    })
+    .default(10000),
+
+  port: z.number({
+    error: "Port number should be an integer between 1 to 65535",
+  })
+    .int({
+      error:"Port number should be an integer between 1 to 65535",
+    })
+    .min(1, {
+      error: "Port number cannot be below 1"
+    })
+    .max(65535, {
+      error: "Port number cannot exceed 65535",
+    })
+    .default(443),
+
+  minTlsVersion: z
+    .enum(["TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3"])
+    .default("TLSv1.2"),
+
+  warningThresholdDays: z
+    .number({
+      error: "Warning Threshold Days must be integer"
+    })
+    .int({
+      error: "Warning Threshold Days must be integer"
+    })
+    .default(30),
+
+  expiryAlertThresholds: z.array(
+    z
+      .number({
+      error: "The alert thresholds must be integer"
+      })
+      .int({
+      error: "The alert thresholds must be integer"
+      })
+      .min(1, {
+      error: "Alert threshold days must be at least 1"
+      })
+      .max(365, {
+      error: "Alert threshold days cannot exceed 365"
+      })
+  )
+    .min(1, {
+      error: "Add at least one expiry alert threshold"
+    })
+    .refine((days) => new Set(days).size === days.length, {
+      error: "Duplicate alert thresholds are not allowed"
+    })
+    .default([1, 7, 14, 30]),
+  responseTimeThresholdMS: responseTimeThresholdField
+    .default(10000)
+})
+
+export type RegisterTlsInput = z.infer<typeof registerTlsSchema>
+
+
+export const registerMonitorSchema = z
+  .discriminatedUnion("monitorType", [registerUrlSchema, registerTlsSchema])
+  .refine(
+    (data) =>
+      data.monitorType === "tls" ||
+      data.responseTimeThresholdMS <= data.requestTimeoutMS,
+    {
+      path: ["responseTimeThresholdMS"],
+      error: "Response-time threshold cannot exceed the request timeout",
+    },
+  );
+
+export type RegisterMonitorInput = z.infer<typeof registerMonitorSchema>
+
+export const registerMonitorQuerySchema = z.object({
+  monitorId: z.uuid({ error: "Invalid monitor id" }).optional(),
+});
+
+export type RegisterMonitorQuery = z.infer<typeof registerMonitorQuerySchema>
