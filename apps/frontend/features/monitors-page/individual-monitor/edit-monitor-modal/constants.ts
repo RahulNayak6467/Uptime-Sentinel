@@ -13,3 +13,12 @@ export const editMonitorIntervals = [
   { label: "30m", value: "30m", seconds: 1800 },
   { label: "1h", value: "1h", seconds: 3600 },
 ] as const;
+
+// Slow-lane intervals for TLS monitors (hours-scale).
+export const editTlsIntervals = [
+  { label: "1h", value: "1h", seconds: 3600 },
+  { label: "3h", value: "3h", seconds: 10800 },
+  { label: "6h", value: "6h", seconds: 21600 },
+  { label: "12h", value: "12h", seconds: 43200 },
+  { label: "24h", value: "24h", seconds: 86400 },
+] as const;

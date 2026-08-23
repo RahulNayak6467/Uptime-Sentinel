@@ -99,6 +99,13 @@ export type editConfigMonitorProps = {
   statusCodes?: number[];
   failureThreshold?: number;
   recoveryThreshold?: number;
+  // shared + TLS-only config
+  monitorType?: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
+  port?: number;
+  minTlsVersion?: "TLSv1" | "TLSv1.1" | "TLSv1.2" | "TLSv1.3";
+  warningThresholdDays?: number;
+  expiryAlertThresholds?: number[];
+  enabledAlerts?: string[];
 }
 
 export type TlsStatus =

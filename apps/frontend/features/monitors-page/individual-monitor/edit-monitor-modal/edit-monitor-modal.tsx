@@ -25,6 +25,7 @@ import { ApiError } from "next/dist/server/api-utils";
 import { intervalToSeconds } from "@/features/new_monitor/utils/interval";
 import { bodyTypes } from "@/features/new_monitor/data";
 import { useWatch } from "react-hook-form";
+import EditTlsMonitorForm from "./edit-tls-monitor-form";
 
 const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE"] as const;
 
@@ -126,19 +127,16 @@ const EditMonitorForm = ({
 
   const { mutate, isPending } = useEditMonitorConfig(id);
   const onSubmit = (data: editSchemaProps) => {
-    console.log(data);
-    const keys = Object.keys(dirtyFields);
-    const editMonitorData = keys.reduce((acc, el) => {
+    const keys = Object.keys(dirtyFields) as (keyof editSchemaProps)[];
+    const editMonitorData = keys.reduce<Record<string, unknown>>((acc, el) => {
       if (el === "intervalSeconds") {
-        acc[el] = intervalToSeconds(data[el]);
+        acc.intervalSeconds = intervalToSeconds(data.intervalSeconds);
+      } else {
+        acc[el] = data[el];
       }
-      else {
-      acc[el] = data[el]
-      }
-      return acc
-    }, {})
-    console.log(editMonitorData);
-    mutate(editMonitorData, {
+      return acc;
+    }, {});
+    mutate(editMonitorData as editConfigMonitorProps, {
       onSuccess: () => {
         toast.success("Monitor successfully updated")
         onClose()
@@ -152,7 +150,6 @@ const EditMonitorForm = ({
       },
     }
     )
-  console.log(data)
   }
 
 
@@ -642,6 +639,12 @@ export const EditMonitorModal = ({
           Could not load the monitor configuration.
         </div>
       </div>
+    );
+  }
+
+  if (monitor.monitorType === "tls") {
+    return (
+      <EditTlsMonitorForm id={id} monitor={monitor} config={data} onClose={onClose} />
     );
   }
 
