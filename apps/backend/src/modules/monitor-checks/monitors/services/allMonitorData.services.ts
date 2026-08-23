@@ -10,6 +10,15 @@ export const getAllMonitorInfo = async (
   offset: number,
 ) => {
   const all_monitors_query = `
+        WITH checks AS (
+            SELECT monitor_id, status, response_time, checked_at FROM url_checks
+            UNION ALL
+            SELECT monitor_id,
+                   CASE WHEN status IN ('Valid', 'Expiring') THEN 'UP' ELSE 'DOWN' END AS status,
+                   tls_handshake_time_ms AS response_time,
+                   created_at AS checked_at
+            FROM tls_checks
+        )
         SELECT
             m.monitor_name,
             m.url,
@@ -19,21 +28,21 @@ export const getAllMonitorInfo = async (
             m.id,
             m.last_status_code,
             m.monitor_type,
-            ROUND(AVG(u.response_time), 0) AS avg_response_time,
-            ROUND(COUNT(u.id) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(u.id),0),2)
+            ROUND(AVG(c.response_time), 0) AS avg_response_time,
+            ROUND(COUNT(c.monitor_id) FILTER (WHERE c.status = 'UP' ) * 100.0 / NULLIF(COUNT(c.monitor_id),0),2)
                 AS uptime_percentage,
             COALESCE(
                 jsonb_agg(
                     jsonb_build_object(
-                        'responseTime', u.response_time
+                        'responseTime', c.response_time
                     )
-                     ORDER BY u.checked_at
-                ) FILTER (WHERE u.id IS NOT NULL),
+                     ORDER BY c.checked_at
+                ) FILTER (WHERE c.monitor_id IS NOT NULL),
                 '[]'
             ) AS response
         FROM monitor m
-        LEFT JOIN url_checks u
-            ON m.id = u.monitor_id
+        LEFT JOIN checks c
+            ON m.id = c.monitor_id
         WHERE m.user_id = $1
         AND ($2::text IS NULL OR m.status = $2::text)
         AND ($3::boolean IS NULL OR m.is_active = $3::boolean)

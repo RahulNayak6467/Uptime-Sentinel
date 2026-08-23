@@ -5,27 +5,46 @@ import { QueryResult } from "pg";
 import logger from "../../../../config/logger";
 
 export const fetchDashboardOverviewData = async (user_id: string) => {
+  // Unified check stream across HTTP (url_checks) and TLS (tls_checks) so
+  // cross-type stats include both. TLS status is mapped to UP/DOWN and the
+  // handshake time stands in for response_time; `source` keeps avg HTTP-only.
+  const checksCte = `
+    WITH checks AS (
+      SELECT monitor_id, status, response_time, checked_at, 'http'::text AS source
+      FROM url_checks
+      UNION ALL
+      SELECT monitor_id,
+             CASE WHEN status IN ('Valid', 'Expiring') THEN 'UP' ELSE 'DOWN' END AS status,
+             tls_handshake_time_ms AS response_time,
+             created_at AS checked_at,
+             'tls'::text AS source
+      FROM tls_checks
+    )
+  `;
+
   const fetch_stats_query = `
-    select count(*) FILTER (WHERE checked_at >= date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS total_checks,
-    ROUND(AVG(response_time) FILTER (WHERE u.status = 'UP')) AS avg_total_checks,
+    ${checksCte}
+    select count(*) FILTER (WHERE c.checked_at >= date_trunc('day', NOW() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS total_checks,
+    ROUND(AVG(c.response_time) FILTER (WHERE c.status = 'UP' AND c.source = 'http')) AS avg_total_checks,
     COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'UP' and m.is_active = 'true') AS up_count,
     COUNT(DISTINCT m.id) FILTER (WHERE m.status = 'DOWN' and m.is_active = 'true') AS down_count,
     COUNT(DISTINCT m.id ) AS total_monitors,
     COUNT(DISTINCT m.id) FILTER(where m.is_active = 'false') AS paused_monitors,
     COUNT(DISTINCT m.id) FILTER(where m.status = 'UNKNOWN' and m.is_active = true) AS unknown_count
     from monitor m
-    left join url_checks u on m.id = u.monitor_id
+    left join checks c on m.id = c.monitor_id
     where user_id = $1
   `;
 
   const fetch_stats_value = [user_id];
 
   const fetch_uptime_query = `
-    select ROUND(COUNT(*) FILTER (WHERE u.status = 'UP' ) * 100.0 / NULLIF(COUNT(*),0),2)
+    ${checksCte}
+    select ROUND(COUNT(*) FILTER (WHERE c.status = 'UP' ) * 100.0 / NULLIF(COUNT(*),0),2)
       AS uptime_percentage
     from monitor m
-    inner join url_checks u on m.id = u.monitor_id
-    WHERE checked_at >= NOW() - INTERVAL '${UPTIME_STATS_PERIOD} days' and user_id = $1
+    inner join checks c on m.id = c.monitor_id
+    WHERE c.checked_at >= NOW() - INTERVAL '${UPTIME_STATS_PERIOD} days' and m.user_id = $1
   `;
 
   const fetch_uptime_value = [user_id];

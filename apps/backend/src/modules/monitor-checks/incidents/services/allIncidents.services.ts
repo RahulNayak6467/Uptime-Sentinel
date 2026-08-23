@@ -30,12 +30,21 @@ export const getIncidentsDataServices = async (
     from monitor m
     inner join incidents i on m.id = i.monitor_id
     LEFT JOIN LATERAL (
-      SELECT uc.status_code, uc.error_message
-      FROM url_checks uc
-      WHERE uc.monitor_id = m.id
-        AND uc.status = 'DOWN'
-        AND uc.checked_at <= i.started_at
-      ORDER BY uc.checked_at DESC
+      SELECT fc.status_code, fc.error_message
+      FROM (
+        SELECT uc.status_code, uc.error_message, uc.checked_at AS at
+        FROM url_checks uc
+        WHERE uc.monitor_id = m.id
+          AND uc.status = 'DOWN'
+          AND uc.checked_at <= i.started_at
+        UNION ALL
+        SELECT NULL::smallint AS status_code, tc.error_message, tc.created_at AS at
+        FROM tls_checks tc
+        WHERE tc.monitor_id = m.id
+          AND tc.status IN ('Expired', 'Invalid', 'Unreachable')
+          AND tc.created_at <= i.started_at
+      ) fc
+      ORDER BY fc.at DESC
       LIMIT 1
     ) failure ON true
     where m.user_id = $1
