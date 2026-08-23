@@ -53,8 +53,10 @@ const Chart = ({ option, height = 240, className, loading = false }: ChartProps)
       showLoading={loading}
       loadingOption={{
         text: "",
-        color: isDark ? "#4ade80" : "#16a34a",
-        maskColor: isDark ? "rgba(17,17,17,0.6)" : "rgba(255,255,255,0.6)",
+        color: isDark ? "#7c82e8" : "#5e6ad2",
+        maskColor: isDark
+          ? "rgba(17,17,19,0.72)"
+          : "rgba(255,255,255,0.68)",
       }}
       notMerge={false}
       opts={{ renderer: "canvas" }}

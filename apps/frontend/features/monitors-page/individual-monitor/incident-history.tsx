@@ -59,6 +59,7 @@ const IncidentHistory = ({ id }: { id: string }) => {
     );
   }
 
+
   const requiredData = lastFiveIncidents.data.map((data) => {
     return {
       id: data.id,
@@ -84,7 +85,7 @@ const IncidentHistory = ({ id }: { id: string }) => {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h3 className="text-base font-semibold tracking-tight text-sf-text">
-            Incident history
+            Recent Incident History
           </h3>
           <p className="mt-1 text-xs text-sf-text-muted">
             Outages and recoveries for this endpoint

@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react";
 import { ChevronLeft, Edit, Pause, Play } from "lucide-react";
 import Link from "next/link";
 import {IndividualOverviewStatsProps} from "@/features/monitors-page/individual-monitor/types";
@@ -7,8 +8,10 @@ import {usePause, useResume} from "@/features/monitors-page/individual-monitor/h
 ;
 import {ApiError} from "@/lib/api-error";
 import {toast} from "sonner";
+import { EditMonitorModal } from "./edit-monitor-modal/edit-monitor-modal";
 
 const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoading,monitorOverviewError}:{id:string,monitorOverviewData: NoInfer<IndividualOverviewStatsProps> | undefined,monitorOverviewLoading:boolean,monitorOverviewError:boolean}) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const {mutate:pauseUrlMutate} = usePause()
 
@@ -78,6 +81,7 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
           };
 
   return (
+    <>
     <header className="sf-page-header">
       <div className="flex min-w-0 flex-col gap-1.5">
         <Link
@@ -90,7 +94,7 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
         <div className="flex items-center gap-2.5 min-w-0">
           <span className={`size-2 shrink-0 rounded-full ${statusMeta.dot}`} />
           <h1 className="truncate text-xl font-semibold tracking-sf-tight text-sf-text">
-            {monitorOverviewData.urlName}
+            {monitorOverviewData.monitorName}
           </h1>
           <span className={`shrink-0 rounded-sf border px-2.5 py-0.5 text-xs font-semibold ${statusMeta.badge}`}>
             {statusMeta.label}
@@ -109,12 +113,24 @@ const IndividualMonitorsHeaders = ({id,monitorOverviewData,monitorOverviewLoadin
             Resume monitor
           </button>
         )}
-        <button className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25 sm:flex-none">
+        <button
+          type="button"
+          onClick={() => setIsEditModalOpen(true)}
+          className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-[4px] border border-sf-border bg-sf-surface px-4 text-xs font-semibold text-sf-text transition-colors hover:bg-sf-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sf-blue/25 sm:flex-none"
+        >
           <Edit className="size-3.5" />
           Edit
         </button>
       </div>
     </header>
+    {isEditModalOpen && (
+        <EditMonitorModal
+          id={id}
+        monitor={monitorOverviewData}
+        onClose={() => setIsEditModalOpen(false)}
+      />
+    )}
+    </>
   );
 };
 

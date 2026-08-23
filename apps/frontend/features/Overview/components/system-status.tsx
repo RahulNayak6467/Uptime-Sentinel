@@ -133,7 +133,7 @@ const Segment = ({ pct, color }: { pct: number; color: string }) => {
 };
 
 const SystemStatusSkeleton = () => (
-  <section className="sf-panel flex min-h-[164px] flex-col gap-5 p-5">
+  <section className="sf-panel flex min-h-[142px] flex-col gap-4 p-4">
     <div className="flex items-center gap-4">
       <div className="size-10 shrink-0 animate-pulse rounded-lg bg-sf-border" />
       <div className="flex flex-1 flex-col gap-2">
@@ -174,16 +174,16 @@ const SystemStatus = () => {
 
   return (
     <section className="sf-panel overflow-hidden">
-      <div className="flex flex-col gap-6 p-5 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+      <div className="flex flex-col gap-5 p-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
         <div className="flex min-w-0 items-start gap-3.5 sm:items-center">
           <span
-            className={`flex size-10 shrink-0 items-center justify-center rounded-lg border ${tone.border} ${tone.bg} ${tone.text}`}
+            className={`flex size-9 shrink-0 items-center justify-center rounded-[6px] border ${tone.border} ${tone.bg} ${tone.text}`}
           >
-            <Icon className="size-[18px]" strokeWidth={2} />
+            <Icon className="size-4" strokeWidth={2} />
           </span>
           <div className="min-w-0">
             <div className="flex items-start gap-2 sm:items-center">
-              <h2 className="text-base font-semibold tracking-sf-tight text-sf-text sm:text-lg">
+              <h2 className="text-[15px] font-semibold tracking-sf-tight text-sf-text sm:text-base">
                 {verdict.headline}
               </h2>
               <span className={`mt-2 size-1.5 shrink-0 rounded-full sm:mt-0 ${tone.dot}`} />
@@ -201,7 +201,7 @@ const SystemStatus = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-sf-border bg-sf-bg/35 px-5 py-3 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex flex-col gap-3 border-t border-sf-border bg-sf-bg/25 px-4 py-2.5 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
         <div className="flex w-full flex-1 items-center gap-3">
           <span className="shrink-0 text-xs font-medium text-sf-text-muted">
             Fleet health

@@ -58,7 +58,7 @@ export type AlertEmail = {
 export type RecentAlertItem = {
   id: string;
   type: EventType;
-  urlName: string;
+  monitorName: string;
   status: "sent" | "failed";
   sentAt: string;
 };

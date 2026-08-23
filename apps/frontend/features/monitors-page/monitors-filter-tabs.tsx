@@ -2,13 +2,13 @@
 
 import { MonitorState } from "./types";
 
-export type MonitorTab = "all" | MonitorState;
+export type MonitorTab = "all" | Exclude<MonitorState, "degraded">;
 
 const DOT_COLOR: Record<MonitorState, string> = {
   up: "var(--color-sf-green)",
   down: "var(--color-sf-red)",
   degraded: "var(--color-sf-orange)",
-  paused: "var(--color-sf-blue)",
+  paused: "var(--color-sf-text-muted)",
   unknown: "var(--color-sf-amber)",
 };
 
@@ -31,7 +31,7 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
     <div
       role="tablist"
       aria-label="Filter monitors by status"
-      className="flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-sf-sm border border-sf-border bg-sf-border-faint p-1 sm:w-fit [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex w-full max-w-full items-center gap-5 overflow-x-auto border-b border-sf-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {TABS.map(({ key, label }) => {
         const isActive = active === key;
@@ -44,10 +44,10 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange?.(key)}
-            className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[4px] border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            className={`relative flex h-9 shrink-0 cursor-pointer items-center gap-1.5 border-b-2 px-0.5 text-[12px] font-medium transition-colors ${
               isActive
-                ? "border-sf-border bg-sf-surface text-sf-text shadow-sm"
-                : "border-transparent text-sf-text-sub hover:bg-sf-bg hover:text-sf-text"
+                ? "border-sf-text text-sf-text"
+                : "border-transparent text-sf-text-muted hover:text-sf-text"
             }`}
           >
             {key !== "all" && (
@@ -59,7 +59,7 @@ const MonitorsFilterTabs = ({ active, counts, onChange }: Props) => {
             {label}
             {count !== undefined && (
               <span
-                className={`text-xs tabular-nums ${isActive ? "text-sf-text" : "text-sf-text-muted"}`}
+                className={`min-w-4 text-center font-mono text-[10px] tabular-nums ${isActive ? "text-sf-text-sub" : "text-sf-text-muted"}`}
               >
                 {count}
               </span>

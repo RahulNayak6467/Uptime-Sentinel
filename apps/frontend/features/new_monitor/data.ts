@@ -1,16 +1,39 @@
-import { Activity, Bell, Globe, Link, Mail, MapPin, Search, Send, Shield, Wifi, Zap } from "lucide-react";
+import { Bell, Globe, Link, Mail, Send, Shield, Zap } from "lucide-react";
 import { alertConditionsProps, monitorTypeProps, notificationChannelProps } from "./types";
+import { tlsMonitorProps } from "./schemas/monitor-info";
+
+type TlsAlertEvent = tlsMonitorProps["enabledAlerts"][number];
+
+// TLS certificate alert events (map to tls_config.enabled_alerts). All enabled
+// by default; users can narrow them on the TLS create form.
+export const tlsAlertEvents: { id: TlsAlertEvent; label: string; description: string }[] = [
+  { id: "expiring", label: "Expiring soon", description: "Certificate nears its expiry window" },
+  { id: "expired_or_invalid", label: "Expired or invalid", description: "Certificate is expired or fails validation" },
+  { id: "hostname_mismatch", label: "Hostname mismatch", description: "Certificate does not cover the monitored host" },
+  { id: "renewal", label: "Renewed", description: "A new certificate was detected" },
+  { id: "revocation", label: "Revoked", description: "Certificate reported as revoked" },
+  { id: "weak_config", label: "Weak configuration", description: "Weak protocol, cipher, or key detected" },
+  { id: "recovery", label: "Recovered", description: "Certificate is healthy again after an alert" },
+];
+
+export const defaultTlsAlertEvents: tlsMonitorProps["enabledAlerts"] =
+  tlsAlertEvents.map((event) => event.id);
 
 export const httpMethods = ["get", "post", "put", "patch", "delete"];
 
 export const bodyTypes = [
-  { id: "none", label: "None", contentType: "" },
+  { id: "none", label: "None", contentType: "none" },
   { id: "json", label: "JSON", contentType: "application/json" },
   { id: "form-encoded", label: "Form-encoded", contentType: "application/x-www-form-urlencoded" },
   { id: "raw-text", label: "Raw text", contentType: "text/plain" },
-];
+] as const;
 
 export const checkIntervals = ["30s", "1m", "2m", "5m", "10m", "30m", "1h"];
+
+// Slow-lane intervals for TLS/DNS (hours-scale). Default 12h, floor 1h.
+export const tlsCheckIntervals = ["1h", "3h", "6h", "12h", "24h"];
+
+export type checkIntervalsTypeProps = "30s" | "1m" | "2m" | "5m" | "10m" | "30m" | "1h"
 
 export const monitoringRegions = [
   "US East",
@@ -34,38 +57,9 @@ export const monitorTypesData: monitorTypesDataProps[] = [
   },
   {
     id: crypto.randomUUID(),
-    icon: Wifi,
-    checkType: "TCP Port",
-    featuresOffered: "Port reachability check",
-    comingSoon: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    icon: Activity,
-    checkType: "Ping",
-    featuresOffered: "ICMP host reachability",
-    comingSoon: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    icon: MapPin,
-    checkType: "DNS",
-    featuresOffered: "Record resolution check",
-    comingSoon: true,
-  },
-  {
-    id: crypto.randomUUID(),
     icon: Shield,
-    checkType: "SSL Cert",
+    checkType: "TLS Cert",
     featuresOffered: "Cert expiry & validity",
-    comingSoon: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    icon: Search,
-    checkType: "Keyword",
-    featuresOffered: "Page content match",
-    comingSoon: true,
   },
 ];
 

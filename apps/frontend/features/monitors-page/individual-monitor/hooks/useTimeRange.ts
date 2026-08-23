@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch, ApiDataResponse } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import {
   TimeRangeDataProps,
   TimeRangeProps,
@@ -9,9 +9,9 @@ export const useTimeRange = (id: string, timeRange: TimeRangeProps) => {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["monitor", id, "charts", timeRange],
     queryFn: () =>
-      apiFetch<ApiDataResponse<TimeRangeDataProps>>(
+      apiFetch<TimeRangeDataProps>(
         `/monitors/${id}/response-time?range=${timeRange}`,
-      ).then((res) => res.data),
+      ),
     staleTime: 60 * 1000,
     refetchOnWindowFocus: true,
     placeholderData: (prev) => prev,

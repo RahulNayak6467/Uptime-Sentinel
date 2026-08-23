@@ -1,10 +1,16 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import Sparkline from "@/utils/sparkline";
 import { MonitorPageData, MonitorState, MonitorType } from "./types";
-import { Globe2 } from "lucide-react";
+import {
+  Cable,
+  Globe2,
+  Network,
+  Search,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 
 const stateColor: Record<MonitorState, string> = {
   up: "var(--color-sf-green)",
@@ -32,52 +38,34 @@ const stateBadge: Record<MonitorState, string> = {
 
 const typeBadge: Record<MonitorType, string> = {
   http: "HTTP",
+  https: "HTTPS",
   tcp: "TCP",
+  tls: "TLS",
   dns: "DNS",
+  keyword: "Keyword",
+};
+
+const typeIcon: Record<MonitorType, LucideIcon> = {
+  http: Globe2,
+  https: Globe2,
+  tcp: Cable,
+  tls: ShieldCheck,
+  dns: Network,
+  keyword: Search,
 };
 
 export const columns: ColumnDef<MonitorPageData>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <span className="flex justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-          aria-label="Select all"
-          className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
-        />
-      </span>
-    ),
-    cell: ({ row }) => (
-      <span
-        className="flex justify-center"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(v) => row.toggleSelected(!!v)}
-          aria-label="Select row"
-          className="border-sf-text-muted data-[state=checked]:bg-sf-text data-[state=checked]:border-sf-text"
-        />
-      </span>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "name",
     header: "MONITOR",
     cell: ({ row }) => {
       const state = row.original.state;
       const color = stateColor[state];
+      const MonitorIcon = typeIcon[row.original.type];
       return (
         <div className="flex min-w-0 items-center gap-3">
-          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-lg bg-sf-bg text-sf-text-muted ring-1 ring-inset ring-sf-border">
-            <Globe2 className="size-3.5" />
+          <span className="relative flex size-8 shrink-0 items-center justify-center rounded-[6px] bg-sf-bg text-sf-text-muted ring-1 ring-inset ring-sf-border">
+            <MonitorIcon className="size-3.5" />
             <span
               className="absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full border-2 border-sf-surface"
               style={{ backgroundColor: color }}
@@ -107,7 +95,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
     cell: ({ row }) => {
       const t = row.getValue<MonitorType>("type");
       return (
-        <span className="rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-xs font-medium tracking-wide text-sf-text-sub">
+        <span className="rounded-[4px] border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-sf-text-sub">
           {typeBadge[t]}
         </span>
       );
@@ -148,6 +136,14 @@ export const columns: ColumnDef<MonitorPageData>[] = [
           </span>
         );
       }
+      const trend = row.getValue<number[]>("trend");
+      if (trend.length < 2) {
+        return (
+          <span className="block text-center text-[12px] text-sf-text-muted">
+            —
+          </span>
+        );
+      }
       const sparkColor =
         state === "down"
           ? "var(--color-sf-red)"
@@ -156,12 +152,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
             : "var(--color-sf-green)";
       return (
         <span className="flex w-full justify-center">
-          <Sparkline
-            data={row.getValue<number[]>("trend")}
-            color={sparkColor}
-            w={88}
-            h={26}
-          />
+          <Sparkline data={trend} color={sparkColor} w={88} h={26} />
         </span>
       );
     },
@@ -181,6 +172,25 @@ export const columns: ColumnDef<MonitorPageData>[] = [
         <span className="block text-right text-[12px] tabular-nums text-sf-text">
           {ms}
           <span className="text-sf-text-muted">ms</span>
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "statusCode",
+    header: () => <span className="block text-center">STATUS CODE</span>,
+    cell: ({ row }) => {
+      const statusCode = row.getValue<number | null>("statusCode");
+      const isHttpMonitor =
+        row.original.type === "http" || row.original.type === "https";
+
+      return (
+        <span className="block text-center font-mono text-[12px] tabular-nums text-sf-text-sub">
+          {!isHttpMonitor
+            ? "—"
+            : statusCode === null
+              ? "No response"
+              : `HTTP ${statusCode}`}
         </span>
       );
     },
@@ -211,7 +221,7 @@ export const columns: ColumnDef<MonitorPageData>[] = [
       const color = stateColor[state];
       return (
         <span
-          className={`mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-sf border px-2.5 py-1 text-xs font-semibold ${stateBadge[state]}`}
+          className={`mx-auto flex w-fit min-w-20 items-center justify-center gap-1.5 rounded-[4px] border px-2.5 py-1 text-xs font-semibold ${stateBadge[state]}`}
         >
           <span
             className="h-1.5 w-1.5 shrink-0 rounded-full"

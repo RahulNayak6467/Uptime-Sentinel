@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
 import redis from "../../redis";
 import { env } from "../../config/env";
@@ -9,6 +9,7 @@ export const authMiddleware = async (
   _res: Response,
   next: NextFunction,
 ) => {
+  const { JsonWebTokenError, TokenExpiredError } = jwt;
   const getToken = req.cookies.accessToken;
 
   if (!getToken) {

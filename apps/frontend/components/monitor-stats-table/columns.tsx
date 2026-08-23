@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { monitorDataProps } from "@/features/Overview/types";
+import { formatCheckInterval } from "@/utils/format-check-interval";
 import Sparkline from "@/utils/sparkline";
 
 const stateColor = {
@@ -18,7 +19,7 @@ const normalizeStatus = (status: string) => {
 
 export const columns: ColumnDef<monitorDataProps>[] = [
   {
-    accessorKey: "url_name",
+    accessorKey: "monitorName",
     header: "MONITOR",
     cell: ({ row }) => {
       const state = normalizeStatus(row.original.status);
@@ -33,9 +34,9 @@ export const columns: ColumnDef<monitorDataProps>[] = [
           />
           <span
             className="line-clamp-1 text-[13px] font-semibold text-sf-text leading-snug"
-            title={row.getValue<string>("url_name")}
+            title={row.getValue<string>("monitorName")}
           >
-            {row.getValue<string>("url_name")}
+            {row.getValue<string>("monitorName")}
           </span>
         </div>
       );
@@ -127,10 +128,10 @@ export const columns: ColumnDef<monitorDataProps>[] = [
       if (code === null)
         return (
           <span className="block text-center text-[12px] text-sf-text-muted">
-            —
+            No HTTP response
           </span>
         );
-      const isOk = code >= 200 && code < 300;
+      const isOk = row.original.status === "UP";
       return (
         <span
           className="mx-auto block w-fit rounded-sf border border-sf-border bg-sf-bg px-1.5 py-0.5 text-center text-xs font-medium tabular-nums"
@@ -148,7 +149,7 @@ export const columns: ColumnDef<monitorDataProps>[] = [
     header: () => <span className="block text-center">INTERVAL</span>,
     cell: ({ row }) => (
       <span className="block text-center text-[12px] text-sf-text-sub tabular-nums">
-        {row.getValue<number>("interval_seconds")}s
+        {formatCheckInterval(row.getValue<number>("interval_seconds"))}
       </span>
     ),
   },

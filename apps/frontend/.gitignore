@@ -17,8 +17,8 @@
 /app/test/
 /public/test/
 /app/landing-page*/
-/features/landing-page*/
-/public/landing-page*/
+!/app/landing-page-3/
+!/app/landing-page-3/**
 /components/Aurora.tsx
 /components/ShinyText.tsx
 /components/ui/border-beam.tsx

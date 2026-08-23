@@ -31,4 +31,5 @@ export const env = {
   SENTRY_DSN: requireEnv("SENTRY_DSN"),
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
   PINO_LOG_LEVEL: process.env.PINO_LOG_LEVEL || "info",
+  TLS_MONITORING_PORT: parseInt(process.env.TLS_MONITORING_PORT ||' 443'),
 };

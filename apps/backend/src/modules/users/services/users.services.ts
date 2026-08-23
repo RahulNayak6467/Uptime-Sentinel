@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { db } from "../../../db";
+import { db } from "../../../db/index";
 import jwt from "jsonwebtoken";
 import { userSchema } from "../validations/userValidation";
 import { SALT } from "../../../constants/constants";
@@ -13,8 +13,11 @@ import logger from "../../../config/logger";
 export const insertUserData = async (password: string, email: string) => {
   try {
     const hashedPassword = await bcrypt.hash(password, SALT);
-    const insertQuery =
-      "INSERT INTO user_details (email, password) VALUES ($1, $2) RETURNING id";
+    const insertQuery = `
+      INSERT INTO user_details (email, password)
+      VALUES ($1, $2)
+      RETURNING id
+    `;
     const insertValues = [email, hashedPassword];
     const userData = await db.query(insertQuery, insertValues);
 

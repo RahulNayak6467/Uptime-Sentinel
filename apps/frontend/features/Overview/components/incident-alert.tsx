@@ -15,9 +15,9 @@ const IncidentAlert = () => {
   const started = formatIncidentTimestamp(incident.startedAt);
 
   return (
-    <section className="relative overflow-hidden rounded-lg border border-sf-red-border bg-sf-surface shadow-[0_6px_20px_rgba(220,38,38,0.06)]">
+    <section className="relative overflow-hidden rounded-[8px] border border-sf-red-border bg-sf-surface">
       <span className="absolute inset-y-0 left-0 w-1 bg-sf-red" />
-      <div className="flex items-center justify-between border-b border-sf-red-border/70 bg-sf-red-bg/70 px-5 py-2.5 pl-6">
+      <div className="flex items-center justify-between border-b border-sf-red-border/70 bg-sf-red-bg/60 px-4 py-2.5 pl-5 sm:px-5 sm:pl-6">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-sf-red">
           <span className="relative flex size-2.5">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-sf-red opacity-30" />
@@ -31,18 +31,20 @@ const IncidentAlert = () => {
         </span>
       </div>
 
-      <div className="flex flex-col items-start justify-between gap-4 px-6 py-4 sm:flex-row sm:items-center sm:gap-8">
+      <div className="flex flex-col items-start justify-between gap-3 px-5 py-3.5 sm:flex-row sm:items-center sm:gap-8 sm:px-6">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-sf-red-border bg-sf-red-bg text-sf-red">
+          <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-[5px] border border-sf-red-border bg-sf-red-bg text-sf-red">
             <TriangleAlert className="size-4" />
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-[14px] font-semibold tracking-sf-tight text-sf-text">
-                {incident.urlName} is unavailable
+                {incident.monitorName} is unavailable
               </h2>
               <span className="rounded-sf border border-sf-red-border bg-sf-red-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sf-red">
-                HTTP {incident.httpStatus}
+                {incident.failureStatusCode === null
+                  ? "No response"
+                  : `HTTP ${incident.failureStatusCode}`}
               </span>
             </div>
             <p className="mt-1 text-xs text-sf-text-muted">

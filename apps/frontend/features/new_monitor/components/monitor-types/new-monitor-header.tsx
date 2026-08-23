@@ -1,20 +1,19 @@
 import { ArrowLeft } from "lucide-react";
 import Spinner from "@/components/ui/spinner";
 import Link from "next/link";
-import type { SubmitHandler, UseFormHandleSubmit } from "react-hook-form";
-import type { monitorInfoProps } from "../../schemas/monitor-info";
+import type { FieldValues, SubmitHandler, UseFormHandleSubmit } from "react-hook-form";
 
-type NewMonitorHeaderProps = {
-  handleSubmit: UseFormHandleSubmit<monitorInfoProps>;
-  onSubmit: SubmitHandler<monitorInfoProps>;
+type NewMonitorHeaderProps<T extends FieldValues> = {
+  handleSubmit: UseFormHandleSubmit<T>;
+  onSubmit: SubmitHandler<T>;
   isPending: boolean;
 };
 
-const NewMonitorHeader = ({
+const NewMonitorHeader = <T extends FieldValues>({
   handleSubmit,
   onSubmit,
   isPending,
-}: NewMonitorHeaderProps) => {
+}: NewMonitorHeaderProps<T>) => {
   return (
     <header className="sf-page-header">
       <div className="flex min-w-0 items-center gap-3">
@@ -32,7 +31,7 @@ const NewMonitorHeader = ({
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))}
         className="flex w-full items-center gap-2 sm:w-auto"
       >
         <Link

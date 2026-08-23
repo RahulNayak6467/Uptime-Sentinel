@@ -44,17 +44,17 @@ const MonitorStatsTable = () => {
   const requiredData = monitorTableData.data.map((el) => {
     return {
       id: el.id,
-      url_name: el.urlName,
+      monitorName: el.monitorName,
       url: el.url,
       uptime: el.uptimePercentage,
       responseTime:
         el.avgResponseTime !== null ? Number(el.avgResponseTime) : null,
-      statusCode: el?.statusCode ?? 200,
+      statusCode: el.statusCode,
       interval_seconds: el.intervalSeconds,
       next_check_at: formatTimeUntil(el.nextCheckAt),
       status: el.status,
       trend: el.response
-        .slice(0, 26)
+        .slice(-26)
         .map((res) => res.responseTime)
         .filter((rt): rt is number => rt !== null),
     };

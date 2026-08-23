@@ -21,6 +21,7 @@ export interface UrlActiveRowsProps {
   id: string;
   user_id: string;
   next_check_at: string;
+  monitor_type: monitor_types;
 }
 
 export interface responseTimeProps {
@@ -32,7 +33,11 @@ export interface responseTimeProps {
 export interface responseTimeDataProps {
   bucket: Date;
   p50: string | null;
+  p75: string | null;
+  p90: string | null;
   p95: string | null;
+  p99: string | null;
+  p999: string | null;
 }
 
 export interface lastChecksDataProps {
@@ -44,19 +49,23 @@ export interface lastChecksDataProps {
 
 export interface monitorDataProps {
   url: string;
-  url_name: string;
+  monitor_name: string;
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: Date;
 }
 
+export type monitor_types =  "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
+
 export interface allMonitorsDataProps {
   id: string;
   url: string;
-  url_name: string;
+  monitor_name: string;
   interval_seconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: string;
+  monitor_type: monitor_types;
+  last_status_code: number | null;
   response: {
     responseTime: number;
   }[];
@@ -67,7 +76,7 @@ export interface allMonitorsDataProps {
 export interface emailAlertProps {
   notificationId: string;
   type: "down" | "recovery" | "reminder";
-  url_name: string;
+  monitor_name: string;
   status: "sent" | "failed";
   created_at: Date;
 }

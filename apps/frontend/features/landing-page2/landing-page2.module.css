@@ -1,0 +1,27 @@
+.page { background:#050807; color:#f4f7f5; --green:#65f2a5; --blue:#75a7ff; }
+.noise { background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitchTiles'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E"); }
+.grid { background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px); background-size:52px 52px; mask-image:linear-gradient(to bottom,black,transparent 88%); }
+.display { font-family:inherit; }
+.marquee { animation:marquee 30s linear infinite; }
+.orbit { animation:orbit 18s linear infinite; }
+.orbitReverse { animation:orbit 24s linear infinite reverse; }
+.scan { animation:scan 4s ease-in-out infinite; }
+.flow { stroke-dasharray:7 12; animation:flow 2.6s linear infinite; }
+.glowText { text-shadow:0 0 38px rgba(101,242,165,.22); }
+.auroraOne { animation:auroraOne 14s ease-in-out infinite alternate; }
+.auroraTwo { animation:auroraTwo 18s ease-in-out infinite alternate; }
+.signalPulse { animation:signalPulse 4.8s ease-out infinite; }
+.signalPulseDelay { animation:signalPulse 4.8s 1.6s ease-out infinite; }
+.signalPulseDelayTwo { animation:signalPulse 4.8s 3.2s ease-out infinite; }
+.particle { animation:particleFloat 7s ease-in-out infinite; }
+.wave { stroke-dasharray:12 18; animation:waveFlow 8s linear infinite; }
+@keyframes marquee { to { transform:translateX(-50%); } }
+@keyframes orbit { to { transform:rotate(360deg); } }
+@keyframes scan { 0%,100%{transform:translateY(-130%);opacity:0} 20%,80%{opacity:1} 50%{transform:translateY(500%)} }
+@keyframes flow { to { stroke-dashoffset:-76; } }
+@keyframes auroraOne { from{transform:translate3d(-8%,-5%,0) rotate(-8deg) scale(.95)} to{transform:translate3d(12%,8%,0) rotate(7deg) scale(1.12)} }
+@keyframes auroraTwo { from{transform:translate3d(10%,2%,0) rotate(6deg) scale(1.08)} to{transform:translate3d(-12%,10%,0) rotate(-9deg) scale(.94)} }
+@keyframes signalPulse { 0%{transform:scale(.55);opacity:0} 15%{opacity:.55} 75%,100%{transform:scale(1.25);opacity:0} }
+@keyframes particleFloat { 0%,100%{transform:translateY(0);opacity:.18} 50%{transform:translateY(-16px);opacity:.7} }
+@keyframes waveFlow { to{stroke-dashoffset:-180} }
+@media(prefers-reduced-motion:reduce){.marquee,.orbit,.orbitReverse,.scan,.flow,.auroraOne,.auroraTwo,.signalPulse,.signalPulseDelay,.signalPulseDelayTwo,.particle,.wave{animation:none}}

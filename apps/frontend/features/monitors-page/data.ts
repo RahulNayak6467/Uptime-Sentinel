@@ -1,6 +1,6 @@
 import { MonitorPageData } from "./types";
 
-export const monitorsData: Omit<MonitorPageData, "id">[] = [
+export const monitorsData: Omit<MonitorPageData, "id" | "statusCode">[] = [
   {
     name: "Marketing Site",
     url: "https://uptimesentinel.io",

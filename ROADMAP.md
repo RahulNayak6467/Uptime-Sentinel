@@ -60,7 +60,8 @@ overrides the default ascending version order.
 
 - **V9 is descoped** — single-user by design (see version map / register). Its only
   user-count-independent feature, the **audit/activity log**, moves to **V15**.
-- **V14 (billing) is deferred to the end.**
+- **V14 is descoped** — single-user by design; billing adds no reliability or
+  correctness value to a single-owner product (see version map / register).
 - **Build order:**
   V7 → V10 → V8 → V13 → *(deploy-readiness slices)* → **V17 deploy** → V11 → V15 →
   V16 → V18 → V12 *(stretch; first to drop if time slips)*.
@@ -74,6 +75,8 @@ overrides the default ascending version order.
   3. Core incident state-machine tests (slice of V16).
 
 ## Planned refactor (post-V6)
+
+**Status: Complete (2026-07-10).**
 
 After V6 is complete, the project enters a dedicated refactoring phase **before
 V7 feature work begins**. As the codebase has grown, the folder structure has
@@ -130,7 +133,7 @@ This is a structural milestone, not a version; it runs between V6 and V7.
 | V11 | Scaling and Performance | Indexes, cursor pagination, retention, caching, aggregates | Not started | [v11](docs/roadmap/v11.md) |
 | V12 | Multi-Region Monitoring | Regional workers + `UP`/`DOWN`/`DEGRADED` aggregation | Not started | [v12](docs/roadmap/v12.md) |
 | V13 | Integrations | Slack/Discord/signed-webhook alert channels | Not started | [v13](docs/roadmap/v13.md) |
-| V14 | Billing and Plans | Stripe subscriptions + plan entitlements | Not started | [v14](docs/roadmap/v14.md) |
+| ~~V14~~ | ~~Billing and Plans~~ | **Descoped — single-user by design** | Descoped | [v14](docs/roadmap/v14.md) |
 | V15 | Application Observability | Pino logs, correlation IDs, Sentry, health checks | Not started | [v15](docs/roadmap/v15.md) |
 | V16 | Comprehensive Testing | Unit/integration tests, fixtures, CI quality gates | Not started | [v16](docs/roadmap/v16.md) |
 | V17 | Docker, CI/CD, and Production Deployment | Containers, pipelines, managed deps, zero-downtime | Not started | [v17](docs/roadmap/v17.md) |
@@ -179,7 +182,7 @@ any of these as missing during code review or planning, check this table first.
 | N+1 elimination, `EXPLAIN ANALYZE`, query tuning | V11 | Optimize only with measured evidence |
 | Multi-region checks + `DEGRADED` state | V12 | |
 | Slack/Discord/webhook integrations + HMAC | V13 | |
-| Billing, Stripe, plan limits/entitlements | V14 | |
+| Billing, Stripe, plan limits/entitlements | ~~V14~~ Descoped | Cut 2026-08-03 — single-user by design; see [v14](docs/roadmap/v14.md). Not a defect to omit. |
 | Full structured logging, correlation IDs, health checks | V15 | |
 | Comprehensive automated tests + CI quality gates | V16 | Useful per-feature tests still expected earlier |
 | Production Docker images, CI/CD, deployment | V17 | |
@@ -233,8 +236,9 @@ and CI.
 
 ### Milestone 3 — Full product
 
-V13–V17: integrations, billing, observability, containerization, CI/CD, and
-production deployment. (V9 workspaces/RBAC descoped — single-user by design.)
+V13, V15–V17: integrations, observability, containerization, CI/CD, and
+production deployment. (V9 workspaces/RBAC and V14 billing both descoped —
+single-user by design.)
 
 ### Milestone 4 — Long-term advanced work
 

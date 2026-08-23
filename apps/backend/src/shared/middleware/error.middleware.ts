@@ -1,7 +1,9 @@
 import { AppError } from "../errors/AppError";
 import { Request, Response, NextFunction } from "express";
 import * as Sentry from "@sentry/node";
-import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+const { JsonWebTokenError, TokenExpiredError } = jwt;
 import { ZodError } from "zod";
 
 export const handleError = (

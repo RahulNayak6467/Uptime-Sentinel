@@ -19,8 +19,11 @@ interface userInfoProps {
 
 export const checkLoginUser = async (email: string, password: string) => {
   try {
-    const query =
-      "SELECT email,password,id,email_verified FROM user_details WHERE email = $1";
+    const query = `
+      SELECT email,password,id,email_verified
+      FROM user_details
+      WHERE email = $1
+    `;
     const values = [email];
     const getUserInfo = await db.query(query, values);
     if (getUserInfo.rows.length === 0) {
@@ -79,8 +82,12 @@ export const checkLoginUser = async (email: string, password: string) => {
 
     const hashedRefreshToken = await bcrypt.hash(generateRefreshToken, SALT);
     const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
-    const insert_Refresh_Query =
-      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at";
+    const insert_Refresh_Query = `
+      INSERT INTO refresh_tokens (user_id, token, expires_at)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (user_id)
+      DO UPDATE SET token = EXCLUDED.token, expires_at = EXCLUDED.expires_at
+    `;
     const values_Refresh_Query = [user_id, hashedRefreshToken, expiresAt];
 
     await db.query(insert_Refresh_Query, values_Refresh_Query);

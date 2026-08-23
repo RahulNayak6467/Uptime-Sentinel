@@ -1,315 +1,292 @@
 "use client";
 
-import { Activity, Grid3X3 } from "lucide-react";
-import { LIMIT } from "@/constants/constant";
-import { useAllMonitorsData } from "../hooks/useMonitorsData";
-import Chart from "@/utils/chart";
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { useTheme } from "next-themes";
 import {
-  buildAverageResponseSeries,
-  percentile,
-  RESPONSE_SAMPLE_COUNT,
-} from "@/utils/overview-series";
+  Activity,
+  ArrowUpRight,
+  CircleCheck,
+  Siren,
+} from "lucide-react";
+import { LIMIT } from "@/constants/constant";
+import Chart from "@/utils/chart";
+import { useIncidentsStatsCard } from "@/features/incidents/hooks/useIncidentsStatsCard";
+import { useDashboardOverview } from "../hooks/useDashboardOverview";
+import { useAllMonitorsData } from "../hooks/useMonitorsData";
 
-const STATUS_DOT: Record<string, string> = {
-  UP: "bg-sf-green",
-  DOWN: "bg-sf-red",
-  UNKNOWN: "bg-sf-text-muted/60",
+type AttentionTone = "danger" | "warning" | "neutral";
+
+type AttentionItem = {
+  id: string;
+  title: string;
+  detail: string;
+  href: string;
+  tone: AttentionTone;
 };
 
-const TrendChart = ({
-  values,
-  average,
+const ATTENTION_TONE: Record<AttentionTone, string> = {
+  danger: "bg-sf-red",
+  warning: "bg-sf-amber",
+  neutral: "bg-sf-text-muted/60",
+};
+
+const PanelHeading = ({
+  icon: Icon,
+  title,
+  subtitle,
+  action,
 }: {
-  values: (number | null)[];
-  average: number | null;
-}) => {
-  const option = {
-    animationDuration: 450,
-    animationEasing: "cubicOut",
-    grid: { left: 4, right: 16, top: 18, bottom: 24, containLabel: true },
+  icon: typeof Activity;
+  title: string;
+  subtitle: string;
+  action?: ReactNode;
+}) => (
+  <header className="flex flex-col gap-3 border-b border-sf-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex min-w-0 items-start gap-2.5">
+      <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-[5px] border border-sf-border-faint bg-sf-bg text-sf-text-sub">
+        <Icon className="size-3.5" strokeWidth={1.8} />
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-[13px] font-semibold tracking-sf-tight text-sf-text">
+          {title}
+        </h2>
+        <p className="mt-0.5 text-[11px] text-sf-text-muted">{subtitle}</p>
+      </div>
+    </div>
+    {action}
+  </header>
+);
+
+const Metric = ({ label, value }: { label: string; value: string }) => (
+  <div className="min-w-0">
+    <p className="text-[10px] font-medium text-sf-text-muted">{label}</p>
+    <p className="mt-1 text-sm font-semibold tabular-nums text-sf-text">
+      {value}
+    </p>
+  </div>
+);
+
+const ReliabilityOverview = () => {
+  const { resolvedTheme } = useTheme();
+  const { data, isLoading, isError } = useAllMonitorsData(1, LIMIT);
+  const { data: overview } = useDashboardOverview();
+  const { data: incidentStats } = useIncidentsStatsCard();
+
+  if (isLoading || isError || !data || data.data.length === 0) return null;
+
+  const responseMonitors = data.data
+    .flatMap((monitor) =>
+      monitor.avgResponseTime === null
+        ? []
+        : [
+            {
+              id: monitor.id,
+              name: monitor.monitorName,
+              value: Math.round(monitor.avgResponseTime),
+              status: monitor.status,
+            },
+          ],
+    )
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8);
+
+  const average = responseMonitors.length
+    ? Math.round(
+        responseMonitors.reduce((sum, monitor) => sum + monitor.value, 0) /
+          responseMonitors.length,
+      )
+    : null;
+  const fastest = responseMonitors.length
+    ? responseMonitors.reduce((best, monitor) =>
+        monitor.value < best.value ? monitor : best,
+      )
+    : null;
+  const slowest = responseMonitors[0] ?? null;
+
+  const chartOption = {
+    animationDuration: 350,
+    grid: { left: 4, right: 78, top: 8, bottom: 10, containLabel: true },
     tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "line",
-        lineStyle: { color: "rgba(124, 131, 230, 0.45)", type: "dashed" },
-      },
-      formatter: (params: { data: number | null; axisValueLabel: string }[]) => {
-        const point = params[0];
-        return `${point.axisValueLabel}<br/><span>Cross-monitor average</span><br/><strong>${point.data === null ? "No response data" : `${Math.round(point.data)} ms`}</strong>`;
-      },
+      trigger: "item",
+      formatter: (params: { name: string; value: number }) =>
+        `${params.name}<br/><strong>${params.value}ms average response</strong>`,
     },
     xAxis: {
-      type: "category",
-      boundaryGap: false,
-      data: values.map((_, index) => `Sample ${index + 1}`),
-      axisLabel: {
-        interval: Math.max(Math.floor(values.length / 4) - 1, 0),
-        formatter: (_value: string, index: number) => `${index + 1}`,
-      },
-    },
-    yAxis: {
       type: "value",
       min: 0,
       splitNumber: 4,
       axisLabel: { formatter: (value: number) => `${value}ms` },
       splitLine: { show: true, lineStyle: { type: "dashed" } },
     },
+    yAxis: {
+      type: "category",
+      inverse: true,
+      data: responseMonitors.map((monitor) => monitor.name),
+      axisTick: { show: false },
+      axisLabel: { width: 118, overflow: "truncate" },
+    },
     series: [
       {
-        name: "Cross-monitor average",
-        type: "line",
-        data: values,
-        smooth: 0.28,
-        connectNulls: false,
-        showSymbol: false,
-        symbol: "circle",
-        symbolSize: 7,
-        lineStyle: { width: 2, color: "#7c83e6" },
-        itemStyle: { color: "#7c83e6", borderColor: "#ffffff", borderWidth: 2 },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(124, 131, 230, 0.22)" },
-              { offset: 1, color: "rgba(124, 131, 230, 0)" },
-            ],
+        name: "Average response",
+        type: "bar",
+        barWidth: 11,
+        showBackground: true,
+        backgroundStyle: { color: "rgba(120, 120, 128, 0.08)", borderRadius: 3 },
+        label: {
+          show: true,
+          position: "right",
+          distance: 8,
+          formatter: "{value|{c}}{unit|ms}",
+          rich: {
+            value: {
+              color: resolvedTheme === "dark" ? "#f7f8f8" : "#202124",
+              fontSize: 12,
+              fontWeight: 650,
+              fontFamily: "Inter, sans-serif",
+            },
+            unit: {
+              color: resolvedTheme === "dark" ? "#9297a0" : "#6f737b",
+              fontSize: 10,
+              fontWeight: 500,
+              padding: [1, 0, 0, 2],
+              fontFamily: "Inter, sans-serif",
+            },
           },
         },
-        markLine:
-          average === null
-            ? undefined
-            : {
-                silent: true,
-                symbol: "none",
-                lineStyle: {
-                  color: "rgba(138, 138, 148, 0.55)",
-                  type: "dashed",
-                  width: 1,
-                },
-                label: {
-                  formatter: `overall avg ${Math.round(average)}ms`,
-                  position: "insideEndTop",
-                  color: "#8a8a94",
-                  fontSize: 10,
-                },
-                data: [{ yAxis: average }],
-              },
-        emphasis: { focus: "series", scale: true },
+        data: responseMonitors.map((monitor) => ({
+          value: monitor.value,
+          itemStyle: {
+            color: monitor.status === "DOWN" ? "#d14d56" : "#5e6ad2",
+            borderRadius: [0, 3, 3, 0],
+          },
+        })),
       },
     ],
   };
 
-  return <Chart option={option} height={245} />;
-};
+  const attentionItems: AttentionItem[] = [];
+  const activeIncidents = incidentStats?.activeIncidents ?? 0;
+  const pausedMonitors = overview?.paused_monitors ?? 0;
 
-const HeaderStat = ({
-  label,
-  value,
-  emphasized = false,
-}: {
-  label: string;
-  value: string;
-  emphasized?: boolean;
-}) => (
-  <div
-    className={`flex min-h-[76px] min-w-0 flex-col justify-center rounded-lg px-4 py-3 ${
-      emphasized ? "bg-sf-blue-bg" : "bg-sf-bg/70"
-    }`}
-  >
-    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-sf-text-muted">
-      {label}
-    </p>
-    <p
-      className={`mt-1.5 whitespace-nowrap text-[18px] font-semibold tracking-[-0.025em] tabular-nums ${
-        emphasized ? "text-sf-blue" : "text-sf-text"
-      }`}
-    >
-      {value}
-    </p>
-  </div>
-);
+  if (activeIncidents > 0) {
+    attentionItems.push({
+      id: "active-incidents",
+      title: `${activeIncidents} active incident${activeIncidents === 1 ? "" : "s"}`,
+      detail: "Recovery monitoring is in progress",
+      href: "/dashboard/incidents",
+      tone: "danger",
+    });
+  }
 
-const PanelHeading = ({
-  icon: Icon,
-  title,
-  subtitle,
-}: {
-  icon: typeof Activity;
-  title: string;
-  subtitle: string;
-}) => (
-  <div>
-    <div className="flex items-center gap-2">
-      <span className="flex size-6 items-center justify-center rounded-sf-sm bg-sf-blue-bg text-sf-blue">
-        <Icon className="size-3.5" />
-      </span>
-      <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
-        {title}
-      </h2>
-    </div>
-    <p className="mt-1.5 text-xs text-sf-text-muted">{subtitle}</p>
-  </div>
-);
+  data.data
+    .filter((monitor) => monitor.status === "DOWN")
+    .slice(0, 3)
+    .forEach((monitor) => {
+      attentionItems.push({
+        id: `down-${monitor.id}`,
+        title: `${monitor.monitorName} is down`,
+        detail:
+          monitor.statusCode === null
+            ? "No HTTP response"
+            : `Latest response: HTTP ${monitor.statusCode}`,
+        href: `/dashboard/monitors/${monitor.id}`,
+        tone: "danger",
+      });
+    });
 
-const ms = (value: number | null) =>
-  value === null ? "—" : `${Math.round(value)}ms`;
+  if (pausedMonitors > 0) {
+    attentionItems.push({
+      id: "paused-monitors",
+      title: `${pausedMonitors} paused monitor${pausedMonitors === 1 ? "" : "s"}`,
+      detail: "Checks are not currently running",
+      href: "/dashboard/monitors",
+      tone: "warning",
+    });
+  }
 
-const ReliabilityOverview = () => {
-  const { data, isLoading, isError } = useAllMonitorsData(1, LIMIT);
-
-  if (isLoading || isError || !data || data.data.length === 0) return null;
-
-  const series = buildAverageResponseSeries(data.data);
-  const successful = series.filter((value): value is number => value !== null);
-  const sortedAsc = [...successful].sort((a, b) => a - b);
-
-  const currentAverage = successful.length
-    ? successful.reduce((sum, value) => sum + value, 0) / successful.length
-    : null;
-  const lowestPoint = successful.length ? Math.min(...successful) : null;
-  const highestPoint = successful.length ? Math.max(...successful) : null;
-  const p95 = percentile(sortedAsc, 95);
+  const unknownMonitors = data.data.filter(
+    (monitor) => monitor.status === "UNKNOWN",
+  ).length;
+  if (unknownMonitors > 0) {
+    attentionItems.push({
+      id: "unknown-monitors",
+      title: `${unknownMonitors} monitor${unknownMonitors === 1 ? "" : "s"} awaiting data`,
+      detail: "No current health result is available",
+      href: "/dashboard/monitors",
+      tone: "neutral",
+    });
+  }
 
   return (
     <section>
-      <div className="mb-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-sf-blue">
-          Reliability signals
-        </p>
-        <h2 className="mt-1 text-[14px] font-semibold tracking-sf-tight text-sf-text">
-          Performance and check health
-        </h2>
-      </div>
-
-      <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.85fr)]">
-        <section className="sf-panel flex flex-col overflow-hidden p-5 shadow-sm">
+      <div className="grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,0.8fr)]">
+        <section className="sf-panel overflow-hidden">
           <PanelHeading
             icon={Activity}
-            title="Cross-monitor response pattern"
-            subtitle={`Up to ${RESPONSE_SAMPLE_COUNT} response samples per monitor across the first ${LIMIT} monitors`}
+            title="Response time by monitor"
+            subtitle="Actual average response values from the current monitor data"
+            action={
+              <div className="grid grid-cols-3 gap-5 sm:gap-7">
+                <Metric label="Fastest" value={fastest ? `${fastest.value}ms` : "—"} />
+                <Metric label="Average" value={average === null ? "—" : `${average}ms`} />
+                <Metric label="Slowest" value={slowest ? `${slowest.value}ms` : "—"} />
+              </div>
+            }
           />
-          <div className="mt-3 flex-1">
-            <TrendChart values={series} average={currentAverage} />
+          <div className="px-3 py-3 sm:px-4">
+            {responseMonitors.length > 0 ? (
+              <Chart option={chartOption} height={248} />
+            ) : (
+              <div className="flex h-[248px] items-center justify-center text-xs text-sf-text-muted">
+                No response-time data is available yet.
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="sf-panel flex flex-col p-5 shadow-sm">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-sf-blue">
-              Chart summary
-            </p>
-            <h3 className="mt-1 text-[14px] font-semibold tracking-sf-tight text-sf-text">
-              Plotted response averages
-            </h3>
-            <p className="mt-1.5 text-xs text-sf-text-muted">
-              Statistics calculated from the points shown in the chart
-            </p>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <HeaderStat label="Lowest point" value={ms(lowestPoint)} />
-            <HeaderStat label="P95 point" value={ms(p95)} />
-            <HeaderStat label="Highest point" value={ms(highestPoint)} />
-            <HeaderStat label="Chart average" value={ms(currentAverage)} emphasized />
-          </div>
-          <div className="mt-4 rounded-md border border-sf-border-faint bg-sf-bg/60 px-3 py-2 text-xs leading-5 text-sf-text-muted">
-            <span className="font-semibold text-sf-text-sub">How to read it:</span>{" "}
-            Each point averages available responses at the same sample position
-            across monitors. Missing values are excluded; positions are not clock
-            times.
-          </div>
-        </section>
-      </div>
-
-      <section className="sf-panel mt-4 flex flex-col overflow-hidden p-5 shadow-sm">
-        <PanelHeading
-          icon={Grid3X3}
-          title="Recent check health"
-          subtitle={`Top 6 monitors · last ${RESPONSE_SAMPLE_COUNT} checks each`}
-        />
-
-        <div className="mt-5 grid gap-3 md:grid-cols-2">
-          {data.data.slice(0, 6).map((monitor) => {
-            const checks = monitor.response.slice(0, RESPONSE_SAMPLE_COUNT);
-            const okCount = checks.filter(
-              (check) => check.responseTime !== null,
-            ).length;
-            const okRate = checks.length
-              ? Math.round((okCount / checks.length) * 100)
-              : null;
-
-            return (
-              <div
-                key={monitor.id}
-                className="rounded-lg border border-sf-border-faint bg-sf-bg/40 p-4"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <span className="flex min-w-0 items-center gap-2">
-                    <i
-                      className={`size-1.5 shrink-0 rounded-full ${STATUS_DOT[monitor.status] ?? STATUS_DOT.UNKNOWN}`}
-                    />
-                    <span className="truncate text-sm font-medium text-sf-text-sub">
-                      {monitor.urlName}
+        <section className="sf-panel overflow-hidden">
+          <PanelHeading
+            icon={Siren}
+            title="Needs attention"
+            subtitle="Current incidents and monitors requiring review"
+          />
+          {attentionItems.length > 0 ? (
+            <div className="divide-y divide-sf-border-faint">
+              {attentionItems.slice(0, 5).map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-sf-bg/55"
+                >
+                  <span
+                    className={`mt-1.5 size-1.5 shrink-0 rounded-full ${ATTENTION_TONE[item.tone]}`}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-xs font-semibold text-sf-text">
+                      {item.title}
+                    </span>
+                    <span className="mt-1 block truncate text-[11px] text-sf-text-muted">
+                      {item.detail}
                     </span>
                   </span>
-                  <span
-                    className={`shrink-0 text-xs font-semibold tabular-nums ${
-                      okRate === null || okRate === 100
-                        ? "text-sf-text-sub"
-                        : okRate >= 90
-                          ? "text-sf-amber"
-                          : "text-sf-red"
-                    }`}
-                  >
-                    {okRate === null ? "No checks" : `${okRate}% OK`}
-                  </span>
-                </div>
-                <div className="mt-3 grid max-w-[620px] grid-cols-[repeat(26,minmax(3px,1fr))] gap-0.5 sm:grid-cols-[repeat(26,minmax(5px,1fr))] sm:gap-1">
-                  {Array.from({ length: RESPONSE_SAMPLE_COUNT }, (_, index) => {
-                    const check = checks[index];
-                    const title = !check
-                      ? "No check recorded"
-                      : check.responseTime === null
-                        ? "Failed check"
-                        : `${check.responseTime}ms`;
-                    const color = !check
-                      ? "bg-sf-border-faint"
-                      : check.responseTime === null
-                        ? "bg-sf-red hover:bg-sf-red/80"
-                        : "bg-sf-blue/55 hover:bg-sf-blue";
-
-                    return (
-                      <span
-                        key={index}
-                        title={title}
-                        className={`h-3 rounded-[3px] transition-colors sm:h-4 ${color}`}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-sf-border pt-4 text-xs text-sf-text-muted">
-          <span className="flex items-center gap-1.5">
-            <i className="size-2 rounded-[2px] bg-sf-blue/55" />
-            Successful
-          </span>
-          <span className="flex items-center gap-1.5">
-            <i className="size-2 rounded-[2px] bg-sf-red" />
-            Failed
-          </span>
-          <span className="flex items-center gap-1.5">
-            <i className="size-2 rounded-[2px] bg-sf-border-faint" />
-            No check
-          </span>
-        </div>
-      </section>
+                  <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-sf-text-muted transition-colors group-hover:text-sf-text" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex min-h-[260px] flex-col items-center justify-center px-6 text-center">
+              <span className="flex size-9 items-center justify-center rounded-full bg-sf-green-bg text-sf-green">
+                <CircleCheck className="size-4" />
+              </span>
+              <p className="mt-3 text-sm font-semibold text-sf-text">Nothing needs attention</p>
+              <p className="mt-1 max-w-[230px] text-xs leading-5 text-sf-text-muted">
+                No active incidents, down monitors, paused checks, or monitors awaiting data.
+              </p>
+            </div>
+          )}
+        </section>
+      </div>
     </section>
   );
 };

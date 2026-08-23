@@ -1,4 +1,4 @@
-export type MonitorType = "http" | "tcp" | "dns";
+export type MonitorType = "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
 export type MonitorState = "up" | "down" | "degraded" | "paused" | "unknown";
 
 export type MonitorPageData = {
@@ -8,6 +8,7 @@ export type MonitorPageData = {
   type: MonitorType;
   uptime: number | null;
   responseTime: number | null;
+  statusCode: number | null;
   interval: string;
   nextCheck: string;
   state: MonitorState;

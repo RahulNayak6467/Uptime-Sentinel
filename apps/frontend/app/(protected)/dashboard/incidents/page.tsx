@@ -6,7 +6,7 @@ const Incidents = () => {
   return (
     <section className="min-h-full pb-12">
       <IncidentHeader />
-      <div className="sf-page-content space-y-7">
+      <div className="sf-page-content space-y-5">
         <IncidentStats />
         <IncidentList />
       </div>

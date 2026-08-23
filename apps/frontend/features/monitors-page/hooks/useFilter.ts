@@ -12,7 +12,7 @@ export const useFilter = (
     queryKey: ["all monitors data by status", monitorStatus, page],
     queryFn: () =>
       apiFetch<allMonitorsDataDashboardViewProps>(
-        `/monitors?monitorstatus=${monitorStatus}&page=${page}&limit=${limit}`,
+        `/monitors/data?monitorstatus=${monitorStatus}&page=${page}&limit=${limit}`,
       ),
     staleTime: 60,
     placeholderData: (prev) => prev,

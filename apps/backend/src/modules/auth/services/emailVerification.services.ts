@@ -6,7 +6,6 @@ import { AppError } from "../../../shared/errors/AppError";
 import redis from "../../../redis";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { formatDuration } from "../../../shared/utils/formatDate";
 import { env } from "../../../config/env";
 import {
   ACCESS_TOKEN_TTL_SECONDS,
@@ -161,97 +160,4 @@ export const verifyEmail = async (email: string, otp: string) => {
   } catch (err) {
     throw err;
   }
-};
-
-export const sendDownAlertEmail = async (
-  email: string,
-  monitorName: string,
-  url: string,
-  startedAt: Date,
-  errorMessage?: string | null,
-) => {
-  const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
-    subject: `🔴 Monitor Down: ${monitorName}`,
-    html: `
-      <h2>Your monitor is down</h2>
-      <p><strong>Monitor:</strong> ${monitorName}</p>
-      <p><strong>URL:</strong> ${url}</p>
-      <p><strong>Down since:</strong> ${startedAt.toLocaleString()}</p>
-      ${errorMessage ? `<p><strong>Error:</strong> ${errorMessage}</p>` : ""}
-    `,
-  });
-  if (error) {
-    logger.error({ err: error, monitorName }, "down alert email send failed");
-    return null;
-  }
-
-  logger.info({ emailId: data?.id, monitorName }, "down alert email sent");
-  return data;
-};
-
-export const sendRecoveryEmail = async (
-  email: string,
-  urlName: string,
-  url: string,
-  startedAt: Date,
-  resolvedAt: Date,
-) => {
-  const duration = formatDuration(startedAt, resolvedAt);
-  const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
-    subject: `✅ Monitor Recovered: ${urlName}`,
-    html: `
-      <h2>Your monitor has recovered</h2>
-      <p><strong>Monitor:</strong> ${urlName}</p>
-      <p><strong>URL:</strong> ${url}</p>
-      <p><strong>Recovered at:</strong> ${resolvedAt.toLocaleString()}</p>
-      <p><strong>Outage duration:</strong> ${duration}</p>
-    `,
-  });
-  if (error) {
-    logger.error({ err: error, monitorName: urlName }, "recovery email send failed");
-    return null;
-  }
-
-  logger.info({ emailId: data?.id, monitorName: urlName }, "recovery email sent");
-  return data;
-};
-
-export const sendStillDownAlertEmail = async (
-  email: string,
-  monitorName: string,
-  url: string,
-  startedAt: Date,
-) => {
-  const downtimeDuration = formatDuration(startedAt, new Date());
-
-  const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
-    to: email,
-    subject: `🔴 Still Down: ${monitorName} (${downtimeDuration})`,
-    html: `
-      <h2>Your monitor is still down</h2>
-      <p><strong>Monitor:</strong> ${monitorName}</p>
-      <p><strong>URL:</strong> ${url}</p>
-      <p><strong>Down since:</strong> ${startedAt.toLocaleString()}</p>
-      <p><strong>Total downtime so far:</strong> ${downtimeDuration}</p>
-    `,
-  });
-
-  if (error) {
-    logger.error(
-      { err: error, monitorName },
-      "still-down alert email send failed",
-    );
-    return null;
-  }
-
-  logger.info(
-    { emailId: data?.id, monitorName },
-    "still-down alert email sent",
-  );
-  return data;
 };

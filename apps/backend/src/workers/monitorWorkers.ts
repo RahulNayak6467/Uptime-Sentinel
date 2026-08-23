@@ -1,9 +1,11 @@
 import { Job, Worker } from "bullmq";
 import redis from "../redis";
-import { checkUrlHealth } from "../modules/monitors/services/url.services";
-import { runStateMachine } from "./stateMachine.worker";
+import { checkUrlHealth } from "../modules/monitor-checks/monitors/services/url.services";
+import { runStateMachine } from "./statemachine/httpsStateMachine.worker";
+import { updateMonitorStatus } from "./statemachine/shared/threshold";
 import { db } from "../db";
 import logger from "../config/logger";
+import { MonitorCheckJobData } from "../queue/monitorQueue";
 
 logger.info({}, "monitorWorkers module loaded");
 logger.info({ status: redis.status }, "Redis connection state:");
@@ -16,7 +18,7 @@ redis.on("error", (err) =>
 
 const getWorkerOptions = () => {
   return {
-    connection: redis,
+    connection: redis.duplicate(),
     concurrency: 10,
     lockDuration: 30000,
     removeOnComplete: {
@@ -30,26 +32,20 @@ const getWorkerOptions = () => {
   };
 };
 
-const updateMonitorStatus = async (
-  status: "UP" | "DOWN",
-  user_id: string,
-  url_id: string,
-) => {
-  const update_monitor_query =
-    "UPDATE monitor SET status = $1 where id = $2 and user_id = $3";
-  const update_monitor_values = [status, url_id, user_id];
 
-  await db.query(update_monitor_query, update_monitor_values);
-};
+const processor = async (job: Job<MonitorCheckJobData>) => {
+  const { user_id, url_id } = job.data;
 
-const processor = async (job: Job) => {
-  const { TIMEOUT, user_id, url_id } = job.data;
+  console.log("Worker gets the job");
 
-  logger.debug({ jobId: job.id, monitorId: url_id }, "monitor worker received job");
-
-  const urlMonitorResponse = await checkUrlHealth(TIMEOUT, user_id, url_id);
-  await updateMonitorStatus(urlMonitorResponse.status, user_id, url_id);
-  await runStateMachine(url_id, urlMonitorResponse.status);
+  const urlMonitorResponse = await checkUrlHealth(user_id, url_id);
+  await updateMonitorStatus(
+    urlMonitorResponse.status,
+    urlMonitorResponse.statusCode,
+    user_id,
+    url_id,
+  );
+  await runStateMachine(user_id,url_id, urlMonitorResponse.status);
 };
 
 export const urlCheckWorker = new Worker(

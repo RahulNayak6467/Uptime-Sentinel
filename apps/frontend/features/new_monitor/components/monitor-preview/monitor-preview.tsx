@@ -1,4 +1,4 @@
-import { Activity, Bell, Info } from "lucide-react";
+import { Activity, Info } from "lucide-react";
 
 interface MonitorPreviewProps {
   monitorName?: string;
@@ -6,9 +6,7 @@ interface MonitorPreviewProps {
   type: string;
   interval: string;
   method: string;
-  timeout?: number;
-  statusCode?: number | null;
-  responseTimeAlert?: number;
+  statusCodes?: number[];
 }
 
 const checksPerDay = (interval: string): string => {
@@ -25,15 +23,11 @@ const MonitorPreview = ({
   type,
   interval,
   method,
-  timeout,
-  statusCode,
-  responseTimeAlert,
+  statusCodes,
 }: MonitorPreviewProps) => {
   const hasName = Boolean(monitorName?.trim());
   const hasUrl = Boolean(url?.trim());
-  const timeoutDisplay = timeout ? `${timeout}s` : "30s";
-  const statusDisplay = statusCode ? `${statusCode}` : "200";
-  const alertDisplay = responseTimeAlert ? `${responseTimeAlert}ms` : "5000ms";
+  const statusDisplay = statusCodes?.length ? statusCodes.join(", ") : "200";
   const perDay = checksPerDay(interval);
 
   return (
@@ -78,8 +72,7 @@ const MonitorPreview = ({
           {[
             { label: "Interval", value: interval },
             { label: "Method", value: method.toUpperCase() },
-            { label: "Timeout", value: timeoutDisplay },
-            { label: "Expected status", value: statusDisplay },
+            { label: "Expected statuses", value: statusDisplay },
           ].map(({ label, value }) => (
             <div
               key={label}
@@ -94,16 +87,6 @@ const MonitorPreview = ({
             </div>
           ))}
         </dl>
-
-        <div className="flex items-center gap-2 border-t border-sf-border px-4 py-3">
-          <Bell className="w-3.5 h-3.5 text-sf-amber shrink-0" />
-          <p className="text-[12px] font-sans text-sf-text-sub leading-snug">
-            Alerts if response exceeds{" "}
-            <strong className="text-sf-text font-semibold">
-              {alertDisplay}
-            </strong>
-          </p>
-        </div>
 
         <div className="flex items-start gap-2 border-t border-sf-border bg-sf-bg/50 px-4 py-3">
           <Info className="w-3.5 h-3.5 text-sf-text-muted shrink-0 mt-0.5" />

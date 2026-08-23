@@ -1,0 +1,119 @@
+.noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+}
+
+.grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, black 10%, transparent 88%);
+}
+
+.flowPath {
+  stroke-dasharray: 8 12;
+  animation: flow 2.8s linear infinite;
+}
+
+.flowPathSlow {
+  stroke-dasharray: 6 14;
+  animation: flow 3.8s linear infinite reverse;
+}
+
+.chartLine {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: draw 2.2s 0.4s ease-out forwards;
+}
+
+.pulse {
+  animation: pulse 2.4s ease-out infinite;
+}
+
+.marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.marqueeReverse {
+  animation: marquee 34s linear infinite reverse;
+}
+
+.orbit {
+  animation: orbit 18s linear infinite;
+}
+
+.orbitReverse {
+  animation: orbit 24s linear infinite reverse;
+}
+
+.borderBeam {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 285deg,
+    rgba(52, 211, 153, 0.9) 320deg,
+    rgba(96, 165, 250, 0.9) 345deg,
+    transparent 360deg
+  );
+  animation: rotateBeam 7s linear infinite;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -80;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.65);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateBeam {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flowPath,
+  .flowPathSlow,
+  .chartLine,
+  .pulse {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .marquee,
+  .marqueeReverse,
+  .orbit,
+  .orbitReverse,
+  .borderBeam {
+    animation: none;
+  }
+}

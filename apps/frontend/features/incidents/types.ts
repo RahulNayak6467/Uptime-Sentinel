@@ -1,10 +1,15 @@
+import type { LucideIcon } from "lucide-react";
+
 export type IncidentsInfoProps = {
   title: string;
   information: string | number;
   color: string;
+  icon: LucideIcon;
+  context: string;
 };
 
 export type IncidentStatus = "active" | "resolved";
+export type IncidentStatusFilter = "all" | IncidentStatus;
 
 export type IncidentUpdateStatus =
   "detected" | "investigating" | "monitoring" | "resolved";
@@ -32,6 +37,8 @@ export type IncidentListItemProps = {
   resolvedAt?: string;
   triggerLabel: string;
   triggerValue: string;
+  monitorType: string;
+  failureReason?: string;
   updates?: IncidentUpdate[];
   expanded?: boolean;
 };
@@ -46,11 +53,13 @@ export type IncidentStatsCardInfoProps = {
 export type IncidentsDataProps = {
   id: string;
   isActive: boolean;
-  urlName: string;
+  monitorName: string;
   url: string;
   resolvedAt: Date | string | null;
   startedAt: Date | string;
-  httpStatus: number;
+  monitorType: string;
+  failureStatusCode: number | null;
+  failureReason: string | null;
 };
 
 export type IncidentsPaginatedData = {

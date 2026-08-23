@@ -1,11 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -28,15 +26,15 @@ import {
 import { MonitorPageData } from "./types";
 import MonitorsEmpty from "@/components/empty-states/monitors-empty";
 import { useRouter } from "next/navigation";
+import type { MonitorTab } from "./monitors-filter-tabs";
 
 interface DataTableProps {
   columns: ColumnDef<MonitorPageData, unknown>[];
   data: MonitorPageData[];
-  rowSelection: RowSelectionState;
-  onRowSelectionChange: (state: RowSelectionState) => void;
   onChangePage: (page: number) => void;
   currentPage: number;
   totalPage: number;
+  activeFilter: MonitorTab;
   isFiltered: boolean;
   onClearFilter: () => void;
 }
@@ -44,11 +42,10 @@ interface DataTableProps {
 export function MonitorsDataTable({
   columns,
   data,
-  rowSelection,
-  onRowSelectionChange,
   onChangePage,
   currentPage,
   totalPage,
+  activeFilter,
   isFiltered,
   onClearFilter,
 }: DataTableProps) {
@@ -58,25 +55,16 @@ export function MonitorsDataTable({
     router.push(`/dashboard/monitors/${id}`);
   };
 
-  const handleRowSelectionChange = useCallback(
-    (
-      updater:
-        RowSelectionState | ((old: RowSelectionState) => RowSelectionState),
-    ) => {
-      const next =
-        typeof updater === "function" ? updater(rowSelection) : updater;
-      onRowSelectionChange(next);
-    },
-    [rowSelection, onRowSelectionChange],
-  );
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: handleRowSelectionChange,
-    state: { rowSelection },
   });
+
+  const inventoryTitle =
+    activeFilter === "all"
+      ? "All monitors"
+      : `${activeFilter.charAt(0).toUpperCase()}${activeFilter.slice(1)} monitors`;
 
   const totalPages = totalPage;
   const goToPage = (page: number) =>
@@ -89,23 +77,22 @@ export function MonitorsDataTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-      <div className="flex flex-col gap-3 border-b border-sf-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div className="overflow-hidden rounded-[8px] border border-sf-border bg-sf-surface">
+      <div className="flex items-center justify-between gap-4 border-b border-sf-border px-4 py-3.5 sm:px-5">
         <div>
           <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">
-            Monitor inventory
+            {inventoryTitle}
           </h2>
           <p className="mt-1 text-xs text-sf-text-muted">
             {data.length} endpoint{data.length === 1 ? "" : "s"} on this page
           </p>
         </div>
-        <span className="flex items-center gap-1.5 text-xs font-medium text-sf-text-muted">
-          <i className="size-1.5 rounded-full bg-sf-green" />
-          Live data
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.08em] text-sf-text-muted sm:block">
+          Page {currentPage} of {totalPages}
         </span>
       </div>
       <div className="overflow-x-auto">
-        <Table className="min-w-[980px]">
+        <Table className="min-w-[940px]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -133,22 +120,27 @@ export function MonitorsDataTable({
               <TableRow
                 key={row.id}
                 onClick={() => handleRoute(row.original.id)}
-                data-state={row.getIsSelected() ? "selected" : undefined}
-                className="cursor-pointer border-b border-sf-border/80 transition-colors last:border-b-0 hover:bg-sf-bg/60 data-[state=selected]:bg-sf-blue-bg/40"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    handleRoute(row.original.id);
+                  }
+                }}
+                tabIndex={0}
+                aria-label={`Open ${row.original.name}`}
+                className="cursor-pointer border-b border-sf-border/80 transition-colors last:border-b-0 hover:bg-sf-bg/60 focus-visible:bg-sf-bg/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sf-text/15"
               >
                 {row.getVisibleCells().map((cell) => {
                   const colId = cell.column.id;
                   const w =
-                    colId === "select"
-                      ? "w-10"
-                      : colId === "name"
-                        ? "w-[280px] max-w-[280px]"
-                        : "";
+                    colId === "name"
+                      ? "w-[280px] max-w-[280px]"
+                      : "";
                   const align =
-                    colId === "select" ||
                     colId === "type" ||
                     colId === "uptime" ||
                     colId === "trend" ||
+                    colId === "statusCode" ||
                     colId === "interval" ||
                     colId === "nextCheck" ||
                     colId === "state"

@@ -24,13 +24,13 @@ import { monitorDataProps } from "@/features/Overview/types";
 // url
 //     :
 //     "https://apple.com"
-// url_name
+// monitorName
 //     :
 //     "Test API"
 
 export const servicesStatus: monitorDataProps[] = [
   {
-    url_name: "Marketing Site",
+    monitorName: "Marketing Site",
     url: "https://uptimesentinel.io",
     uptime: 99.99,
     responseTime: 112,
@@ -45,7 +45,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "App Dashboard",
+    monitorName: "App Dashboard",
     url: "https://app.uptimesentinel.io",
     uptime: 99.97,
     responseTime: 168,
@@ -60,7 +60,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "API Gateway",
+    monitorName: "API Gateway",
     url: "https://api.uptimesentinel.io/health",
     uptime: 99.95,
     responseTime: 88,
@@ -75,7 +75,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Auth Service",
+    monitorName: "Auth Service",
     url: "https://auth.uptimesentinel.io",
     uptime: 99.92,
     responseTime: 134,
@@ -90,7 +90,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Checkout Service",
+    monitorName: "Checkout Service",
     url: "https://checkout.uptimesentinel.io",
     uptime: 98.41,
     responseTime: 503,
@@ -105,7 +105,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Payments Webhook",
+    monitorName: "Payments Webhook",
     url: "https://api.uptimesentinel.io/webhooks/payments",
     uptime: 99.88,
     responseTime: 224,
@@ -120,7 +120,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Search API",
+    monitorName: "Search API",
     url: "https://search.uptimesentinel.io",
     uptime: 99.9,
     responseTime: 176,
@@ -135,7 +135,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "CDN Images",
+    monitorName: "CDN Images",
     url: "https://cdn.uptimesentinel.io/images",
     uptime: 99.99,
     responseTime: 54,
@@ -150,7 +150,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Postgres Primary",
+    monitorName: "Postgres Primary",
     url: "tcp://db-primary.uptimesentinel.io:5432",
     uptime: 99.98,
     responseTime: 38,
@@ -165,7 +165,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Redis Cache",
+    monitorName: "Redis Cache",
     url: "tcp://redis.uptimesentinel.io:6379",
     uptime: 99.99,
     responseTime: 16,
@@ -180,7 +180,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Webhooks Dispatcher",
+    monitorName: "Webhooks Dispatcher",
     url: "https://api.uptimesentinel.io/dispatch",
     uptime: 99.84,
     responseTime: 252,
@@ -195,7 +195,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Email Service",
+    monitorName: "Email Service",
     url: "https://mail.uptimesentinel.io",
     uptime: 99.76,
     responseTime: 268,
@@ -210,7 +210,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Analytics Ingest",
+    monitorName: "Analytics Ingest",
     url: "https://ingest.uptimesentinel.io",
     uptime: 99.93,
     responseTime: 142,
@@ -225,7 +225,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Mobile API",
+    monitorName: "Mobile API",
     url: "https://mobile.uptimesentinel.io/v2",
     uptime: 99.91,
     responseTime: 198,
@@ -240,7 +240,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Status Page",
+    monitorName: "Status Page",
     url: "https://status.uptimesentinel.io",
     uptime: 100.0,
     responseTime: 72,
@@ -255,7 +255,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Docs",
+    monitorName: "Docs",
     url: "https://docs.uptimesentinel.io",
     uptime: 99.97,
     responseTime: 104,
@@ -270,7 +270,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Blog",
+    monitorName: "Blog",
     url: "https://blog.uptimesentinel.io",
     uptime: 99.99,
     responseTime: 126,
@@ -285,7 +285,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Admin Console",
+    monitorName: "Admin Console",
     url: "https://admin.uptimesentinel.io",
     uptime: 99.89,
     responseTime: 182,
@@ -300,7 +300,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Support Portal",
+    monitorName: "Support Portal",
     url: "https://support.uptimesentinel.io",
     uptime: 99.94,
     responseTime: 214,
@@ -315,7 +315,7 @@ export const servicesStatus: monitorDataProps[] = [
     ],
   },
   {
-    url_name: "Staging API",
+    monitorName: "Staging API",
     url: "https://staging-api.uptimesentinel.io",
     uptime: 97.2,
     responseTime: null,
@@ -326,7 +326,7 @@ export const servicesStatus: monitorDataProps[] = [
     trend: [],
   },
   {
-    url_name: "Internal Cron",
+    monitorName: "Internal Cron",
     url: "https://cron.uptimesentinel.io",
     uptime: 99.5,
     responseTime: null,

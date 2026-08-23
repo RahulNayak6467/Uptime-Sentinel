@@ -6,15 +6,18 @@ const monitorQueue = new Queue("monitor-checks", {
   connection: redis,
 });
 
+export type MonitorCheckJobData = {
+  user_id: string;
+  url_id: string;
+};
+
 export const addToQueue = async (
-  TIMEOUT: number,
   user_id: string,
   url_id: string,
 ) => {
   const addJob = await monitorQueue.add(
     "monitor-checks",
     {
-      TIMEOUT,
       user_id,
       url_id,
     },

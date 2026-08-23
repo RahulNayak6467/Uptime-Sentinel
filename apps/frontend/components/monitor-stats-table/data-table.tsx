@@ -122,7 +122,7 @@ export function DataTable<TData, TValue>({
               >
                 {row.getVisibleCells().map((cell) => {
                   const widthClass =
-                    cell.column.id === "url_name"
+                    cell.column.id === "monitorName"
                       ? "w-[190px] max-w-[190px]"
                       : cell.column.id === "url"
                         ? "w-[260px] max-w-[260px]"

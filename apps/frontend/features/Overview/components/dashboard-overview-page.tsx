@@ -9,7 +9,7 @@ const DashboardOverviewPage = () => {
   return (
     <div className="min-h-full">
       <OverviewHeaders />
-      <div className="sf-page-content space-y-6 pb-12">
+      <div className="sf-page-content space-y-5 pb-12">
         <SystemStatus />
         <IncidentAlert />
         <OverviewStats />

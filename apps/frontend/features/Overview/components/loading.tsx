@@ -11,7 +11,7 @@ const Loader = ({}: LoaderProps) => {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="sf-panel flex min-h-[154px] flex-col justify-between p-5"
+          className="sf-panel flex min-h-[132px] flex-col justify-between p-4"
         >
           <div className="flex items-center justify-between">
             <div className="h-2 w-20 rounded bg-sf-border animate-pulse" />

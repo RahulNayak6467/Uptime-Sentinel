@@ -11,7 +11,7 @@ export type OverviewStatsProps = {
 };
 
 export type monitorDataProps = {
-  url_name: string;
+  monitorName: string;
   url: string;
   uptime: number | null;
   responseTime: number | null;
@@ -34,7 +34,7 @@ export type DashboardOverviewResponse = {
 
 export type MonitorsDataProps = {
   url: string;
-  urlName: string;
+  monitorName: string;
   intervalSeconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
   next_check_at: Date;
@@ -43,9 +43,10 @@ export type MonitorsDataProps = {
 export type monitorDataDashboardOverview = {
   id: string;
   url: string;
-  urlName: string;
+  monitorName: string;
   intervalSeconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
+  monitorType: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
   nextCheckAt: string;
   response: {
     responseTime: number | null;
@@ -57,16 +58,17 @@ export type monitorDataDashboardOverview = {
 export type allMonitorsDataDashboardView = {
   id: string;
   url: string;
-  urlName: string;
+  monitorName: string;
   intervalSeconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
+  monitorType: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
   nextCheckAt: string;
   response: {
     responseTime: number | null;
   }[];
   avgResponseTime: number | null;
   uptimePercentage: number | null;
-  statusCode?: number | null;
+  statusCode: number | null;
 }[];
 
 export type allMonitorsDataDashboardViewProps = {
