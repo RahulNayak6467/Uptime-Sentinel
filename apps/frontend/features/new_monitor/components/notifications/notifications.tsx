@@ -41,11 +41,8 @@ const Notifications = () => {
           <div className="flex items-start gap-2 rounded-md border border-sf-border bg-sf-bg px-3 py-2.5">
             <Info className="mt-0.5 size-4 shrink-0 text-sf-text-muted" />
             <p className="font-sans text-[12px] leading-snug text-sf-text-sub">
-              Configure channel details (webhooks, Slack workspace, etc.) in{" "}
-              <a href="/settings/alerts" className="font-bold underline">
-                Alert settings
-              </a>
-              .
+              Incident alerts are delivered by email to your account address.
+              Additional channels (Slack, webhooks, SMS) are coming soon.
             </p>
           </div>
         </div>

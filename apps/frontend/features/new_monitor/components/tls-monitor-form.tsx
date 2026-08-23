@@ -5,16 +5,15 @@ import MonitorInfo from "./monitor-info/monitor-info";
 import MonitorPreview from "./monitor-preview/monitor-preview";
 import MonitorTypeInfo from "./monitor-types/monitor-type-info";
 import NewMonitorHeader from "./monitor-types/new-monitor-header";
-import MonitoringRegions from "./monitoring-regions/monitoring-regions";
 import Notifications from "./notifications/notifications";
 import TlsSettings from "./tls-settings/tls-settings";
 import SetupChecklist from "./setup-checklist";
 import SectionHeader from "./section-header";
 import ErrorMessage from "@/features/auth/error";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tlsMonitorProps, tlsMonitorSchema } from "../schemas/monitor-info";
-import { tlsCheckIntervals } from "../data";
+import { tlsCheckIntervals, tlsAlertEvents, defaultTlsAlertEvents } from "../data";
 import { useTlsRegister } from "../hooks/useTlsRegister";
 import { tlsRegisterPayloadProps } from "../types";
 import { intervalToSeconds } from "../utils/interval";
@@ -43,6 +42,7 @@ const TlsMonitorForm = ({ monitorType, onSelectType }: TlsMonitorFormProps) => {
       responseTimeThresholdMS: 5000,
       warningThresholdDays: 30,
       expiryAlertThresholds: "30, 14, 7, 1",
+      enabledAlerts: defaultTlsAlertEvents,
     },
   });
 
@@ -70,6 +70,7 @@ const TlsMonitorForm = ({ monitorType, onSelectType }: TlsMonitorFormProps) => {
       minTlsVersion: data.minTlsVersion,
       warningThresholdDays: data.warningThresholdDays,
       expiryAlertThresholds,
+      enabledAlerts: data.enabledAlerts,
       linkedMonitorId: null,
     };
 
@@ -135,7 +136,6 @@ const TlsMonitorForm = ({ monitorType, onSelectType }: TlsMonitorFormProps) => {
             error={errors.intervalSeconds?.message}
             intervals={tlsCheckIntervals}
           />
-          <MonitoringRegions />
           <div className="mt-4 w-full">
             <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
               <SectionHeader
@@ -167,6 +167,55 @@ const TlsMonitorForm = ({ monitorType, onSelectType }: TlsMonitorFormProps) => {
                   </div>
                   <ErrorMessage error={errors.responseTimeThresholdMS?.message} />
                 </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 w-full">
+            <div className="h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
+              <SectionHeader
+                step="06"
+                title="Alert events"
+                description="Choose which certificate events should trigger an alert"
+              />
+              <Controller
+                name="enabledAlerts"
+                control={control}
+                render={({ field }) => (
+                  <div className="grid gap-2 p-5 sm:grid-cols-2">
+                    {tlsAlertEvents.map((event) => {
+                      const checked = field.value?.includes(event.id) ?? false;
+                      return (
+                        <label
+                          key={event.id}
+                          className="flex cursor-pointer items-start gap-2.5 rounded-md border border-sf-border bg-sf-bg/40 px-3 py-2.5 transition-colors hover:border-sf-text-muted"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              const next = e.target.checked
+                                ? [...(field.value ?? []), event.id]
+                                : (field.value ?? []).filter((id) => id !== event.id);
+                              field.onChange(next);
+                            }}
+                            className="mt-0.5 size-4 shrink-0 accent-sf-blue"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-[13px] font-medium text-sf-text">
+                              {event.label}
+                            </span>
+                            <span className="block text-[12px] text-sf-text-muted">
+                              {event.description}
+                            </span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+              <div className="px-5 pb-4">
+                <ErrorMessage error={errors.enabledAlerts?.message} />
               </div>
             </div>
           </div>

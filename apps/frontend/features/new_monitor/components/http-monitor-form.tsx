@@ -6,7 +6,6 @@ import MonitorInfo from "./monitor-info/monitor-info";
 import MonitorPreview from "./monitor-preview/monitor-preview";
 import MonitorTypeInfo from "./monitor-types/monitor-type-info";
 import NewMonitorHeader from "./monitor-types/new-monitor-header";
-import MonitoringRegions from "./monitoring-regions/monitoring-regions";
 import Notifications from "./notifications/notifications";
 import RequestType from "./request-settings/request-type";
 import AdditionalChecks, { AdditionalChecksState } from "./additional-checks/additional-checks";
@@ -15,7 +14,7 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { httpMonitorProps, httpMonitorSchema } from "../schemas/monitor-info";
-import { checkIntervals } from "../data";
+import { checkIntervals, defaultTlsAlertEvents } from "../data";
 import { useUrlRegister } from "../hooks/useUrlRegister";
 import { useTlsRegister } from "../hooks/useTlsRegister";
 import { intervalToSeconds } from "../utils/interval";
@@ -87,6 +86,7 @@ const HttpMonitorForm = ({ monitorType, onSelectType }: HttpMonitorFormProps) =>
       minTlsVersion: cfg.minVersion as tlsRegisterPayloadProps["minTlsVersion"],
       warningThresholdDays: Number(cfg.warningDays),
       expiryAlertThresholds,
+      enabledAlerts: defaultTlsAlertEvents,
       linkedMonitorId,
     };
   };
@@ -190,7 +190,6 @@ const HttpMonitorForm = ({ monitorType, onSelectType }: HttpMonitorFormProps) =>
             intervals={checkIntervals}
           />
           <AdditionalChecks onChange={setAdditionalChecks} />
-          <MonitoringRegions />
           <AlertConditions
             control={control}
             errors={{

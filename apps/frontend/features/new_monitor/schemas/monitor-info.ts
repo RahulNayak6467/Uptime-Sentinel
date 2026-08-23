@@ -160,6 +160,20 @@ export const tlsMonitorSchema = z.object({
   intervalSeconds: z.enum(["1h", "3h", "6h", "12h", "24h"], {
     error: "Choose among these check interval values",
   }),
+
+  enabledAlerts: z
+    .array(
+      z.enum([
+        "expiring",
+        "expired_or_invalid",
+        "hostname_mismatch",
+        "renewal",
+        "revocation",
+        "weak_config",
+        "recovery",
+      ]),
+    )
+    .min(1, { message: "Enable at least one alert event" }),
 });
 
 export const monitorInfoSchema = z.discriminatedUnion("monitorType", [

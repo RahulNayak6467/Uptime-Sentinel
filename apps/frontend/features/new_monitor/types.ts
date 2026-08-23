@@ -67,5 +67,6 @@ export type tlsRegisterPayloadProps = {
   minTlsVersion: tlsMonitorProps["minTlsVersion"];
   warningThresholdDays: number;
   expiryAlertThresholds: number[];
+  enabledAlerts: tlsMonitorProps["enabledAlerts"];
   linkedMonitorId: string | null;
 };

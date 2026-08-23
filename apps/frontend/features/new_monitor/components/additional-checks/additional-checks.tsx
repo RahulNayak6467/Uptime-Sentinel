@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShieldCheck, Globe, Plug, Pencil, X, type LucideIcon } from "lucide-react";
+import { ShieldCheck, Pencil, X, type LucideIcon } from "lucide-react";
 import SectionHeader from "../section-header";
 
 export type CheckKey = "tls" | "dns" | "tcp";
@@ -26,18 +26,6 @@ const checks: CheckDef[] = [
     icon: ShieldCheck,
     label: "TLS certificate",
     description: "Expiry, chain of trust, and validation for this host.",
-  },
-  {
-    key: "dns",
-    icon: Globe,
-    label: "DNS records",
-    description: "Resolution health and record changes.",
-  },
-  {
-    key: "tcp",
-    icon: Plug,
-    label: "TCP port",
-    description: "Raw port reachability and connect latency.",
   },
 ];
 
@@ -338,7 +326,7 @@ const AdditionalChecks = ({
       <div className="relative h-full w-full overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-sm">
         <SectionHeader
           title="Additional checks"
-          description="Also monitor this host's certificate, DNS, and TCP reachability. Each runs as its own monitor on its own schedule."
+          description="Also monitor this host's TLS certificate. It runs as its own monitor on its own schedule."
           badge={selectedCount > 0 ? `${selectedCount} selected` : "Optional"}
         />
         <div className="divide-y divide-sf-border">
