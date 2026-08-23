@@ -26,7 +26,7 @@ export const getIncidentsDetailsById = async (
     left join monitor m on m.id = i.monitor_id
     where m.user_id = $1 and m.id = $2
     ORDER BY i.started_at DESC
-    LIMIT 10
+    LIMIT $3
   `;
   const incidents_info_values = [user_id, url_id, LIMIT_RECENT_INCIDENTS];
   try {

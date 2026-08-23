@@ -1,4 +1,4 @@
-export type MonitorType = "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+export type MonitorType = "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
 export type MonitorState = "up" | "down" | "degraded" | "paused" | "unknown";
 
 export type MonitorPageData = {

@@ -70,7 +70,6 @@ const RecentAlerts = () => {
       dot: email.type === "recovery" ? "bg-sf-green" : "bg-sf-red",
       subject: `${email.monitorName} ${subject[email.type]}`,
       monitor: email.monitorName,
-      recipients: 4,
       sent: formatTimeAgo(email.sentAt),
       delivery: email.status === "sent" ? "Delivered" : "Failed",
     };
@@ -96,8 +95,8 @@ const RecentAlerts = () => {
 
       <div className="overflow-x-auto px-4">
         <div className="min-w-[720px]">
-        <div className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-2.5 border-b border-sf-border">
-          {["Event", "Subject", "Recipients", "Sent", "Delivery"].map((col) => (
+        <div className="grid grid-cols-[120px_1fr_80px_100px] gap-4 py-2.5 border-b border-sf-border">
+          {["Event", "Subject", "Sent", "Delivery"].map((col) => (
             <span
               key={col}
               className="font-sans text-[10px] font-semibold uppercase tracking-widest text-sf-text-muted"
@@ -123,7 +122,7 @@ const RecentAlerts = () => {
             {requiredData.map((alert,index) => (
               <div
                 key={`${alert.id}-${index}`}
-                className="grid grid-cols-[120px_1fr_120px_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
+                className="grid grid-cols-[120px_1fr_80px_100px] gap-4 py-3 items-center px-2 -mx-2 rounded-sf hover:bg-sf-border-faint/60 transition-colors"
               >
                 <span
                   className={`w-fit text-xs font-semibold font-sans border rounded-md px-2 py-0.5 ${eventBadgeClass[alert.event]}`}
@@ -144,10 +143,6 @@ const RecentAlerts = () => {
                     {alert.monitor}
                   </span>
                 </div>
-
-                <span className="text-[13px] font-sans text-sf-text-sub">
-                  {alert.recipients} recipients
-                </span>
 
                 <span className="text-[13px] font-sans text-sf-text-muted">
                   {alert.sent}

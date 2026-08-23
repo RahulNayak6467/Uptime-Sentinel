@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { RowSelectionState } from "@tanstack/react-table";
 import MonitorsHeader from "./monitors-header";
-import MonitorsFilterTabs from "./monitors-filter-tabs";
+import MonitorsFilterTabs, { type MonitorTab } from "./monitors-filter-tabs";
 import { MonitorsDataTable } from "./data-table";
-import BulkActionBar from "./bulk-action-bar";
 import { columns } from "./columns";
 import { MonitorPageData, MonitorState } from "./types";
 import { formatTimeUntil } from "@/utils/format-time-until";
@@ -17,8 +15,10 @@ import { useSSEMonitorsData } from "./hooks/useSSEMonitorsData";
 import { useIsFetching } from "@tanstack/react-query";
 import { FetchingIndicator } from "@/components/ui/fetching-indicator";
 import { formatCheckInterval } from "@/utils/format-check-interval";
+import { useDashboardOverview } from "@/features/Overview/hooks/useDashboardOverview";
+import MonitorSummary from "./monitor-summary";
 
-type Tab = "all" | MonitorState;
+type Tab = MonitorTab;
 
 const normalizeMonitorState = (
   status: "UP" | "DOWN" | "UNKNOWN",
@@ -31,11 +31,14 @@ const normalizeMonitorState = (
 const MonitorsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("all");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const isFetchingMonitors =
     useIsFetching({ queryKey: ["all monitors data by status"] }) > 0;
-
-  const selectedCount = Object.keys(rowSelection).length;
+  const {
+    data: overview,
+    isLoading: isOverviewLoading,
+    isFetching: isOverviewFetching,
+    refetch: refetchOverview,
+  } = useDashboardOverview();
 
   const onChange = (tab: Tab) => {
     setActiveTab(() => tab);
@@ -75,8 +78,32 @@ const MonitorsPage = () => {
   }
 
   const { totalPage } = monitorTableData.pagination;
+  const unknownCount = overview
+    ? Math.max(
+        overview.total_monitors -
+          overview.up_count -
+          overview.down_count -
+          overview.paused_monitors,
+        0,
+      )
+    : undefined;
+  const tabCounts = overview
+    ? {
+        all: overview.total_monitors,
+        up: overview.up_count,
+        down: overview.down_count,
+        unknown: unknownCount,
+        paused: overview.paused_monitors,
+      }
+    : undefined;
+  const filteredTotalPage =
+    activeTab === "all" || !tabCounts
+      ? totalPage
+      : Math.max(1, Math.ceil((tabCounts[activeTab] ?? 0) / LIMIT));
 
   const requiredData: MonitorPageData[] = monitorTableData.data.map((el) => {
+    const isPaused = activeTab === "paused";
+
     return {
       id: el.id,
       name: el.monitorName,
@@ -87,8 +114,8 @@ const MonitorsPage = () => {
       statusCode: el.statusCode,
       type: el.monitorType,
       interval: formatCheckInterval(el.intervalSeconds),
-      nextCheck: formatTimeUntil(el.nextCheckAt),
-      state: normalizeMonitorState(el.status),
+      nextCheck: isPaused ? "Checks paused" : formatTimeUntil(el.nextCheckAt),
+      state: isPaused ? "paused" : normalizeMonitorState(el.status),
       trend: el.response
         .slice(-26)
         .map((res) => res.responseTime)
@@ -99,30 +126,32 @@ const MonitorsPage = () => {
   return (
     <section className="min-h-full">
       <MonitorsHeader
-        onRefresh={() => void refetch()}
-        isRefreshing={isFetchingMonitors}
+        onRefresh={() => void Promise.all([refetch(), refetchOverview()])}
+        isRefreshing={isFetchingMonitors || isOverviewFetching}
       />
       <div className="sf-page-content pb-12">
-        <MonitorsFilterTabs active={activeTab} onChange={onChange} />
-        <div className="relative mt-5 flex flex-col gap-3">
+        <MonitorSummary data={overview} isLoading={isOverviewLoading} />
+
+        <div className="mt-6">
+          <MonitorsFilterTabs
+            active={activeTab}
+            counts={tabCounts}
+            onChange={onChange}
+          />
+        </div>
+
+        <div className="relative mt-4 flex flex-col gap-3">
           <FetchingIndicator
             active={isFetchingMonitors && !isLoading}
             label="Updating monitors"
           />
-          {selectedCount > 0 && (
-            <BulkActionBar
-              count={selectedCount}
-              onClear={() => setRowSelection({})}
-            />
-          )}
           <MonitorsDataTable
             onChangePage={onChangePage}
             currentPage={currentPage}
-            totalPage={totalPage}
+            totalPage={filteredTotalPage}
             columns={columns}
             data={requiredData}
-            rowSelection={rowSelection}
-            onRowSelectionChange={setRowSelection}
+            activeFilter={activeTab}
             isFiltered={activeTab !== "all"}
             onClearFilter={clearFilter}
           />

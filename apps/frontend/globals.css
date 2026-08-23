@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@source "./features/landing-page";
+@source "./features/landing-page3";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -27,6 +29,9 @@
   --color-sf-orange: #ea580c;
   --color-sf-blue: #5e6ad2;
   --color-sf-blue-bg: #f0f1ff;
+  --color-sf-purple: #8b5cf6;
+  --color-sf-purple-bg: #f4f0ff;
+  --color-sf-purple-border: #d9c9f7;
   --color-sf-btn-hover: #34343a;
   --color-sf-btn-active: #45454d;
   --color-sf-btn-disabled: #d7d7dc;
@@ -207,6 +212,9 @@
   --color-sf-orange: #fb923c;
   --color-sf-blue: #7c82e8;
   --color-sf-blue-bg: #1b1c31;
+  --color-sf-purple: #a78bfa;
+  --color-sf-purple-bg: #1c1630;
+  --color-sf-purple-border: #3a2d5c;
   --color-sf-btn-hover: #d7d7dc;
   --color-sf-btn-active: #c6c6cc;
   --color-sf-btn-disabled: #303036;
@@ -267,6 +275,55 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.025),
       0 1px 2px rgba(0, 0, 0, 0.32),
       0 10px 28px rgba(0, 0, 0, 0.16);
+  }
+
+  /* Shared dark palette for DNS, TCP, TLS, and multi-region detail views. */
+  .protocol-detail-theme {
+    --sf-protocol-accent: #5e6ad2;
+    --sf-protocol-accent-soft: #f0f1ff;
+    --sf-protocol-accent-border: #cfd3f4;
+    --sf-percentile-p95: #258c7d;
+    --sf-percentile-p99: #b7791f;
+    --sf-percentile-p999: #b84f7c;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .protocol-detail-theme .sf-panel {
+    border: 1px solid var(--color-sf-border);
+    border-radius: 10px;
+    background-color: var(--color-sf-surface);
+    box-shadow: none;
+    transition: none;
+  }
+
+  .dark .protocol-detail-theme {
+    --sf-protocol-accent: #7c82e8;
+    --sf-protocol-accent-soft: #1b1c31;
+    --sf-protocol-accent-border: #36395f;
+    --sf-percentile-p95: #45b8a5;
+    --sf-percentile-p99: #d7a453;
+    --sf-percentile-p999: #d978a3;
+    --color-sf-bg: #08090a;
+    --color-sf-surface: #0b0b0d;
+    --color-sf-border: #1c1d22;
+    --color-sf-border-faint: #141518;
+    --color-sf-text: #f7f8f8;
+    --color-sf-text-sub: #9297a0;
+    --color-sf-text-muted: #777c85;
+    --color-sf-green: #4cc38a;
+    --color-sf-green-bg: #0c1d16;
+    --color-sf-green-border: #173f2e;
+    --color-sf-amber: #e0a852;
+    --color-sf-amber-bg: #201a0d;
+    --color-sf-amber-border: #43341a;
+    --color-sf-red: #ef6a6f;
+    --color-sf-red-bg: #231518;
+    --color-sf-red-border: #4a2529;
+  }
+
+  .protocol-detail-theme ::selection {
+    background: rgba(94, 106, 210, 0.35);
   }
 }
 

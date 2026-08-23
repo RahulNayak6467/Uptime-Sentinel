@@ -21,7 +21,7 @@ const IndividualMonitorCharts = () => {
             Response time
           </p>
           <p className="mt-1 font-sans text-xs text-sf-text-muted">
-            p50 (solid) vs p95 (dashed) · last {range}
+            p50 median and p95 tail latency · last {range}
           </p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
@@ -63,25 +63,21 @@ const IndividualMonitorCharts = () => {
       <div className="px-5 pt-4">
         <ResponseTimeTrend  currentRange={range}/>
       </div>
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-sf-border bg-sf-bg/25 px-5 py-3">
-        <div className="flex items-center gap-1.5">
-          <span
-            style={{ backgroundColor: "var(--color-sf-green)" }}
-            className="h-0.5 w-6 rounded-xs"
-          />
-          <p className="font-sans text-xs font-semibold text-sf-text-muted">
-            p50 · median
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span
-            style={{ borderColor: "var(--color-sf-amber)" }}
-            className="w-6 border-t-2 border-dashed"
-          />
-          <p className="font-sans text-xs font-semibold text-sf-text-muted">
-            p95 · tail latency
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-sf-border bg-sf-bg/25 px-5 py-3">
+        {[
+          ["p50 · median", "var(--color-sf-green)"],
+          ["p95 · tail latency", "var(--color-sf-amber)"],
+        ].map(([label, color], index) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <span
+              style={{ borderColor: color }}
+              className={`w-5 border-t-2 ${index === 1 ? "border-dashed" : ""}`}
+            />
+            <p className="font-sans text-[11px] font-semibold text-sf-text-muted">
+              {label}
+            </p>
+          </div>
+        ))}
         <div className="flex items-center gap-1.5">
           <span
             style={{ borderColor: "var(--color-sf-red)" }}
@@ -93,6 +89,9 @@ const IndividualMonitorCharts = () => {
               : "Loading threshold…"}
           </p>
         </div>
+        <span className="ml-auto text-[10px] text-sf-text-muted">
+          Additional percentiles are shown below the chart
+        </span>
       </div>
     </section>
   );

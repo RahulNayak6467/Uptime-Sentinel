@@ -244,7 +244,11 @@ export const ResponseTimeTrend = ({
     return {
       bucket: formatChartDate(item.bucket, data.range as ChartTimeRange),
       p50Data: item.p50 === null ? null : Math.round(item.p50),
+      p75Data: item.p75 === null ? null : Math.round(item.p75),
+      p90Data: item.p90 === null ? null : Math.round(item.p90),
       p95Data: item.p95 === null ? null : Math.round(item.p95),
+      p99Data: item.p99 === null ? null : Math.round(item.p99),
+      p999Data: item.p999 === null ? null : Math.round(item.p999),
     };
   });
 
@@ -258,8 +262,14 @@ export const ResponseTimeTrend = ({
     (item) => item.p50Data !== null || item.p95Data !== null,
   ).length;
 
-  const green = isDark ? "#4cb782" : "#269765";
-  const amber = isDark ? "#d7a453" : "#b7791f";
+  const percentileColors: Record<string, string> = {
+    p50: isDark ? "#4cb782" : "#269765",
+    p75: isDark ? "#9b8afb" : "#7c64d5",
+    p90: isDark ? "#45b8a5" : "#258c7d",
+    p95: isDark ? "#d7a453" : "#b7791f",
+    p99: isDark ? "#d7a453" : "#b7791f",
+    "p99.9": isDark ? "#d978a3" : "#b84f7c",
+  };
   const red = isDark ? "#e96b72" : "#d14d56";
   const axisLine = isDark ? "#1e1e22" : "#e2e2e5";
 
@@ -322,9 +332,10 @@ export const ResponseTimeTrend = ({
               typeof p.value === "number" && Number.isFinite(p.value)
                 ? `${p.value}ms`
                 : "No data";
-            const label = p.seriesName === "p50" ? "p50 · median" : "p95 · tail";
+            const label = p.seriesName === "p50" ? "p50 · median" : p.seriesName;
+            const color = percentileColors[p.seriesName] ?? percentileColors.p50;
 
-            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:5px"><span><span style="color:${p.seriesName === "p50" ? green : amber}">●</span> ${label}</span><b>${value}</b></div>`;
+            return `<div style="display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:5px"><span><span style="color:${color}">●</span> ${label}</span><b>${value}</b></div>`;
           })
           .join("");
         const breach = params.some(
@@ -353,64 +364,41 @@ export const ResponseTimeTrend = ({
       splitLine: { lineStyle: { type: "dashed", opacity: 0.5 } },
     },
     series: [
-      {
-        name: "p50",
-        type: "line",
-        smooth: 0.18,
-        data: p50Data,
-        connectNulls: false,
-        showSymbol: true,
-        emphasis: { focus: "series", scale: true },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: green + "28" },
-              { offset: 1, color: green + "00" },
-            ],
-          },
-        },
-        itemStyle: { color: green },
-        lineStyle: { color: green, width: 2 },
-        symbol: "circle",
-        symbolSize: 4,
-        markLine: {
-          silent: true,
-          symbol: "none",
-          lineStyle: { color: red, type: "dashed", width: 1 },
-          label: {
-            formatter: `Threshold ${threshold}ms`,
-            color: red,
-            fontSize: 10,
-            position: "insideEndTop",
-          },
-          data: [{ yAxis: threshold }],
-        },
-        markArea: {
-          silent: true,
-          itemStyle: { color: red + "12" },
-          data: [[{ yAxis: threshold }, { yAxis: yAxisMax }]],
-        },
+      { name: "p50", data: p50Data, type: "solid", width: 2 },
+      { name: "p95", data: p95Data, type: "dashed", width: 1.45 },
+    ].map((series, index) => ({
+      name: series.name,
+      type: "line",
+      smooth: 0.18,
+      data: series.data,
+      connectNulls: false,
+      showSymbol: false,
+      emphasis: { focus: "series" },
+      itemStyle: { color: percentileColors[series.name] },
+      lineStyle: {
+        color: percentileColors[series.name],
+        width: series.width,
+        type: series.type,
+        opacity: index === 0 ? 1 : 0.88,
       },
-      {
-        name: "p95",
-        type: "line",
-        smooth: 0.18,
-        data: p95Data,
-        connectNulls: false,
-        showSymbol: true,
-        emphasis: { focus: "series", scale: true },
-        areaStyle: null,
-        itemStyle: { color: amber },
-        lineStyle: { color: amber, width: 1.5, type: "dashed", dashOffset: 4 },
-        symbol: "circle",
-        symbolSize: 4,
-      },
-    ],
+      markLine: index === 0 ? {
+        silent: true,
+        symbol: "none",
+        lineStyle: { color: red, type: "dashed", width: 1 },
+        label: {
+          formatter: `Threshold ${threshold}ms`,
+          color: red,
+          fontSize: 10,
+          position: "insideEndTop",
+        },
+        data: [{ yAxis: threshold }],
+      } : undefined,
+      markArea: index === 0 ? {
+        silent: true,
+        itemStyle: { color: red + "0d" },
+        data: [[{ yAxis: threshold }, { yAxis: yAxisMax }]],
+      } : undefined,
+    })),
     grid: { left: 8, right: 8, top: 28, bottom: 4, containLabel: true },
   };
 
@@ -420,30 +408,22 @@ export const ResponseTimeTrend = ({
         active={isFetchingChart && !isLoading}
         label="Updating response time chart"
       />
-      <div className="grid gap-2 sm:grid-cols-3">
-        <ChartSummaryItem
-          label="Latest bucket p50"
-          value={
-            latestBucket?.p50Data === null || latestBucket?.p50Data === undefined
-              ? "—"
-              : `${latestBucket.p50Data}ms`
-          }
-          context={latestBucket?.bucket}
-        />
-        <ChartSummaryItem
-          label="Latest bucket p95"
-          value={
-            latestBucket?.p95Data === null || latestBucket?.p95Data === undefined
-              ? "—"
-              : `${latestBucket.p95Data}ms`
-          }
-          context={latestBucket?.bucket}
-        />
-        <ChartSummaryItem
-          label="Buckets with data"
-          value={`${measuredBucketCount} / ${bucketData.length}`}
-          context="Selected range"
-        />
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+        {[
+          ["p50", latestBucket?.p50Data],
+          ["p75", latestBucket?.p75Data],
+          ["p90", latestBucket?.p90Data],
+          ["p95", latestBucket?.p95Data],
+          ["p99", latestBucket?.p99Data],
+          ["p99.9", latestBucket?.p999Data],
+        ].map(([label, value]) => (
+          <ChartSummaryItem
+            key={label}
+            label={`Latest ${label}`}
+            value={typeof value === "number" ? `${value}ms` : "—"}
+            context={latestBucket?.bucket ?? `${measuredBucketCount} / ${bucketData.length} buckets`}
+          />
+        ))}
       </div>
 
       {hasSeriesData ? (

@@ -27,7 +27,6 @@ export const getIncidentsTimeline = async (
       limit,
       offset,
       pageNumber,
-      status,
     );
     return res.status(200).json(getTimeline);
   } catch (err) {

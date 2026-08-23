@@ -53,11 +53,13 @@ const TONE: Record<Tone, ToneStyle> = {
     tint: "bg-sf-red-bg/45",
   },
   info: {
-    text: "text-sf-blue",
-    soft: "bg-sf-blue/10 text-sf-blue",
-    pill: "border-sf-blue/30 bg-sf-blue-bg text-sf-blue",
-    solid: "bg-sf-blue",
-    tint: "bg-sf-blue-bg/45",
+    text: "text-[var(--sf-protocol-accent)]",
+    soft:
+      "bg-[var(--sf-protocol-accent-soft)] text-[var(--sf-protocol-accent)]",
+    pill:
+      "border-[var(--sf-protocol-accent-border)] bg-[var(--sf-protocol-accent-soft)] text-[var(--sf-protocol-accent)]",
+    solid: "bg-[var(--sf-protocol-accent)]",
+    tint: "bg-[var(--sf-protocol-accent-soft)]",
   },
 };
 
@@ -70,6 +72,14 @@ const TONE_ICON: Record<Tone, LucideIcon> = {
 };
 
 export const toneStyle = (tone: Tone) => TONE[tone];
+
+/** Number of stat columns on wide screens, keyed by how many stats there are,
+ *  so a 6-stat header sits in one clean row (matching the reference). */
+const STAT_COLS: Record<number, string> = {
+  4: "xl:grid-cols-4",
+  5: "xl:grid-cols-5",
+  6: "xl:grid-cols-6",
+};
 
 /* ------------------------------------------------------------------ */
 /* Layout shells                                                       */
@@ -498,11 +508,8 @@ export const MonitorHeader = ({
             <Icon className="size-[18px]" strokeWidth={1.8} />
           </span>
           <div className="min-w-0">
-            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
-              Infrastructure health
-            </p>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="text-xl font-semibold tracking-[-0.03em] text-sf-text">
+              <h2 className="text-2xl font-semibold tracking-[-0.03em] text-sf-text">
                 {title}
               </h2>
               {status}
@@ -521,28 +528,30 @@ export const MonitorHeader = ({
         </div>
       </div>
     </div>
-    <dl className="grid border-t border-sf-border-faint sm:grid-cols-2 xl:grid-cols-4">
-      {stats.map((stat, index) => (
-        <div
-          key={stat.label}
-          className={`px-5 py-4 sm:px-6 ${
-            index > 0 ? "border-t border-sf-border-faint" : ""
-          } ${
-            index === 1 ? "sm:border-t-0" : ""
-          } sm:odd:border-r sm:odd:border-sf-border-faint xl:border-t-0 xl:border-r xl:border-sf-border-faint xl:last:border-r-0`}
-        >
-          <dt className="text-[10px] font-semibold uppercase tracking-[0.11em] text-sf-text-muted">
+    <dl
+      className={`grid grid-cols-2 gap-px border-t border-sf-border-faint bg-sf-border-faint sm:grid-cols-3 ${
+        STAT_COLS[stats.length] ?? "xl:grid-cols-4"
+      }`}
+    >
+      {stats.map((stat) => (
+        <div key={stat.label} className="bg-sf-surface px-5 py-5 sm:px-6">
+          <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.11em] text-sf-text-muted">
+            {stat.tone ? (
+              <span className={`size-1.5 rounded-full ${TONE[stat.tone].solid}`} />
+            ) : null}
             {stat.label}
           </dt>
           <dd
-            className={`mt-2 text-xl font-semibold leading-none tracking-[-0.03em] tabular-nums ${
+            className={`mt-2.5 text-[26px] font-semibold leading-none tracking-[-0.03em] tabular-nums ${
               stat.tone ? TONE[stat.tone].text : "text-sf-text"
             }`}
           >
             {stat.value}
           </dd>
           {stat.hint ? (
-            <dd className="mt-1.5 text-xs text-sf-text-muted">{stat.hint}</dd>
+            <dd className="mt-2 text-[11px] leading-relaxed text-sf-text-muted">
+              {stat.hint}
+            </dd>
           ) : null}
         </div>
       ))}
@@ -578,5 +587,55 @@ export const MiniStat = ({
     <p className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.08em] text-sf-text-muted">
       {label}
     </p>
+  </div>
+);
+
+export type PercentileMetric = {
+  label: ReactNode;
+  value: ReactNode;
+  unit?: string;
+  tone?: Tone;
+  color?: string;
+};
+
+/** A compact, responsive statistical summary for timing charts. */
+export const PercentileStrip = ({
+  metrics,
+  ariaLabel = "Latency percentile summary",
+}: {
+  metrics: PercentileMetric[];
+  ariaLabel?: string;
+}) => (
+  <div className="border-t border-sf-border-faint bg-sf-border-faint">
+    <div
+      role="list"
+      aria-label={ariaLabel}
+      className="grid grid-cols-3 gap-px sm:grid-cols-5 xl:grid-cols-9"
+    >
+      {metrics.map((metric) => (
+        <div
+          key={String(metric.label)}
+          role="listitem"
+          className="bg-sf-surface px-2 py-2.5 text-center"
+        >
+          <p
+            className={`text-[14px] font-semibold leading-none tabular-nums ${
+              metric.tone ? TONE[metric.tone].text : "text-sf-text"
+            }`}
+            style={metric.color ? { color: metric.color } : undefined}
+          >
+            {metric.value}
+            {metric.unit ? (
+              <span className="ml-0.5 text-[10px] font-medium text-sf-text-muted">
+                {metric.unit}
+              </span>
+            ) : null}
+          </p>
+          <p className="mt-1.5 text-[9.5px] font-semibold uppercase tracking-[0.08em] text-sf-text-muted">
+            {metric.label}
+          </p>
+        </div>
+      ))}
+    </div>
   </div>
 );

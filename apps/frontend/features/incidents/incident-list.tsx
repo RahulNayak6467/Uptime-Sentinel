@@ -2,6 +2,7 @@
 import { CheckCircle2, ChevronDown, ExternalLink } from "lucide-react";
 import {
   IncidentListItemProps,
+  IncidentStatusFilter,
   IncidentUpdate,
   IncidentUpdateStatus,
 } from "./types";
@@ -56,7 +57,7 @@ const IncidentDetailsCard = ({
 
   return (
     <div
-      className={`overflow-hidden rounded-lg border border-sf-border bg-sf-surface shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition-colors hover:border-sf-text-muted/50 ${
+      className={`overflow-hidden rounded-[8px] border border-sf-border bg-sf-surface transition-colors ${
         isActive ? "border-l-2 border-l-sf-red" : ""
       }`}
     >
@@ -72,7 +73,7 @@ const IncidentDetailsCard = ({
             setIsOpen((open) => !open);
           }
         }}
-        className="flex cursor-pointer flex-col gap-3 px-4 py-4 transition-colors hover:bg-sf-bg/45 sm:flex-row sm:items-start sm:px-5"
+        className="flex cursor-pointer flex-col gap-3 px-4 py-3.5 transition-colors hover:bg-sf-bg/40 sm:flex-row sm:items-start sm:px-5"
       >
         <div className="flex w-full min-w-0 items-start gap-3 sm:flex-1">
           <span
@@ -88,7 +89,7 @@ const IncidentDetailsCard = ({
               {incident.title ?? "Untitled incident"}
             </h2>
             <span
-              className={`rounded-sf border px-2 py-0.5 text-xs font-semibold ${
+              className={`rounded-[4px] border px-1.5 py-0.5 text-[10px] font-semibold ${
                 isActive
                   ? "border-sf-red/30 bg-sf-red-bg text-sf-red"
                   : "border-sf-green/30 bg-sf-green-bg text-sf-green"
@@ -96,14 +97,23 @@ const IncidentDetailsCard = ({
             >
               {isActive ? "Active" : "Resolved"}
             </span>
+            <span className="rounded-[4px] border border-sf-border bg-sf-bg px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-sf-text-muted">
+              {incident.monitorType}
+            </span>
           </div>
 
-          <p className="mt-1 text-xs text-sf-text-muted">
-            <span className="font-medium text-sf-text-sub">
-              {incident.service}
-            </span>{" "}
-            · {incident.date} · {incident.time}
+          <p className="mt-1 truncate font-mono text-[11px] text-sf-text-muted">
+            {incident.endpoint}
           </p>
+          <p className="mt-1 text-[11px] text-sf-text-muted">
+            Started {incident.date} · {incident.time}
+          </p>
+
+          {incident.failureReason ? (
+            <p className="mt-2 line-clamp-1 text-[11px] text-sf-red">
+              {incident.failureReason}
+            </p>
+          ) : null}
 
           {incident.status === "active" &&
           !hasUserDetails ? (
@@ -149,9 +159,9 @@ const IncidentDetailsCard = ({
             transition={{ duration: reduceMotion ? 0 : 0.2, ease: "easeOut" }}
             className="overflow-hidden"
           >
-      <div className="border-t border-sf-border bg-sf-bg/35 p-4 sm:p-5">
+      <div className="border-t border-sf-border bg-sf-bg/30 p-4 sm:p-5">
         <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="self-start overflow-hidden rounded-lg border border-sf-border bg-sf-surface">
+        <aside className="self-start overflow-hidden rounded-[7px] border border-sf-border bg-sf-surface">
           <div className="flex items-center justify-between border-b border-sf-border px-5 py-3.5">
             <div className="flex items-center gap-2">
               <span className={`size-2 rounded-full ${isActive ? "bg-sf-red" : "bg-sf-green"}`} />
@@ -177,7 +187,9 @@ const IncidentDetailsCard = ({
           </div>
 
           <div>
-            <IncidentField label="Started" value={incident.startedAtDisplay} />
+            <IncidentField label="Monitor" value={incident.service} />
+            <IncidentField label="Monitor type" value={incident.monitorType.toUpperCase()} bordered />
+            <IncidentField label="Started" value={incident.startedAtDisplay} bordered />
             <IncidentField
               label="Resolved"
               value={incident.resolvedAt ?? "Ongoing"}
@@ -191,7 +203,7 @@ const IncidentDetailsCard = ({
           </div>
         </aside>
 
-        <div className="min-w-0 rounded-lg border border-sf-border bg-sf-surface p-5">
+        <div className="min-w-0 rounded-[7px] border border-sf-border bg-sf-surface p-4 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <p className="text-sm font-semibold text-sf-text">
             Incident timeline
@@ -297,6 +309,8 @@ const IncidentField = ({
 const IncidentList = () => {
   const reduceMotion = useReducedMotion();
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [statusFilter, setStatusFilter] =
+    useState<IncidentStatusFilter>("all");
   const [modalTarget, setModalTarget] = useState<{
     incident: IncidentListItemProps;
     editUpdate?: IncidentUpdate;
@@ -307,13 +321,21 @@ const IncidentList = () => {
     isFetching,
     isError: allIncidentDataError,
     refetch,
-  } = useAllIncidentsData(INCIDENT_PAGE_LIMIT, currentPage);
+  } = useAllIncidentsData(
+    INCIDENT_PAGE_LIMIT,
+    currentPage,
+    statusFilter,
+  );
 
   const {
     data: incidentTimelineData,
     isLoading: incidentTimelineLoading,
     isError: incidentTimelineError,
-  } = useIncidentsTimeline(INCIDENT_PAGE_LIMIT, currentPage);
+  } = useIncidentsTimeline(
+    INCIDENT_PAGE_LIMIT,
+    currentPage,
+    statusFilter,
+  );
   const isPageFetching = isFetching && !allIncidentDataLoading;
 
   if (allIncidentDataLoading || incidentTimelineLoading) {
@@ -347,7 +369,8 @@ const IncidentList = () => {
       const started = formatIncidentTimestamp(el.startedAt);
 
       return {
-        title: timelinePropsMap.get(el.id)?.title,
+        title:
+          timelinePropsMap.get(el.id)?.title ?? `${el.monitorName} outage`,
         id: `incidents-details-id-${el.id}`,
         incidentId: el.id,
         status: el.isActive ? "active" : "resolved",
@@ -361,16 +384,24 @@ const IncidentList = () => {
         resolvedAt: el.resolvedAt
           ? formatIncidentTimestamp(el.resolvedAt).dateTime
           : undefined,
-        triggerLabel: "HTTP status",
-        triggerValue: "503",
+        triggerLabel: "Failure trigger",
+        triggerValue:
+          el.failureStatusCode === null
+            ? el.failureReason ?? "No failure detail recorded"
+            : `HTTP ${el.failureStatusCode}`,
+        monitorType: el.monitorType,
+        failureReason: el.failureReason ?? undefined,
         expanded: false,
         updates: timelinePropsMap.get(el.id)?.updates ?? [],
       };
     },
   );
 
-  // console.log(requiredData);
-  const activeCount = requiredData.filter((incident) => incident.status === "active").length;
+  const filterOptions: { id: IncidentStatusFilter; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "active", label: "Active" },
+    { id: "resolved", label: "Resolved" },
+  ];
 
   return (
     <section className="relative" aria-busy={isPageFetching}>
@@ -378,14 +409,34 @@ const IncidentList = () => {
         active={isPageFetching}
         label="Loading incident page"
       />
-      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+      <div className="mb-3 flex flex-col gap-3 border-b border-sf-border sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <h2 className="text-[14px] font-semibold tracking-sf-tight text-sf-text">Incident history</h2>
           <p className="mt-1 text-xs text-sf-text-muted">Detection, investigation, monitoring, and recovery events</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 text-xs text-sf-text-muted">
-          <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-red" />{activeCount} active</span>
-          <span className="flex items-center gap-1.5"><i className="size-1.5 rounded-full bg-sf-green" />{requiredData.length - activeCount} resolved</span>
+        <div role="tablist" aria-label="Filter incidents" className="flex min-w-max gap-5">
+          {filterOptions.map((option) => {
+            const active = statusFilter === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  setStatusFilter(option.id);
+                  setCurrentPage(1);
+                }}
+                className={`border-b-2 pb-2.5 text-xs font-medium transition-colors ${
+                  active
+                    ? "border-sf-text text-sf-text"
+                    : "border-transparent text-sf-text-muted hover:text-sf-text"
+                }`}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className="flex flex-col gap-3">
@@ -395,10 +446,14 @@ const IncidentList = () => {
               <CheckCircle2 className="size-[18px]" />
             </span>
             <h3 className="mt-4 text-sm font-semibold text-sf-text">
-              No incidents recorded
+              {statusFilter === "all"
+                ? "No incidents recorded"
+                : `No ${statusFilter} incidents`}
             </h3>
             <p className="mt-1.5 max-w-sm text-xs leading-5 text-sf-text-muted">
-              Outages and recovery events will appear here when a monitor changes state.
+              {statusFilter === "all"
+                ? "Outages and recovery events will appear here when a monitor changes state."
+                : `There are no ${statusFilter} incidents in this view.`}
             </p>
           </div>
         ) : (

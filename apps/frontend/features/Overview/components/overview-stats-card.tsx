@@ -17,20 +17,13 @@ type StatCardProps = {
 };
 
 const CARD_CLASS =
-  "sf-panel group relative flex min-h-[154px] overflow-hidden flex-col justify-between p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-sf-text-muted/40 hover:shadow-sf-card";
-
-const TONE_CLASS = {
-  blue: "bg-sf-blue",
-  green: "bg-sf-green",
-  amber: "bg-sf-amber",
-  red: "bg-sf-red",
-};
+  "sf-panel group flex min-h-[132px] flex-col justify-between p-4 transition-colors duration-150";
 
 const TONE_SOFT_CLASS = {
-  blue: "bg-sf-blue/10 text-sf-blue",
-  green: "bg-sf-green/10 text-sf-green",
-  amber: "bg-sf-amber/10 text-sf-amber",
-  red: "bg-sf-red/10 text-sf-red",
+  blue: "text-sf-blue",
+  green: "text-sf-green",
+  amber: "text-sf-amber",
+  red: "text-sf-red",
 };
 
 const CardInner = ({
@@ -44,9 +37,8 @@ const CardInner = ({
   tone = "blue",
 }: StatCardProps & { linked?: boolean }) => (
   <>
-    <span className={`pointer-events-none absolute -right-7 -top-8 size-24 rounded-full ${TONE_CLASS[tone]} opacity-[0.055] blur-2xl`} />
     <div className="flex items-center justify-between gap-2">
-      <p className="flex min-w-0 items-center gap-1 truncate text-[10px] font-bold uppercase tracking-[0.15em] text-sf-text-muted">
+      <p className="flex min-w-0 items-center gap-1 truncate text-xs font-medium text-sf-text-muted">
         <span className="truncate">{metric}</span>
         {linked ? (
           <ArrowUpRight
@@ -55,25 +47,25 @@ const CardInner = ({
           />
         ) : null}
       </p>
-      <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${TONE_SOFT_CLASS[tone]} transition-transform duration-200 group-hover:scale-105`}>
-        <Icon className="size-4" strokeWidth={1.8} />
+      <span className={`flex size-7 shrink-0 items-center justify-center rounded-[5px] border border-sf-border-faint bg-sf-bg ${TONE_SOFT_CLASS[tone]}`}>
+        <Icon className="size-3.5" strokeWidth={1.8} />
       </span>
     </div>
 
-    <div className="mt-3">
+    <div className="mt-2.5">
       <p
-        className="text-[29px] font-semibold leading-none tracking-[-0.035em] tabular-nums"
+        className="text-[26px] font-semibold leading-none tracking-[-0.03em] tabular-nums"
         style={valueColor ? { color: valueColor } : undefined}
       >
         {value}
       </p>
       {context ? (
-        <p className="mt-2 text-xs text-sf-text-muted">{context}</p>
+        <p className="mt-1.5 text-[11px] text-sf-text-muted">{context}</p>
       ) : null}
     </div>
 
     {footer !== undefined ? (
-      <div className="mt-3.5 flex h-7 items-center">{footer}</div>
+      <div className="mt-3 flex h-6 items-center">{footer}</div>
     ) : null}
   </>
 );
@@ -81,7 +73,7 @@ const CardInner = ({
 const StatCard = (props: StatCardProps) => {
   if (props.href) {
     return (
-      <Link href={props.href} className={CARD_CLASS}>
+      <Link href={props.href} className={`${CARD_CLASS} hover:border-sf-text-muted/45 hover:bg-sf-bg/20`}>
         <CardInner {...props} linked />
       </Link>
     );

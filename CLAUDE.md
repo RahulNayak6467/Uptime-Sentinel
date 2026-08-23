@@ -27,9 +27,9 @@ The project should evolve in versions. Do not suggest advanced versions unless e
 - Express
 - TypeScript
 - Zod for validation
-- PostgreSQL
-- drizzle
-- Redis
+- PostgreSQL (raw `pg` / node-postgres driver, parameterized SQL — no ORM)
+- node-pg-migrate for schema migrations
+- Redis (ioredis)
 - BullMQ
 - node-cron
 - JWT authentication
@@ -51,6 +51,16 @@ Environment variables are exposed to the browser via the `NEXT_PUBLIC_` prefix a
 
 ## Architecture
 -> Will discuss with claude
+
+## Pending UI follow-ups
+
+- **Additional-checks create-form modals (DNS/TCP):** the new-monitor "Additional
+  checks" section (`features/new_monitor/components/additional-checks/`) has
+  toggle→config-modal→Save/Edit for TLS/DNS/TCP add-ons, with a per-check Host/target
+  override. TLS fields are final (map to `tls_config`); **DNS and TCP field sets are
+  provisional — realign them to the real columns once `dns_config`/`tcp_config`
+  schemas are designed** (same store-vs-derive walk as TLS). See memory
+  [[additional-checks-modal-dns-tcp-revisit]].
 
 ## Version Roadmap
 

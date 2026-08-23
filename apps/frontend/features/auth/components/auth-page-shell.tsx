@@ -24,6 +24,31 @@ function AuthPageShell({ children }: AuthPageShellProps) {
           noiseIntensity={0.16}
           pillarRotation={48}
         />
+
+        {/* Faint grid for depth — masked so it dissolves toward the card */}
+        <div
+          className="absolute inset-0 opacity-[0.5]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, color-mix(in oklab, var(--color-sf-blue) 12%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--color-sf-blue) 12%, transparent) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage:
+              "radial-gradient(120% 90% at 50% 42%, transparent 30%, black 78%)",
+            WebkitMaskImage:
+              "radial-gradient(120% 90% at 50% 42%, transparent 30%, black 78%)",
+          }}
+        />
+
+        {/* Soft top aurora glow */}
+        <div
+          className="absolute inset-x-0 top-0 h-[46%]"
+          style={{
+            background:
+              "radial-gradient(60% 100% at 50% 0%, color-mix(in oklab, var(--color-sf-blue) 26%, transparent) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Center focus + edge vignette */}
         <div
           className="absolute inset-0"
           style={{

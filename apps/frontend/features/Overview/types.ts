@@ -46,7 +46,7 @@ export type monitorDataDashboardOverview = {
   monitorName: string;
   intervalSeconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
-  monitorType: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+  monitorType: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
   nextCheckAt: string;
   response: {
     responseTime: number | null;
@@ -61,7 +61,7 @@ export type allMonitorsDataDashboardView = {
   monitorName: string;
   intervalSeconds: number;
   status: "UP" | "DOWN" | "UNKNOWN";
-  monitorType: "http" | "https" | "tcp" | "ssl" | "dns" | "keyword";
+  monitorType: "http" | "https" | "tcp" | "tls" | "dns" | "keyword";
   nextCheckAt: string;
   response: {
     responseTime: number | null;

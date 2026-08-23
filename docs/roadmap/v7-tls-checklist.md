@@ -5,11 +5,13 @@
 > security-grade derivations, per-region cards). Items marked **★** are additions
 > beyond the original 23-row scope.
 
-**Status:** In progress — 13 of 32 done (+ ★15b/c/d). **Pure-derive layer COMPLETE
-(2026-08-07)** and **#10 COMPLETE (2026-08-08)** — envelope + `checkConnections`
-double-probe dedupe both done. **The entire no-schema backend runway is finished.**
-All remaining work is pipeline/persistence + 2 service SQL queries. All 5 tables
-migrated + applied 2026-08-05.
+**Status:** In progress — **~24 of 32 done**. **Pure-derive layer COMPLETE
+(2026-08-07)**, **#10 COMPLETE (2026-08-08)**, **#8/#9 persistence + #16 pipeline
+verified (2026-08-12)**, **#17 state machine done + 22-case integration suite
+(2026-08-15)**, and **#19 failure + #20 recovery/renewal alerts done + tested
+(last session, commits 2d6d30b / 4d51553)**. Remaining work clusters in
+**Alerting #18 (expiry) → API (#21–23) → frontend wiring (#25/26) → tests
+(#29–31)**. All 5 tables migrated + applied 2026-08-05.
 
 **#8/#9 persistence WRITTEN + type-clean (2026-08-10).** Reviewed function-by-function;
 all runtime + logic bugs found in that review are fixed and `tsc` is clean across the
@@ -34,25 +36,25 @@ upsert, jsonb/array round-trip, event writes, mid-txn rollback. Then → #16.
 | 11 | Derive | Fingerprint pinning — `comparePin` | ✅ Done + tested | `computeComparePin` (status/isPinned/normalize) 2026-08-07; auto-repin write deferred to #9/#11 |
 | 12 | Derive | Renewal comparison — `computeRenewalComparison` | ✅ Done + tested | + `compareSan` 2026-08-06; runs once ≥2 snapshots persist |
 | 13 | Derive | Snapshot & renewal history — `lifetimeHistoryStats` | ✅ Done + tested | 2026-08-07; runs once snapshots persist |
-| 14 | Derive | Handshake trend / avg / p95 | 🟡 Partial | phase split done + wired (`computeConnectionLatency`); **avg/p95/trend = service SQL, not a fn** (`AVG`/`percentile_cont`/`date_trunc`; DB tests) |
+| 14 | Derive | Handshake trend / avg / p95 | ✅ Done + verified (2026-08-13) | `getHandshakeLatencyStats(user_id, tls_id, range)` — **summary** (window-wide `AVG`/`MAX`/`COUNT` + `percentile_cont` ladder p50–p999 via `jsonb_build_object`) **+ per-bucket series** (`generate_series` gap-filled). TLS-specific `tlsTimeRangeData` (7d/30d/90d/1y, day/week buckets). Numeric casts on summary + series. **Verified: 10-case suite** (interpolation, null/window filters, multi-bucket, range-switch, null-only bucket). Contract: `{ range, summary:{avgMs,maxMs,sampleCount,percentiles}, series:[{bucket,p50…p999}] }` |
 | 14b | Derive | **Chain of trust** (`chainOfTrust`/`buildChainOfTrust`) | ✅ Done + wired | Recurse sent chain, named status-only root; 2026-08-05 |
 | 14c | Derive | **Protocol & cipher matrix** (per-version suite/status/rating + ALPN) | ✅ Done + wired | `probeProtocols` returns rating; frontend mock updated; 2026-08-05 |
 | ★15 | Derive | **`computeSecurityGrade`, `parseMustStaple`, revocation shaper** | ✅ Done + wired | + `keyLabel` EC-bits + `cipherSummary`; all Group A wired. `classifyWeakCiphers` **dropped**. **`signals` block done + tested 2026-08-06** |
 | ★15b | Derive | **CAA policy lookup — `computeCaa`** | ✅ Done + tested | 2026-08-07, injectable resolver; persist to `tls_state` pending — amend `caa_iodef → TEXT[]` |
 | ★15c | Derive | **Certificate history builder — `computeCertificateHistory`** (+ `computeTone`) | ✅ Done + tested | 2026-08-07; runs once `tls_events` persist; per-type metadata locked at #17 |
 | ★15d | Derive | **Connection & schedule — `connectionInfo`** | ✅ Done + tested | 2026-08-06 (return + field mapping fix) |
-| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | 🟡 In progress (2026-08-12) | **Dispatch already works** — `scheduler/index.ts` routes `tls`→`tlsQueue`→standalone `tlsWorker`→`insertToDB` (verified). Remaining = cleanup: (1) new **slow-lane scheduler** (`*/5`, `WHERE monitor_type='tls'`), (2) strip TLS from fast scheduler (avoid double-dispatch), (3) **remove `next_check_at` advance from `updateTlsMonitor`** (scheduler owns it — kills double-advance), (4) per-worker `redis.duplicate()` + drop console.log. Shared queue/worker factory still deferred until DNS/TCP exist |
-| 17 | Pipeline | Threshold state machine → open/close TLS incidents | ❌ Left | |
+| 16 | Pipeline | Worker dispatch by monitor type → `tlsFetcher` on interval | ✅ Done + verified (2026-08-12) | Fast/slow lane split: `scheduleFastLaneChecks` (30s, `IN('http','https')`) + `scheduleSlowLaneChecks` (`*/5`, `monitor_type='tls'`) → `tlsQueue` → `tlsWorker` (own `redis.duplicate()`, concurrency 5). Double `next_check_at` advance killed (scheduler owns it; removed from `updateTlsMonitor`). Both ticks try/catch-guarded. Verified: TLS picked up by slow lane only, `next_check_at` advances once. Shared queue/worker factory still deferred until DNS/TCP exist. **Committed 2026-08-12** |
+| 17 | Pipeline | Threshold state machine → open/close TLS incidents | ✅ Done + verified (2026-08-15) | `runTlsStateMachine` (2 states × 2 events, threshold-1) runs **inside `insertToDB` before COMMIT** → open (`incidents` + `incident_updates('detected')` + `tls_events('went_down', {cause})`) / close (resolve + `incident_updates('resolved')` + `tls_events('recovered')`). Cause via `reasonForTlsDown` (in `deriveTls.ts`); revocation folded into `computeStatus`. Incident helpers extracted to `statemachine/shared/incidentLifecycle.ts` + made **client-param / transaction-agnostic** (HTTP `runStateMachine` owns its own txn; TLS shares `insertToDB`'s) → fully atomic. **Verified: 22-case integration suite** (`tlsStateMachineIntegrationTest.ts`: transitions/causes/lifecycle/idempotency/resolved-doesn't-block/isolation/fields/rollback). Pure fns tested: computeStatus 12, reasonForTlsDown 10, checkStatus 5 |
 | 18 | Alerting | Expiry alerts (fire at `expiry_alert_thresholds`) | ❌ Left | |
-| 19 | Alerting | Failure alerts (expired/untrusted/hostname-mismatch/revoked) | ❌ Left | |
-| 20 | Alerting | Recovery alerts (cert valid again) | ❌ Left | |
+| 19 | Alerting | Failure alerts (expired/untrusted/hostname-mismatch/revoked) | ✅ Done + tested (last session) | `TLS failure + recovery alerts` (2d6d30b). Enqueue currently inside `insertToDB` txn — enqueue-after-commit move tracked in [[alert-worker-atomicity-revisit]] |
+| 20 | Alerting | Recovery alerts (cert valid again) | ✅ Done + tested (last session) | `TLS failure + recovery alerts` (2d6d30b) + renewal email alert (4d51553, enqueued after commit) |
 | 21 | API | Zod config schema (validate create/edit) | ❌ Left | |
 | 22 | API | Create/edit endpoints (monitor form → TLS config) | ❌ Left | |
 | 23 | API | GET TLS detail endpoint (envelope + history + config) | ❌ Left | Needs #10 |
 | 24 | Frontend | `certificates-monitor.tsx` redesign + conventions | ✅ Done | Mock data, real TLS tab |
 | 25 | Frontend | Wire mock → real data (replace `mockTlsCertificate`) | ❌ Left | Needs #23 |
 | 26 | Frontend | Status pill + gauge → bind to `computeStatus` | ❌ Left | |
-| 27 | Frontend | SAN "+N more" capped-chip display | ❌ Left | Backend already sends all SANs |
+| 27 | Frontend | SAN "+N more" capped-chip display | ✅ Done (2026-08-13) | `SanList` in `certificates-monitor.tsx` — caps at 6, `+N more`/`Show less` toggle, `readonly string[]` (accepts mock + real). Presentational on `leaf.sans`; wires to real SANs at #25. Mock temporarily bumped to 10 to verify the toggle |
 | ★28 | Frontend | **Per-region cert card** (blurred coming-soon) | ⏸️ V12 | Not removed; multi-region infra |
 | 29 | Tests | Derive unit tests (test tables → real assertions) | 🟡 Partial | Scaffolds written + green for all pure-derive fns done this session (signals, renewal, comparePin, CAA, lifetime, history, connectionInfo); remainder as fns land |
 | 30 | Tests | Checker integration tests (envelope + persistence) | ❌ Left | uses the DB harness — see "DB integration test harness" section |
@@ -333,6 +335,61 @@ CPU-heavy) or HA — BullMQ competing-consumers makes that a deploy change, no r
 Workers already run in a **separate process from the API** (correct — background work
 must not block request handling). CPU-bound work would need its own process; I/O-bound
 does not.
+
+## #17 incident state machine — design decisions (2026-08-13)
+
+All four design phases settled. Mirrors the HTTP `stateMachine.worker.ts` pattern
+(pure router: `(state × event) → one action`). Decision log — *choice · why ·
+rejected alternative*:
+
+- **Classification** · `Valid`/`Expiring` → UP, `Expired`/`Invalid`/`Unreachable` →
+  DOWN · same mapping as `updateTlsMonitor`; the 8 alert reasons fold into these two ·
+  *rejected:* 3 states split by handshake/cert-fail (that's reason, not state —
+  distinct causes are one continuous incident, not separate states).
+- **States/events** · 2 states (`NO_INCIDENT`/`INCIDENT_ACTIVE`) × 2 events
+  (`TLS_UP`/`TLS_DOWN`) = 4 transitions: open on DOWN, close on UP,
+  `INCIDENT_ACTIVE:TLS_DOWN` → nothing (reminder slot for later), `NO_INCIDENT:TLS_UP`
+  → nothing · reason/cause rides the event, not the state axis.
+- **Threshold** · open/close on the **first** DOWN/UP (default 1), still read from
+  `monitor.failure_threshold`/`recovery_threshold` · at 12h cadence, consecutive
+  confirmation would delay detecting a dead cert by hours, and DOWN causes
+  (expired/invalid/revoked) are deterministic, not flaky · *rejected:* mirror HTTP's
+  N-consecutive check. See [[tls-threshold-default-one]] (#21/#22 default to 1).
+- **Event write ownership** · `renewed`/`first_snapshot`/`protocol_change` stay in
+  persistence (#8/#9, per-check facts); state machine owns `went_down`/`recovered`
+  (transitions needing prior state) · split by *per-check fact vs transition*, NOT by
+  *alert vs not-alert* (`renewed` is an alert yet stays in persistence).
+- **Incidents table** · single shared `incidents` table for all monitor types (not
+  per-type) · incidents are convergent-shape + low-write + read-heavy; cross-type
+  "what's down" query stays trivial; partitioning (not separate tables) is the scale
+  answer if ever needed · *rejected:* per-type incident tables (would force UNION reads).
+- **Down-cause storage** · canonical cause → `tls_events.metadata.cause` (safe from
+  user edits, drives the history-card template); `incidents.title` → auto-generated
+  generic-per-cause label + universal fallback, **user-overridable** · title is a
+  user-authored display field, so it can't be the canonical cause store, but it's a
+  fine default · *rejected:* new `incidents.cause` column (unneeded — metadata already
+  holds it).
+- **Transaction boundary** · **single atomic transaction** — fold the state-machine
+  writes into `insertToDB`'s existing `BEGIN…COMMIT` · trust guarantee: *a check and
+  its incident are one atomic fact*, never observable as a DOWN-check-without-incident
+  half-state (which at 12h cadence would hide an outage for hours). Operational cost is
+  a wash (planning is per-statement; probe work is outside the txn) · *rejected:* two
+  transactions (check first, incident second → risks the half-state).
+- **`incident_updates` for TLS** · yes — write `detected`/`resolved` like HTTP, in the
+  same txn · the shared incidents page renders the `incident_updates` timeline; TLS
+  incidents live in the same table, so omitting them = empty timeline. Not redundant
+  with `tls_events` (different surfaces: cross-type incidents page vs TLS history card).
+
+**Final write actions (all inside `insertToDB`'s single transaction):**
+- open (`NO_INCIDENT:TLS_DOWN`): `INSERT incidents` (title from cause) +
+  `INSERT incident_updates('detected')` + `INSERT tls_events('went_down', {cause})`.
+- close (`INCIDENT_ACTIVE:TLS_UP`): `UPDATE incidents` (resolve) +
+  `INSERT incident_updates('resolved')` + `INSERT tls_events('recovered')`.
+
+**Deferred to later slices (not #17):** all alert *emails* (down/recovery/reminder →
+#19/#20; expiry → #18); the `INCIDENT_ACTIVE:TLS_DOWN` reminder action; capturing the
+check timestamp at probe time in app code instead of `NOW()` (accuracy fix,
+independent of #17).
 
 ## TLS create-form field map + schema decision (2026-08-07)
 

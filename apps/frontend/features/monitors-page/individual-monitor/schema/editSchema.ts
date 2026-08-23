@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const editSchema = z.object({
   // monitorType: z.
-  //   enum(["http", "https", "tcp", "ssl", "dns", "keyword"], {
+  //   enum(["http", "https", "tcp", "tls", "dns", "keyword"], {
   //   }),
 
   monitorName: z

@@ -2,19 +2,13 @@ import { QueryResult } from "pg";
 import { db } from "../../../../db";
 import { IncidentTimelineProps } from "../../../../db/db-types";
 import logger from "../../../../config/logger";
-import {
-  incidentStatusPredicate,
-  IncidentStatusFilter,
-} from "../validations/incidentListValidation";
 
 export const getIncidentsTimelineServices = async (
   user_id: string,
   limit: number,
   offset: number,
   pageNumber: number,
-  status: IncidentStatusFilter,
 ) => {
-  const statusPredicate = incidentStatusPredicate(status);
   const get_incidentsTimeline_query = `SELECT
       i.title,
       iu.incident_id,
@@ -31,7 +25,6 @@ export const getIncidentsTimelineServices = async (
   JOIN incidents i ON iu.incident_id = i.id
   JOIN monitor m ON i.monitor_id = m.id
   WHERE m.user_id = $1
-  ${statusPredicate}
   GROUP BY iu.incident_id,i.started_at,i.title
   ORDER BY i.started_at DESC
   OFFSET $2 LIMIT $3
@@ -47,13 +40,8 @@ export const getIncidentsTimelineServices = async (
 
   const rows = getTimeline.rows;
 
-  const total_page_query = `
-    SELECT COUNT(i.id) AS total_count
-    FROM incidents i
-    INNER JOIN monitor m ON i.monitor_id = m.id
-    WHERE m.user_id = $1
-    ${statusPredicate}
-  `;
+  const total_page_query =
+    "SELECT COUNT(i.id) AS total_count from incidents i inner join monitor m on i.monitor_id = m.id where m.user_id = $1";
 
   const total_page_value = [user_id];
 
