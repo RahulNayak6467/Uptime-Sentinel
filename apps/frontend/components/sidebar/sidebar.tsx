@@ -8,10 +8,37 @@ import MonitorStats from "./monitor-stats";
 import DarkModeToggle from "./dark-mode";
 import Spinner from "../ui/spinner";
 import ConnectionStatus from "../sse/connection-status";
+import { useDashboardOverview } from "@/features/Overview/hooks/useDashboardOverview";
+import { useIncidentsStatsCard } from "@/features/incidents/hooks/useIncidentsStatsCard";
+import { useMe } from "@/features/auth/hooks/useMe";
+
+const deriveDisplayName = (email?: string) => {
+  if (!email) return "Account";
+  const local = email.split("@")[0];
+  return local
+    .replace(/[._-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const deriveInitials = (email?: string) => {
+  if (!email) return "U";
+  return email.slice(0, 2).toUpperCase();
+};
 
 const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const pathname = usePathname();
   const { logout, isPending } = useLogout();
+  const { data: overview } = useDashboardOverview();
+  const { data: incidentStats } = useIncidentsStatsCard();
+  const { data: me } = useMe();
+
+  const displayName = deriveDisplayName(me?.email);
+  const initials = deriveInitials(me?.email);
+
+  const countByLabel: Record<string, number | undefined> = {
+    Monitors: overview?.total_monitors,
+    Incidents: incidentStats?.activeIncidents,
+  };
 
   return (
     <aside className="h-full w-full border-r border-r-sf-border bg-sf-surface px-3.5 py-4">
@@ -27,10 +54,10 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         </div>
         <div className="mt-4 flex w-full items-center gap-2.5 rounded-sf-sm border border-sf-border bg-sf-bg/60 px-2.5 py-2">
           <span className="w-5.5 h-5.5 rounded-sm bg-[#464fe5] flex items-center justify-center text-xs font-bold text-white">
-            A
+            {initials.slice(0, 1)}
           </span>
-          <p className="text-[12px] text-sf-text font-sans font-bold">
-            Acme Inc
+          <p className="truncate text-[12px] text-sf-text font-sans font-bold">
+            {displayName}
           </p>
         </div>
 
@@ -45,7 +72,7 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
                 icon={item.icon}
                 label={item.label}
                 href={item.href}
-                number={item.number}
+                number={countByLabel[item.label]}
                 color={item.color}
                 backgroundColor={item.backgroundColor}
                 comingSoon={item.comingSoon}
@@ -59,27 +86,29 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </div>
         </div>
 
-        <div className="mt-5">
-          <h3 className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
-            Configure
-          </h3>
-          <div className="mt-1.5 space-y-0.5">
-            {configureItems.map((item) => (
-              <MonitorStats
-                key={item.id}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isActive={pathname === item.href}
-                onNavigate={onNavigate}
-              />
-            ))}
+        {configureItems.length > 0 && (
+          <div className="mt-5">
+            <h3 className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
+              Configure
+            </h3>
+            <div className="mt-1.5 space-y-0.5">
+              {configureItems.map((item) => (
+                <MonitorStats
+                  key={item.id}
+                  icon={item.icon}
+                  label={item.label}
+                  href={item.href}
+                  isActive={pathname === item.href}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-5">
           <h3 className="px-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-sf-text-muted">
-            Workspace
+            Account
           </h3>
           <div className="mt-1.5 space-y-0.5">
             {workspaceItems.map((item) => (
@@ -105,21 +134,17 @@ const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </div>
           <div className="flex flex-col gap-0.5 border-t border-sf-border pt-2.5">
             <DarkModeToggle />
-            <button className="flex min-h-9 w-full cursor-pointer items-center gap-3 rounded-sf-sm px-2.5 py-2 text-sf-text-sub transition-colors hover:bg-sf-bg hover:text-sf-text">
-              <HelpIcon />
-              <span className="font-sans text-[13px]">Help &amp; docs</span>
-            </button>
           </div>
           <div className="mt-1.5 flex items-center gap-3 rounded-sf-sm px-2 py-2 hover:bg-sf-bg/70">
             <span className="w-8 h-8 rounded-full bg-[#4b5563] flex items-center justify-center text-[12px] font-bold text-white shrink-0">
-              DW
+              {initials}
             </span>
             <div className="flex flex-col flex-1 min-w-0">
               <span className="truncate font-sans text-[13px] font-semibold text-sf-text">
-                Dana Whitman
+                {displayName}
               </span>
-              <span className="text-[12px] text-sf-text-muted font-sans">
-                Owner
+              <span className="truncate text-[12px] text-sf-text-muted font-sans">
+                {me?.email ?? "Owner"}
               </span>
             </div>
             <button
@@ -152,25 +177,6 @@ function LogoutIcon() {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-  );
-}
-
-function HelpIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   );
 }
