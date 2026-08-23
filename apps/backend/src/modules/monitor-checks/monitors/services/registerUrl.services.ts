@@ -86,6 +86,7 @@ port: RegisterTlsInput["port"],
 minTlsVersion: RegisterTlsInput["minTlsVersion"],
 warningThresholdDays: RegisterTlsInput["warningThresholdDays"],
 expiryThresholdAlerts: RegisterTlsInput["expiryAlertThresholds"],
+enabledAlerts: RegisterTlsInput["enabledAlerts"],
 user_id: string
 ) => {
 
@@ -130,11 +131,12 @@ user_id: string
       expiry_alert_thresholds,
       min_tls_version,
       linked_monitor_id,
-      port
+      port,
+      enabled_alerts
     )
-    VALUES ($1,$2,$3,$4,$5,$6)`
+    VALUES ($1,$2,$3,$4,$5,$6,$7)`
 
-    const values_tls_config = [rows[0].id, warningThresholdDays, expiryThresholdAlerts, minTlsVersion, monitorId, port ];
+    const values_tls_config = [rows[0].id, warningThresholdDays, expiryThresholdAlerts, minTlsVersion, monitorId, port, enabledAlerts ];
 
     await client.query(insert_tls_config, values_tls_config);
 
@@ -157,14 +159,24 @@ user_id: string
   }
 };
 
-const checkUrlExist = async (url: string, user_id: string) => {
-  const check_monitor_url = `
+export const checkUrlExist = async (
+  url: string,
+  user_id: string,
+  excludeMonitorId?: string,
+) => {
+  let check_monitor_url = `
     SELECT url
     from monitor
     where url = $1 and user_id = $2
   `;
+  const check_monitor_value: (string)[] = [url, user_id];
 
-  const check_monitor_value = [url, user_id];
+  // On update, don't count the monitor's own row as a duplicate.
+  if (excludeMonitorId) {
+    check_monitor_url += ` and id != $3`;
+    check_monitor_value.push(excludeMonitorId);
+  }
+
   const check_monitor_rows = await db.query(
     check_monitor_url,
     check_monitor_value,

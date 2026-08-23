@@ -36,6 +36,7 @@ export const registerUrl = async (
           validatedData.minTlsVersion,
           validatedData.warningThresholdDays,
           validatedData.expiryAlertThresholds,
+          validatedData.enabledAlerts,
           user_id
         )
     }

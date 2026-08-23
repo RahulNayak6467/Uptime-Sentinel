@@ -3,6 +3,8 @@ import { AppError } from "../../../../shared/errors/AppError";
 import logger from "../../../../config/logger";
 import { isPostgresError } from "../../../../shared/errors/PostgresError";
 import { contentTypeProps, httpMethodProps, requestBodyProps, requestBodyTypeProps } from "../types";
+import { UpdateTlsInput } from "../validations/urlValidation";
+import { checkUrlExist } from "./registerUrl.services";
 
 export const updateUrl = async (
   url_id: string,
@@ -20,6 +22,11 @@ export const updateUrl = async (
   requestBodyType?: requestBodyTypeProps,
   requestBody?: requestBodyProps
 ) => {
+  // Reject changing the URL to one already registered by this user.
+  if (url) {
+    await checkUrlExist(url, user_id, url_id);
+  }
+
   const updates = [];
   const values = [];
   let paramCount = 1;
@@ -104,5 +111,124 @@ export const updateUrl = async (
       }
       throw error;
     }
+  }
+};
+
+// Partial update for TLS monitors: writes present fields to `monitor` and
+// `tls_config` inside one transaction. Verifies ownership + monitor_type='tls'.
+export const updateTls = async (
+  monitor_id: string,
+  user_id: string,
+  data: UpdateTlsInput,
+) => {
+  // Reject changing the host to one already registered by this user.
+  if (data.url !== undefined) {
+    await checkUrlExist(data.url, user_id, monitor_id);
+  }
+
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+
+    // --- shared `monitor` fields ---
+    const monitorUpdates: string[] = [];
+    const monitorValues: unknown[] = [];
+    let p = 1;
+
+    if (data.monitorName !== undefined) {
+      monitorUpdates.push(`monitor_name = $${p++}`);
+      monitorValues.push(data.monitorName);
+    }
+    if (data.url !== undefined) {
+      monitorUpdates.push(`url = $${p++}`);
+      monitorValues.push(data.url);
+    }
+    if (data.intervalSeconds !== undefined) {
+      monitorUpdates.push(`interval_seconds = $${p++}`);
+      monitorValues.push(data.intervalSeconds);
+      monitorUpdates.push(`next_check_at = NOW() + ($${p++} || ' seconds')::interval`);
+      monitorValues.push(data.intervalSeconds);
+    }
+    if (data.requestTimeoutMS !== undefined) {
+      monitorUpdates.push(`request_timeout_ms = $${p++}`);
+      monitorValues.push(data.requestTimeoutMS);
+    }
+    if (data.responseTimeThresholdMS !== undefined) {
+      monitorUpdates.push(`response_time_threshold_ms = $${p++}`);
+      monitorValues.push(data.responseTimeThresholdMS);
+    }
+
+    let ownedRows: number;
+    if (monitorUpdates.length > 0) {
+      monitorValues.push(monitor_id, user_id);
+      const query = `
+        UPDATE monitor
+        SET ${monitorUpdates.join(", ")}
+        WHERE id = $${p++} AND user_id = $${p} AND monitor_type = 'tls'
+      `;
+      const result = await client.query(query, monitorValues);
+      ownedRows = result.rowCount ?? 0;
+    } else {
+      // No monitor-level fields changed — still confirm ownership + type.
+      const result = await client.query(
+        `SELECT 1 FROM monitor WHERE id = $1 AND user_id = $2 AND monitor_type = 'tls'`,
+        [monitor_id, user_id],
+      );
+      ownedRows = result.rowCount ?? 0;
+    }
+
+    if (ownedRows === 0) {
+      throw new AppError(404, "No such TLS monitor exists", "MONITOR_NOT_FOUND");
+    }
+
+    // --- `tls_config` fields ---
+    const configUpdates: string[] = [];
+    const configValues: unknown[] = [];
+    let cp = 1;
+
+    if (data.warningThresholdDays !== undefined) {
+      configUpdates.push(`warning_threshold_days = $${cp++}`);
+      configValues.push(data.warningThresholdDays);
+    }
+    if (data.expiryAlertThresholds !== undefined) {
+      configUpdates.push(`expiry_alert_thresholds = $${cp++}`);
+      configValues.push(data.expiryAlertThresholds);
+    }
+    if (data.minTlsVersion !== undefined) {
+      configUpdates.push(`min_tls_version = $${cp++}`);
+      configValues.push(data.minTlsVersion);
+    }
+    if (data.port !== undefined) {
+      configUpdates.push(`port = $${cp++}`);
+      configValues.push(data.port);
+    }
+    if (data.enabledAlerts !== undefined) {
+      configUpdates.push(`enabled_alerts = $${cp++}`);
+      configValues.push(data.enabledAlerts);
+    }
+
+    if (configUpdates.length > 0) {
+      configValues.push(monitor_id);
+      const query = `
+        UPDATE tls_config
+        SET ${configUpdates.join(", ")}
+        WHERE monitor_id = $${cp}
+      `;
+      await client.query(query, configValues);
+    }
+
+    await client.query("COMMIT");
+    logger.info({ userId: user_id, monitorId: monitor_id }, "tls monitor updated");
+  } catch (error) {
+    await client.query("ROLLBACK");
+    if (error instanceof AppError) {
+      throw error;
+    }
+    if (isPostgresError(error) && error.code === "22P02") {
+      throw new AppError(400, "Invalid uuid format", "INVALID_UUID");
+    }
+    throw error;
+  } finally {
+    client.release();
   }
 };

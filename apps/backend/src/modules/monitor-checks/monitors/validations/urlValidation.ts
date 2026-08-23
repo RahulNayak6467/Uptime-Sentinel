@@ -12,6 +12,16 @@ const urlField = z.url({
   },
 );
 
+export const TLS_ALERT_EVENTS = [
+  "expiring",
+  "expired_or_invalid",
+  "hostname_mismatch",
+  "renewal",
+  "revocation",
+  "weak_config",
+  "recovery",
+] as const;
+
 const responseTimeThresholdField = z
   .number({
     error: "Response-time threshold must be a number",
@@ -378,7 +388,17 @@ export const registerTlsSchema = z.strictObject({
     })
     .default([1, 7, 14, 30]),
   responseTimeThresholdMS: responseTimeThresholdField
-    .default(10000)
+    .default(10000),
+  enabledAlerts: z
+    .array(
+      z.enum(TLS_ALERT_EVENTS, { error: "Invalid alert event" }),
+      { error: "Enabled alerts must be an array" },
+    )
+    .min(1, { error: "Enable at least one alert" })
+    .refine((events) => new Set(events).size === events.length, {
+      error: "Duplicate alerts are not allowed",
+    })
+    .default([...TLS_ALERT_EVENTS]),
 })
 
 export type RegisterTlsInput = z.infer<typeof registerTlsSchema>
@@ -403,3 +423,70 @@ export const registerMonitorQuerySchema = z.object({
 });
 
 export type RegisterMonitorQuery = z.infer<typeof registerMonitorQuerySchema>
+
+// Partial-update schema for TLS monitors. Every field optional; the controller
+// rejects an empty payload and the service only writes the fields present.
+export const updateTlsSchema = z.object({
+  monitorType: z.literal("tls").optional(),
+  monitorName: z
+    .string({ error: "Monitor name must be a string" })
+    .trim()
+    .min(2, { error: "Minimum 2 characters are required" })
+    .max(50, { error: "Maximum 50 characters are allowed" })
+    .optional(),
+  url: z
+    .string({ error: "Host is required" })
+    .trim()
+    .toLowerCase()
+    .regex(/^(?=.{1,253}$)(?!-)([a-z0-9-]{1,63}\.)+[a-z]{2,}$/i, {
+      error: "Enter a valid hostname, e.g. example.com (no https://, port, or path)",
+    })
+    .optional(),
+  intervalSeconds: z
+    .number({ error: "Interval must be a number" })
+    .int({ error: "Interval must be a whole number of seconds" })
+    .min(3600, { error: "Minimum interval time should be 1hour" })
+    .optional(),
+  requestTimeoutMS: z
+    .number({ error: "Request timeout must be a number" })
+    .int({ error: "Request timeout must be an integer" })
+    .min(10000, { error: "Minimum request timeout is 10000ms" })
+    .max(60000, { error: "Maximum request timeout is 60000ms" })
+    .optional(),
+  responseTimeThresholdMS: responseTimeThresholdField.optional(),
+  port: z
+    .number({ error: "Port number should be an integer between 1 to 65535" })
+    .int({ error: "Port number should be an integer between 1 to 65535" })
+    .min(1, { error: "Port number cannot be below 1" })
+    .max(65535, { error: "Port number cannot exceed 65535" })
+    .optional(),
+  minTlsVersion: z.enum(["TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3"]).optional(),
+  warningThresholdDays: z
+    .number({ error: "Warning Threshold Days must be integer" })
+    .int({ error: "Warning Threshold Days must be integer" })
+    .min(1, { error: "Warning threshold cannot be below 1 day" })
+    .max(365, { error: "Warning threshold cannot exceed 365 days" })
+    .optional(),
+  expiryAlertThresholds: z
+    .array(
+      z
+        .number({ error: "The alert thresholds must be integer" })
+        .int({ error: "The alert thresholds must be integer" })
+        .min(1, { error: "Alert threshold days must be at least 1" })
+        .max(365, { error: "Alert threshold days cannot exceed 365" }),
+    )
+    .min(1, { error: "Add at least one expiry alert threshold" })
+    .refine((days) => new Set(days).size === days.length, {
+      error: "Duplicate alert thresholds are not allowed",
+    })
+    .optional(),
+  enabledAlerts: z
+    .array(z.enum(TLS_ALERT_EVENTS, { error: "Invalid alert event" }))
+    .min(1, { error: "Enable at least one alert" })
+    .refine((events) => new Set(events).size === events.length, {
+      error: "Duplicate alerts are not allowed",
+    })
+    .optional(),
+});
+
+export type UpdateTlsInput = z.infer<typeof updateTlsSchema>

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../../../shared/errors/AppError";
-import { updateUrl } from "../services/updateUrl.services";
-import { urlSchema } from "../validations/urlValidation";
+import { updateTls, updateUrl } from "../services/updateUrl.services";
+import { updateTlsSchema, urlSchema } from "../validations/urlValidation";
 import { validateOccurredAt } from "../../../../shared/utils/validateOccurredAt";
 
 export const updateUrlById = async (
@@ -15,6 +15,26 @@ export const updateUrlById = async (
       throw new AppError(401, "Unauthenticated", "UNAUTHORIZED");
     }
     const monitorId = req.params.monitorId as string;
+
+    // TLS monitors have their own config shape (tls_config).
+    if (req.body.monitorType === "tls") {
+      const validatedTls = updateTlsSchema.parse(req.body);
+      const { monitorType, ...fields } = validatedTls;
+      void monitorType;
+      const hasUpdate = Object.values(fields).some(
+        (value) => value !== undefined,
+      );
+      if (!hasUpdate) {
+        throw new AppError(
+          400,
+          "One of the values must be updated",
+          "NO_UPDATE_FIELDS",
+        );
+      }
+      await updateTls(monitorId, user_id, validatedTls);
+      return res.status(200).json({ message: "successfully updated monitor" });
+    }
+
     const validatedData = urlSchema.parse(req.body);
     if (
       !validatedData.url &&
