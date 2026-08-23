@@ -2,10 +2,10 @@ import { Job, Worker } from "bullmq";
 import redis from "../redis";
 import logger from "../config/logger";
 import { TLSCheckJobData } from "../queue/tlsQueue";
-import { insertToDB } from "../modules/tls-checks/services/insertTlsDB.services";
+import { handleTlsExpiryAlert, insertToDB } from "../modules/tls-checks/services/insertTlsDB.services";
 import { checkTlsHealth } from "../modules/tls-checks/services/tls.services";
 import { runTlsStateMachine } from "./statemachine/tlsStateMachine.worker";
-import { addTlsRenewalEmailQueue } from "../queue/alertEmailQueue";
+import { addTlsExpiryEmailQueue, addTlsRenewalEmailQueue } from "../queue/alertEmailQueue";
 
 logger.info({}, "tlsWorkers module loaded");
 logger.info({ status: redis.status }, "Redis connection state:");
@@ -41,6 +41,19 @@ const processor = async (job: Job<TLSCheckJobData>) => {
     logger.info({isRenewed}, "Check whether Tls certificate is renewed")
     if (isRenewed) {
       await addTlsRenewalEmailQueue(tls_id, tlsCheckData.certificate?.leaf_certificate.issuer as string, tlsCheckData.certificate?.leaf_certificate.valid_to as string, tlsCheckData.certificate?.leaf_certificate.finger_print as string);
+    }
+
+    // Expiry-warning alerts (#18): fire once per configured threshold window.
+    const expiryAlert = await handleTlsExpiryAlert(tls_id, tlsCheckData);
+    if (expiryAlert) {
+      await addTlsExpiryEmailQueue(
+        tls_id,
+        expiryAlert.threshold,
+        expiryAlert.daysRemaining,
+        expiryAlert.issuer,
+        expiryAlert.expiryDate,
+        expiryAlert.fingerprint,
+      );
     }
   }
   catch (err) {

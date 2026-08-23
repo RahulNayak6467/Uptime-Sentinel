@@ -5,6 +5,7 @@ import { sendDownAlertEmail } from "../../../emails/downEmail";
 import { sendRecoveryEmail } from "../../../emails/recoveredEmail";
 import { sendStillDownAlertEmail } from "../../../emails/reminderEmail";
 import { sendRenewalEmail } from "../../../emails/renewalEmail";
+import { sendExpiryEmail } from "../../../emails/expiryEmail";
 
 export const getMonitorAlertInfo = async (monitor_id: string) => {
   const result = await db.query(
@@ -90,3 +91,26 @@ export const renewalEmailQuery = async (monitor_id: string, issuer: string, expi
 
    await sendRenewalEmail(email, monitorName, url, issuer, new Date(expiryDate), fingerprint, monitor_id);
 }
+
+export const expiryEmailQuery = async (
+  monitor_id: string,
+  threshold: number,
+  daysRemaining: number,
+  issuer: string,
+  expiryDate: string,
+  fingerprint: string,
+) => {
+  const { email, url, monitorName } = await getMonitorAlertInfo(monitor_id);
+
+  await sendExpiryEmail(
+    email,
+    monitorName,
+    url,
+    issuer,
+    new Date(expiryDate),
+    daysRemaining,
+    threshold,
+    fingerprint,
+    monitor_id,
+  );
+};

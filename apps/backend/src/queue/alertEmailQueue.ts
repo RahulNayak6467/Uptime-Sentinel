@@ -136,4 +136,43 @@ export const addTlsRenewalEmailQueue = async (
   return addJob;
 };
 
+export const addTlsExpiryEmailQueue = async (
+  monitor_id: string,
+  threshold: number,
+  daysRemaining: number,
+  issuer: string,
+  expiryDate: string,
+  fingerprint: string,
+) => {
+  const addJob = await alertEmailQueue.add(
+    "expiry-tls-email",
+    {
+      monitor_id,
+      threshold,
+      daysRemaining,
+      issuer,
+      expiryDate,
+      fingerprint,
+    },
+    {
+      jobId: `expiry-tls-email-${monitor_id}-${fingerprint}-${threshold}`,
+      attempts: 4,
+      backoff: {
+        type: "exponential",
+        delay: 2000,
+      },
+      removeOnComplete: {
+        age: 172800,
+        count: 10,
+      },
+      removeOnFail: {
+        age: 172800,
+        count: 100,
+      },
+    },
+  );
+
+  return addJob;
+};
+
 export default alertEmailQueue;

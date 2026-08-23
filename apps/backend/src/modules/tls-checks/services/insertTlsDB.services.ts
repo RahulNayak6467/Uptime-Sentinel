@@ -105,6 +105,99 @@ export const insertToDB = async (tls_id: string, tlsCheckData: TlsResult) => {
   }
 }
 
+export type TlsExpiryAlert = {
+  threshold: number;
+  daysRemaining: number;
+  issuer: string;
+  expiryDate: string;
+  fingerprint: string;
+};
+
+// Fires an expiry-warning alert when days-remaining first enters a configured
+// threshold window (e.g. 30/14/7/1). De-duplicates per certificate fingerprint +
+// window via a 'expiring' tls_event, so each window alerts at most once per cert.
+// Returns the alert payload to enqueue (after commit) or null when nothing fires.
+export const handleTlsExpiryAlert = async (
+  tls_id: string,
+  tlsCheckData: TlsResult,
+): Promise<TlsExpiryAlert | null> => {
+  const derived = tlsCheckData.derived;
+  const cert = tlsCheckData.certificate;
+  if (!derived || !cert) return null;
+
+  const daysRemaining = derived.daysRemaining.days;
+  // Expired/invalid certs are covered by failure alerts, not expiry warnings.
+  if (derived.daysRemaining.isExpired || daysRemaining == null || daysRemaining < 0) {
+    return null;
+  }
+
+  const fingerprint = cert.leaf_certificate.finger_print;
+
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+
+    const configResult = await client.query(
+      `SELECT expiry_alert_thresholds, enabled_alerts FROM tls_config WHERE monitor_id = $1`,
+      [tls_id],
+    );
+    if (configResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    const thresholds: number[] = configResult.rows[0].expiry_alert_thresholds ?? [];
+    const enabledAlerts: string[] = configResult.rows[0].enabled_alerts ?? [];
+
+    if (!enabledAlerts.includes("expiring")) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    // Windows the cert is currently inside; the smallest is the most urgent.
+    const crossed = thresholds.filter((threshold) => daysRemaining <= threshold);
+    if (crossed.length === 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+    const windowThreshold = Math.min(...crossed);
+
+    const alreadyFired = await client.query(
+      `SELECT 1 FROM tls_events
+       WHERE monitor_id = $1
+         AND type = 'expiring'
+         AND metadata->>'fingerprint' = $2
+         AND (metadata->>'threshold')::int = $3
+       LIMIT 1`,
+      [tls_id, fingerprint, windowThreshold],
+    );
+    if ((alreadyFired.rowCount ?? 0) > 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    await client.query(
+      `INSERT INTO tls_events (monitor_id, type, metadata) VALUES ($1, 'expiring', $2)`,
+      [tls_id, { fingerprint, threshold: windowThreshold, daysRemaining }],
+    );
+
+    await client.query("COMMIT");
+
+    return {
+      threshold: windowThreshold,
+      daysRemaining,
+      issuer: cert.leaf_certificate.issuer,
+      expiryDate: cert.leaf_certificate.valid_to,
+      fingerprint,
+    };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 export const updateTlsMonitor = async (client: PoolClient, tls_id: string, status: TlsStatus | "Unreachable") => {
 
   let statusCheck: "UP" | "DOWN" = "UP";
