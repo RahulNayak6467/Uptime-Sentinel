@@ -5,12 +5,10 @@ import RecentAlerts from "@/features/integrations/email-alerts/components/recent
 import {
   Bell,
   Clock,
-  Link2,
+  // Link2, MessagesSquare, MessageSquare, Smartphone — icons for parked
+  // out-of-scope channels (Slack/Webhook/SMS/Discord). Restore when re-enabling.
   Mail,
-  MessagesSquare,
-  MessageSquare,
   Send,
-  Smartphone,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -64,10 +62,12 @@ type Channel = {
 // wired in later versions (Slack/Webhook/SMS/Discord).
 const channels: Channel[] = [
   { icon: Mail, name: "Email", meta: "rahul@statusforge.io", active: true },
-  { icon: MessageSquare, name: "Slack", meta: "Coming soon", comingSoon: true },
-  { icon: Link2, name: "Webhook", meta: "Coming soon", comingSoon: true },
-  { icon: Smartphone, name: "SMS", meta: "Coming soon", comingSoon: true },
-  { icon: MessagesSquare, name: "Discord", meta: "Coming soon", comingSoon: true },
+  // Slack / Webhook / SMS / Discord are V13 (Integrations) — out of current
+  // scope, parked not deleted. Restore the icons in the import when re-enabling.
+  // { icon: MessageSquare, name: "Slack", meta: "Coming soon", comingSoon: true },
+  // { icon: Link2, name: "Webhook", meta: "Coming soon", comingSoon: true },
+  // { icon: Smartphone, name: "SMS", meta: "Coming soon", comingSoon: true },
+  // { icon: MessagesSquare, name: "Discord", meta: "Coming soon", comingSoon: true },
 ];
 
 type AlertRule = { label: string; description: string; on: boolean };

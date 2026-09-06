@@ -31,7 +31,7 @@ import {
   Network,
   RadioTower,
   Route,
-  Server,
+  // Server, // icon for the parked VPS telemetry card — restore when re-enabling
   ServerCog,
   ShieldCheck,
   TestTube2,
@@ -49,7 +49,7 @@ export const SignalStrip = () => (
     <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/[.07] px-5 sm:px-6 lg:grid-cols-4">
       {[
         ["V0—V18", "complete platform", "Detection through production SLOs"],
-        ["7", "monitor modes", "HTTP, TLS, DNS, TCP, regions, VPS, events"],
+        ["6", "monitor modes", "HTTP, TLS, DNS, TCP, regions, events"],
         ["p50—p99.9", "latency evidence", "Readable percentiles, not averages alone"],
         ["Global", "probe network", "Quorum-aware regional health"],
       ].map(([value, label, note]) => (
@@ -191,7 +191,9 @@ const monitorTypes: Array<{
   { icon: Route, title: "DNS", state: "live", label: "Live", copy: "Record resolution, answer snapshots, authoritative response timing, propagation differences, drift detection, and change alerts.", signals: ["Answers", "Resolution", "Propagation", "Change"] },
   { icon: Network, title: "TCP port", state: "live", label: "Live", copy: "Socket reachability, connect timing, timeout behavior, service-port evidence, and regional connection consistency.", signals: ["Reachability", "Connect", "Timeout", "Regions"] },
   { icon: Map, title: "Multi-region", state: "live", label: "Global", copy: "Independent regional workers, quorum-aware health, partial outages, route visibility, latency spread, and probe consensus.", signals: ["Regions", "Quorum", "Spread", "Routes"] },
-  { icon: Server, title: "VPS telemetry", state: "live", label: "Agent", copy: "Agent health, CPU, memory, disk, load, network, processes, uptime, package state, and sustained resource alerts.", signals: ["Host", "Agent", "Resources", "Processes"] },
+  // VPS telemetry is out of current scope — parked, not deleted. Restore the
+  // Server icon in the import when re-enabling.
+  // { icon: Server, title: "VPS telemetry", state: "live", label: "Agent", copy: "Agent health, CPU, memory, disk, load, network, processes, uptime, package state, and sustained resource alerts.", signals: ["Host", "Agent", "Resources", "Processes"] },
   { icon: Webhook, title: "Webhook events", state: "live", label: "Live", copy: "Inbound event health, delivery gaps, signature validity, payload schema, event-type coverage, and volume anomalies.", signals: ["Events", "Validity", "Delivery", "Volume"] },
 ];
 
@@ -461,7 +463,7 @@ export const PlatformStackSection = () => (
 );
 
 const questions = [
-  ["What can StatusForge monitor?", "HTTP and authenticated API flows, TLS certificates, DNS answers, TCP ports, regional availability, VPS hosts through the StatusForge agent, and inbound webhook-event streams all share one incident and analytics model."],
+  ["What can StatusForge monitor?", "HTTP and authenticated API flows, TLS certificates, DNS answers, TCP ports, regional availability, and inbound webhook-event streams all share one incident and analytics model."],
   ["How does multi-region failure confirmation work?", "Each enabled region runs an independent check. StatusForge compares health, latency, content, certificates, DNS answers, and routes, then applies your quorum before declaring a global outage. A localized failure becomes a DEGRADED regional event instead."],
   ["What happens after an incident opens?", "StatusForge preserves the triggering evidence, publishes live updates, routes notifications through email, Slack, Discord, PagerDuty, or signed webhooks, tracks acknowledgements and reminders, and resolves only after the configured recovery threshold passes."],
   ["How is StatusForge secured?", "Outbound checks enforce SSRF and DNS-rebinding protection across redirects. The platform also applies encrypted monitor credentials, ownership isolation, access and refresh-token rotation, route-specific rate limits, strict CORS, security headers, HMAC signatures, and immutable activity records."],

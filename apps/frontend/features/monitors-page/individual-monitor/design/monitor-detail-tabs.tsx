@@ -5,6 +5,7 @@ import {
   Globe2,
   LockKeyhole,
   Network,
+  // Server, // VPS monitoring is out of current scope — parked, not deleted.
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -54,8 +55,8 @@ const tabs: DetailTabDefinition[] = [
     description: "Geographic probes and aggregation",
     icon: Globe2,
   },
-  // VPS is a standalone monitor type and is intentionally not mounted in
-  // request diagnostics.
+  // VPS is a standalone monitor type and is out of current scope — parked, not
+  // deleted. Re-enable when VPS monitoring lands.
   // {
   //   id: "vps",
   //   panelId: "vps-monitoring",

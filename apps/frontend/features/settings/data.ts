@@ -1,13 +1,10 @@
 import {
   Bell,
-  CalendarClock,
-  Globe,
-  Link2,
-  MapPin,
-  ShieldCheck,
+  // CalendarClock, Globe, Link2, MapPin, ShieldCheck, Zap — icons for parked
+  // out-of-scope settings sections (escalation, maintenance, security,
+  // api-webhooks, probe-regions, status-page). Restore when re-enabling.
   SlidersHorizontal,
   User,
-  Zap,
 } from "lucide-react";
 import type { SettingsNavGroup } from "./types";
 
@@ -45,60 +42,65 @@ export const settingsNav: SettingsNavGroup[] = [
         description: "Channels, alert rules, and delivery preferences",
         icon: Bell,
       },
-      {
-        id: "escalation",
-        label: "Escalation",
-        description: "Re-alert when an incident stays unacknowledged",
-        icon: Zap,
-        comingSoon: true,
-      },
-      {
-        id: "maintenance",
-        label: "Maintenance",
-        description: "Planned windows that suppress alerts",
-        icon: CalendarClock,
-        comingSoon: true,
-      },
+      // Escalation and Maintenance are out of current scope — parked, not
+      // deleted. Re-enable with the CalendarClock/Zap icons in the import.
+      // {
+      //   id: "escalation",
+      //   label: "Escalation",
+      //   description: "Re-alert when an incident stays unacknowledged",
+      //   icon: Zap,
+      //   comingSoon: true,
+      // },
+      // {
+      //   id: "maintenance",
+      //   label: "Maintenance",
+      //   description: "Planned windows that suppress alerts",
+      //   icon: CalendarClock,
+      //   comingSoon: true,
+      // },
     ],
   },
-  {
-    heading: "Access",
-    items: [
-      {
-        id: "security",
-        label: "Security",
-        description: "Active sessions and data export",
-        icon: ShieldCheck,
-        comingSoon: true,
-      },
-      {
-        id: "api-webhooks",
-        label: "API & webhooks",
-        description: "API keys and signed webhook delivery",
-        icon: Link2,
-        comingSoon: true,
-      },
-    ],
-  },
-  {
-    heading: "Public",
-    items: [
-      {
-        id: "probe-regions",
-        label: "Probe regions",
-        description: "Where checks run and how failures are confirmed",
-        icon: MapPin,
-        comingSoon: true,
-      },
-      {
-        id: "status-page",
-        label: "Status page",
-        description: "Your public status page and subscribers",
-        icon: Globe,
-        comingSoon: true,
-      },
-    ],
-  },
+  // The Access (security, api-webhooks) and Public (probe-regions, status-page)
+  // groups are out of current scope — parked, not deleted. These map to later
+  // versions (V10/V13 and V8/V12). Re-enable with the icons in the import.
+  // {
+  //   heading: "Access",
+  //   items: [
+  //     {
+  //       id: "security",
+  //       label: "Security",
+  //       description: "Active sessions and data export",
+  //       icon: ShieldCheck,
+  //       comingSoon: true,
+  //     },
+  //     {
+  //       id: "api-webhooks",
+  //       label: "API & webhooks",
+  //       description: "API keys and signed webhook delivery",
+  //       icon: Link2,
+  //       comingSoon: true,
+  //     },
+  //   ],
+  // },
+  // {
+  //   heading: "Public",
+  //   items: [
+  //     {
+  //       id: "probe-regions",
+  //       label: "Probe regions",
+  //       description: "Where checks run and how failures are confirmed",
+  //       icon: MapPin,
+  //       comingSoon: true,
+  //     },
+  //     {
+  //       id: "status-page",
+  //       label: "Status page",
+  //       description: "Your public status page and subscribers",
+  //       icon: Globe,
+  //       comingSoon: true,
+  //     },
+  //   ],
+  // },
 ];
 
 // --- Select options (labels are display-only; wire real values on integration) ---

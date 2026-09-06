@@ -1,4 +1,6 @@
-import { Bell, Globe, Link, Mail, Send, Shield, Zap } from "lucide-react";
+import { Globe, Mail, Shield } from "lucide-react";
+// Bell, Link, Send, Server, Zap — icons for parked out-of-scope items (VPS
+// monitor type + Slack/Webhook/SMS/Discord channels). Restore when re-enabling.
 import { alertConditionsProps, monitorTypeProps, notificationChannelProps } from "./types";
 import { tlsMonitorProps } from "./schemas/monitor-info";
 
@@ -61,14 +63,24 @@ export const monitorTypesData: monitorTypesDataProps[] = [
     checkType: "TLS Cert",
     featuresOffered: "Cert expiry & validity",
   },
+  // VPS monitoring is out of current scope — parked, not deleted.
+  // {
+  //   id: crypto.randomUUID(),
+  //   icon: Server,
+  //   checkType: "VPS",
+  //   featuresOffered: "Host resources & agent health",
+  //   comingSoon: true,
+  // },
 ];
 
 export const notificationChannels: notificationChannelProps[] = [
   { id: crypto.randomUUID(), label: "Email", icon: Mail },
-  { id: crypto.randomUUID(), label: "Slack", icon: Send, comingSoon: true },
-  { id: crypto.randomUUID(), label: "Webhook", icon: Link, comingSoon: true },
-  { id: crypto.randomUUID(), label: "SMS", icon: Bell, comingSoon: true },
-  { id: crypto.randomUUID(), label: "Discord", icon: Zap, comingSoon: true },
+  // Slack / Webhook / SMS / Discord are V13 (Integrations) — out of current
+  // scope, parked not deleted. Re-enable with the icons in the import above.
+  // { id: crypto.randomUUID(), label: "Slack", icon: Send, comingSoon: true },
+  // { id: crypto.randomUUID(), label: "Webhook", icon: Link, comingSoon: true },
+  // { id: crypto.randomUUID(), label: "SMS", icon: Bell, comingSoon: true },
+  // { id: crypto.randomUUID(), label: "Discord", icon: Zap, comingSoon: true },
 ];
 
 type alertConditionsDataProps = { id: string } & alertConditionsProps;

@@ -50,3 +50,9 @@ docs/learning/backend-review-checklist.md
 /apps/frontend/app/design-lab/new-monitor-checks/
 /apps/frontend/features/individual-monitor-samples/
 /apps/frontend/features/monitor-check-samples/
+
+# out-of-scope / coming-soon monitor design placeholders (VPS, TCP, DNS, multi-region)
+/apps/frontend/features/monitors-page/individual-monitor/design/vps-monitor.tsx
+/apps/frontend/features/monitors-page/individual-monitor/design/tcp-monitor.tsx
+/apps/frontend/features/monitors-page/individual-monitor/design/dns-monitor.tsx
+/apps/frontend/features/monitors-page/individual-monitor/design/multi-region-monitor.tsx

@@ -7,6 +7,8 @@ import MonitorChecksPanels from "@/features/monitors-page/individual-monitor/mon
 import IncidentHistory from "@/features/monitors-page/individual-monitor/incident-history";
 import MonitorSectionNav from "@/features/monitors-page/individual-monitor/monitor-section-nav";
 import CertificatesMonitor from "@/features/monitors-page/individual-monitor/design/certificates-monitor";
+// VPS monitoring is out of current scope — parked, not deleted.
+// import VpsMonitor from "@/features/monitors-page/individual-monitor/design/vps-monitor";
 import { useParams } from "next/navigation";
 import { useIndividualMonitorOverview } from "@/features/monitors-page/individual-monitor/hooks/useInvidualMonitorOverview";
 
@@ -71,6 +73,10 @@ const IndividualMonitorsPage = () => {
             <MonitorChecksPanels tlsMonitorId={tlsMonitorId} />
           </div>
         ) : null}
+        {/* VPS monitoring is out of current scope — parked, not deleted.
+        <div id="vps" className="scroll-mt-16">
+          <VpsMonitor />
+        </div> */}
       </div>
     </div>
   );
